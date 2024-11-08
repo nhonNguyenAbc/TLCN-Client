@@ -22,7 +22,7 @@ import { useGetAllRestaurantsQuery } from "../apis/restaurantApi";
 import { useState } from "react";
 const Homepage = () => {
   const navigate = useNavigate();
-  // const restaurants = [
+ 
   //   {
   //     id: 0,
   //     rating: 4,
@@ -112,6 +112,7 @@ const Homepage = () => {
     unit: menu.unit,
     restaurant_id: menu.restaurant._id,
     restaurant_name: menu.restaurant.name,
+    image: menu.image.url
   }));
   const pagination = {
     clickable: true,
@@ -209,6 +210,9 @@ const Homepage = () => {
                 className="mt-6 cursor-pointer"
                 onClick={() => navigate("/restaurant/" + menu.restaurant_id)}
               >
+                <CardHeader color="blue-gray" className="relative h-40">
+            <img src={menu.image} alt="card-image" className="object-cover" />
+          </CardHeader>
                 <CardBody className="mx-auto w-full h-[20vh] ">
                   <Typography variant="h5">{menu.name}</Typography>
                   <Typography color="blue-gray" className=" text-center">

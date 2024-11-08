@@ -13,6 +13,7 @@ import Checkin from "../components/Staff/Checkin";
 import CheckOrder from "../components/Staff/CheckOrder";
 import Table from "../components/admin/Table";
 import Checkout from "../components/Staff/Checkout";
+import Promotion from "../components/admin/Promotion";
 const admin_sidebar = [
   {
     title: {
@@ -38,6 +39,10 @@ const admin_sidebar = [
       {
         label: "Đơn hàng",
         elements: <Order />,
+      },
+      {
+        label: "Khuyến mãi",
+        elements: <Promotion />,
       },
     ],
   },

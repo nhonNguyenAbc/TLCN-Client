@@ -13,6 +13,7 @@ import slider1_updateReducer from "./features/slices/slider1_updateSlice";
 import slider2_updateReducer from "./features/slices/slider2_updateSlice";
 import slider3_updateReducer from "./features/slices/slider3_updateSlice";
 import slider4_updateReducer from "./features/slices/slider4_updateSlice";
+import searchReducer from "./features/slices/searchSlice"
 import { employeeApi } from "./apis/employeeApi";
 import { orderApi } from "./apis/orderApi";
 import { order } from "./constants/table_head";
@@ -21,6 +22,9 @@ import { userApi } from "./apis/userApi";
 import tabReducer from "./features/slices/tabSlice";
 import selectedTabReducer from "./features/slices/selectedTabSlice";
 import { logApi } from "./apis/logApi";
+import { promotionApi } from "./apis/promotionApi";
+import { videoApi } from "./apis/videoApi";
+import { commentApi } from "./apis/commentApi";
 
 export const store = configureStore({
   reducer: {
@@ -37,6 +41,7 @@ export const store = configureStore({
     selectedId: selectedIdReducer,
     tab: tabReducer,
     selectedTab: selectedTabReducer,
+    [promotionApi.reducerPath]: promotionApi.reducer,
     [restaurantApi.reducerPath]: restaurantApi.reducer,
     [menuApi.reducerPath]: menuApi.reducer,
     [employeeApi.reducerPath]: employeeApi.reducer,
@@ -44,6 +49,10 @@ export const store = configureStore({
     [tableApi.reducerPath]: tableApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [logApi.reducerPath]: logApi.reducer,
+    [videoApi.reducerPath]: videoApi.reducer,
+    [commentApi.reducerPath]: commentApi.reducer,
+    search: searchReducer,
+
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -53,5 +62,9 @@ export const store = configureStore({
       .concat(orderApi.middleware)
       .concat(tableApi.middleware)
       .concat(userApi.middleware)
-      .concat(logApi.middleware),
+      .concat(logApi.middleware)
+      .concat(promotionApi.middleware)
+      .concat(videoApi.middleware)
+      .concat(commentApi.middleware)
+
 });

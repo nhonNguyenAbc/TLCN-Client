@@ -19,120 +19,7 @@ import { useGetMenuItemsByAnyFieldQuery } from "../apis/menuApi";
 import { useGetRestaurantByIdQuery } from "../apis/restaurantApi";
 import Loading from "../components/shared/Loading";
 import { TextField } from "@mui/material";
-// const restaurants? = [
-//   {
-//     id: 1,
-//     name: "Hương Sen",
-//     address: "123 Nguyễn Văn Linh",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-//     rating: 4.5,
-//     numReviews: 100,
-//     price: 100000,
-//   },
-//   {
-//     id: 2,
-//     name: "Hương Sen",
-//     address: "123 Nguyễn Văn Linh",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-//     rating: 4.5,
-//     numReviews: 100,
-//     price: 100000,
-//   },
-//   {
-//     id: 3,
-//     name: "Hương Sen",
-//     address: "123 Nguyễn Văn Linh",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-//     rating: 4.5,
-//     numReviews: 100,
-//     price: 100000,
-//   },
-//   {
-//     id: 4,
-//     name: "Hương Sen",
-//     address: "123 Nguyễn Văn Linh",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-//     rating: 4.5,
-//     numReviews: 100,
-//     price: 100000,
-//   },
-//   {
-//     id: 5,
-//     name: "Hương Sen",
-//     address: "123 Nguyễn Văn Linh",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-//     rating: 4.5,
-//     numReviews: 100,
-//     price: 100000,
-//   },
-//   {
-//     id: 6,
-//     name: "Hương Sen",
-//     address: "123 Nguyễn Văn Linh",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-//     rating: 4.5,
-//     numReviews: 100,
-//     price: 100000,
-//   },
-//   {
-//     id: 6,
-//     name: "Hương Sen",
-//     address: "123 Nguyễn Văn Linh",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-//     rating: 4.5,
-//     numReviews: 100,
-//     price: 100000,
-//   },
-// ];
-// const menuItem = [
-//   {
-//     name: "Bò hầm",
-//     price: 100000,
-//   },
-//   {
-//     name: "Hủ tiếu",
-//     price: 50000,
-//   },
-//   {
-//     name: "Phở",
-//     price: 70000,
-//   },
-//   {
-//     name: "Bún bò",
-//     price: 80000,
-//   },
-//   {
-//     name: "Bún riêu",
-//     price: 60000,
-//   },
-//   {
-//     name: "Bún mắm",
-//     price: 90000,
-//   },
-//   {
-//     name: "Bún chả",
-//     price: 100000,
-//   },
-//   {
-//     name: "Bún đậu",
-//     price: 120000,
-//   },
-//   {
-//     name: "Bún thịt nướng",
-//     price: 110000,
-//   },
-//   {
-//     name: "Bún ốc",
-//     price: 130000,
-//   },
-// ];
+
 const RestaurantDetail = () => {
   const { id } = useParams();
   const {
@@ -140,35 +27,39 @@ const RestaurantDetail = () => {
     isLoading: restaurantLoading,
     error: restaurantError,
   } = useGetRestaurantByIdQuery(id);
-  // const {
-  //   data: tables,
-  //   isLoading: tableLoading,
-  //   error: tableError,
-  // } = useGetTableByAnyFieldQuery(id);
-  // const {
-  //   data: menus,
-  //   isLoading: menuLoading,
-  //   error: menuError,
-  // } = useGetMenuItemsByAnyFieldQuery(id);
   const navigate = useNavigate();
   const [table, setTable] = React.useState(0);
   const [people, setPeople] = React.useState(
     JSON.parse(localStorage.getItem("order"))?.totalPeople || 0
   );
+  // const [date, setDate] = React.useState(
+  //   JSON.parse(localStorage.getItem("order"))?.checkin.split("T")[0] ||
+  //     new Date().toISOString().split("T")[0]
+  // );
   const [date, setDate] = React.useState(
-    JSON.parse(localStorage.getItem("order"))?.checkin.split("T")[0] ||
-      new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0] // Ngày hiện tại ở định dạng YYYY-MM-DD
   );
+  // const [time, setTime] = React.useState(
+  //   JSON.parse(localStorage.getItem("order"))
+  //     ? JSON.parse(localStorage.getItem("order"))
+  //         .checkin.split("T")[1]
+  //         .split(".")[0]
+  //         .split(":")
+  //         .slice(0, 2)
+  //         .join(":")
+  //     : null
+  // );
   const [time, setTime] = React.useState(
     JSON.parse(localStorage.getItem("order"))
       ? JSON.parse(localStorage.getItem("order"))
-          .checkin.split("T")[1]
-          .split(".")[0]
-          .split(":")
-          .slice(0, 2)
-          .join(":")
+          ?.checkin?.split("T")[1]
+          ?.split(".")[0]
+          ?.split(":")
+          ?.slice(0, 2)
+          ?.join(":")
       : null
   );
+
   const [menu, setMenu] = React.useState(
     JSON.parse(localStorage.getItem("menu")) || []
   );
@@ -178,6 +69,22 @@ const RestaurantDetail = () => {
   React.useEffect(() => {
     localStorage.setItem("total", JSON.stringify(total));
   }, [total]);
+  React.useEffect(() => {
+    const storedOrder = JSON.parse(localStorage.getItem("order")) || {};
+    storedOrder.totalPeople = people;
+    localStorage.setItem("order", JSON.stringify(storedOrder));
+  }, [people]);
+
+  React.useEffect(() => {
+    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    const currentOrder = storedOrders[id] || {};
+    setMenu(currentOrder.menu || []);
+    setTotal(currentOrder.total || 0);
+    setPeople(currentOrder.people || 0);
+    setDate(currentOrder.date || new Date().toISOString().split("T")[0]);
+    setTime(currentOrder.time || new Date().toTimeString().slice(0, 5));
+  }, [id]);
+
   if (restaurantLoading)
     return (
       <div>
@@ -186,35 +93,118 @@ const RestaurantDetail = () => {
     );
   if (restaurantError) return <div>Error</div>;
 
+  // const handleAddToCart = (item) => {
+  //   const newMenu = [...menu];
+  //   const index = newMenu.findIndex((i) => i._id === item._id);
+  //   if (index === -1) {
+  //     newMenu.push({ ...item, quantity: 1 });
+  //     setTotal(total + item.price * (1 - item.discount / 100));
+  //   } else {
+  //     newMenu[index].quantity++;
+  //     setTotal(total + item.price * (1 - newMenu[index].discount / 100));
+  //   }
+  //   setMenu(newMenu);
+  //   localStorage.setItem("menu", JSON.stringify(newMenu));
+  // };
+  // const handleRemoveFromCart = (item) => {
+  //   const newMenu = [...menu];
+  //   const index = newMenu.findIndex((i) => i._id === item._id);
+  //   if (index === -1) return;
+  //   if (newMenu[index].quantity === 1) {
+  //     newMenu.splice(index, 1);
+  //     setTotal(total - item.price * (1 - item.discount / 100));
+  //   } else {
+  //     newMenu[index].quantity--;
+  //     setTotal(total - item.price * (1 - newMenu[index].discount / 100));
+  //   }
+  //   setMenu(newMenu);
+
+  //   localStorage.setItem("menu", JSON.stringify(newMenu));
+  //   localStorage.setItem("total", JSON.stringify(total));
+  // };
+  const calculateTotal = (menu, people) => {
+    // Tính tổng tiền từ menu
+    const baseTotal = menu.reduce(
+      (acc, item) =>
+        acc + item.price * item.quantity * (1 - item.discount / 100),
+      0
+    );
+
+    // Tính phí thêm nếu số người vượt quá 10
+    const additionalPeople = people > 10 ? people : 0;
+    const additionalCost =
+      additionalPeople * restaurants.data.restaurant.price_per_table * 0.5;
+
+    // Tổng cộng tiền
+    return baseTotal + additionalCost;
+  };
+
   const handleAddToCart = (item) => {
     const newMenu = [...menu];
     const index = newMenu.findIndex((i) => i._id === item._id);
     if (index === -1) {
       newMenu.push({ ...item, quantity: 1 });
-      setTotal(total + item.price * (1 - item.discount / 100));
     } else {
       newMenu[index].quantity++;
-      setTotal(total + item.price * (1 - newMenu[index].discount / 100));
-    }
-    setMenu(newMenu);
-    localStorage.setItem("menu", JSON.stringify(newMenu));
-  };
-  const handleRemoveFromCart = (item) => {
-    const newMenu = [...menu];
-    const index = newMenu.findIndex((i) => i._id === item._id);
-    if (index === -1) return;
-    if (newMenu[index].quantity === 1) {
-      newMenu.splice(index, 1);
-      setTotal(total - item.price * (1 - item.discount / 100));
-    } else {
-      newMenu[index].quantity--;
-      setTotal(total - item.price * (1 - newMenu[index].discount / 100));
     }
     setMenu(newMenu);
 
-    localStorage.setItem("menu", JSON.stringify(newMenu));
-    localStorage.setItem("total", JSON.stringify(total));
+    // Tính lại tổng tiền bao gồm cả menu và số người
+    const newTotal = calculateTotal(newMenu, people);
+    setTotal(newTotal);
+
+    // Lưu menu vào localStorage với từng nhà hàng
+    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    storedOrders[id] = {
+      menu: newMenu,
+      total: newTotal,
+      people: people,
+      date: date,
+      time: time,
+    };
+    localStorage.setItem("orders", JSON.stringify(storedOrders));
   };
+
+  const handleRemoveFromCart = (item) => {
+    const newMenu = [...menu];
+    const index = newMenu.findIndex((i) => i._id === item._id);
+    if (index !== -1) {
+      if (newMenu[index].quantity === 1) {
+        newMenu.splice(index, 1);
+      } else {
+        newMenu[index].quantity--;
+      }
+      setMenu(newMenu);
+
+      // Tính lại tổng tiền bao gồm cả menu và số người
+      const newTotal = calculateTotal(newMenu, people);
+      setTotal(newTotal);
+
+      // Lưu menu vào localStorage với từng nhà hàng
+      const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+      storedOrders[id] = {
+        menu: newMenu,
+        total: newTotal,
+        people: people,
+        date: date,
+        time: time,
+      };
+      localStorage.setItem("orders", JSON.stringify(storedOrders));
+    }
+  };
+
+  // const handleCheckout = () => {
+  //   const result = {
+  //     restaurantName: restaurants.data.restaurant.name,
+  //     totalPeople: people,
+  //     total: total,
+  //     menu: menu,
+  //     checkin: date + "T" + time + ":00.000Z",
+  //     restaurantId: id,
+  //   };
+  //   localStorage.setItem("order", JSON.stringify(result));
+  //   navigate("/checkout");
+  // };
   const handleCheckout = () => {
     const result = {
       restaurantName: restaurants.data.restaurant.name,
@@ -224,8 +214,36 @@ const RestaurantDetail = () => {
       checkin: date + "T" + time + ":00.000Z",
       restaurantId: id,
     };
-    localStorage.setItem("order", JSON.stringify(result));
+
+    // Lưu thông tin đặt hàng vào localStorage với từng nhà hàng
+    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    storedOrders[id] = result;
+    localStorage.setItem("orders", JSON.stringify(storedOrders));
+
     navigate("/checkout");
+  };
+
+  const handlePeopleChange = (e) => {
+    const newPeople =
+      e.target.value < 0 || isNaN(e.target.value) ? 0 : Number(e.target.value);
+
+    // Cập nhật số người
+    setPeople(newPeople);
+
+    // Tính lại tổng tiền bao gồm menu và số người
+    const newTotal = calculateTotal(menu, newPeople);
+    setTotal(newTotal);
+
+    // Lưu thông tin vào localStorage cho từng nhà hàng
+    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    storedOrders[id] = {
+      menu: menu,
+      total: newTotal,
+      people: newPeople,
+      date: date,
+      time: time,
+    };
+    localStorage.setItem("orders", JSON.stringify(storedOrders));
   };
 
   return (
@@ -284,7 +302,7 @@ const RestaurantDetail = () => {
                   {Number(
                     restaurants.data.restaurant.price_per_table
                   ).toLocaleString("en-US")}{" "}
-                  đ/ người
+                  đ/ người khi quá 10 người
                 </Typography>
               </div>
             </CardBody>
@@ -378,42 +396,117 @@ const RestaurantDetail = () => {
                 <TextField
                   size="small"
                   value={people}
-                  onChange={(e) => {
-                    setTotal(
-                      e.target.value < 0 || isNaN(e.target.value)
-                        ? total
-                        : total +
-                            (e.target.value - Number(people)) *
-                              restaurants.data.restaurant.price_per_table
-                    ),
-                      setPeople(
-                        e.target.value < 0 || isNaN(e.target.value)
-                          ? 0
-                          : e.target.value > restaurants.data.totalPeople
-                          ? restaurants.data.totalPeople
-                          : e.target.value
-                      );
-                  }}
+                  // onChange={(e) => {
+                  //   const value = parseInt(e.target.value, 10);
+                  //   // Kiểm tra số người hợp lệ
+                  //   const updatedPeople =
+                  //     isNaN(value) || value < 0
+                  //       ? 0
+                  //       : value > restaurants.data.totalPeople
+                  //       ? restaurants.data.totalPeople
+                  //       : value;
+
+                  //   setPeople(updatedPeople);
+
+                  //   // Tính giá thêm khi số người lớn hơn 10
+                  //   if (updatedPeople > 10) {
+                  //     const additionalPeople = updatedPeople - 10;
+                  //     const additionalCost =
+                  //       additionalPeople *
+                  //       restaurants.data.restaurant.price_per_table;
+                  //     const baseTotal =
+                  //       JSON.parse(localStorage.getItem("menu"))?.reduce(
+                  //         (acc, item) => {
+                  //           return (
+                  //             acc +
+                  //             item.price *
+                  //               item.quantity *
+                  //               (1 - item.discount / 100)
+                  //           );
+                  //         },
+                  //         0
+                  //       ) || 0;
+                  //     setTotal(baseTotal + additionalCost);
+                  //   } else {
+                  //     // Tổng chỉ tính từ menu nếu số người <= 10
+                  //     const baseTotal =
+                  //       JSON.parse(localStorage.getItem("menu"))?.reduce(
+                  //         (acc, item) => {
+                  //           return (
+                  //             acc +
+                  //             item.price *
+                  //               item.quantity *
+                  //               (1 - item.discount / 100)
+                  //           );
+                  //         },
+                  //         0
+                  //       ) || 0;
+                  //     setTotal(baseTotal);
+                  //   }
+                  // }}
+                  onChange={handlePeopleChange}
                 />
+
                 <Typography variant="h6" className="my-auto">
                   Ngày nhận bàn
                 </Typography>
-                <TextField
+                {/* <TextField
                   size="small"
                   type="date"
                   value={date}
                   min={new Date().toISOString().split("T")[0]}
                   onChange={(e) => setDate(e.target.value)}
+                /> */}
+                <TextField
+                  size="small"
+                  type="date"
+                  value={date} // Hiển thị ngày mặc định là ngày hiện tại
+                  min={new Date().toISOString().split("T")[0]} // Ngăn chọn ngày trước hôm nay
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    const today = new Date().toISOString().split("T")[0];
+
+                    // Nếu người dùng cố gắng chọn ngày trước hôm nay, giữ nguyên ngày hiện tại
+                    if (selectedDate < today) {
+                      setDate(today);
+                    } else {
+                      setDate(selectedDate);
+                    }
+                  }}
                 />
                 <Typography variant="h6" className="my-auto">
                   Thời gian đến
                 </Typography>
-                <TextField
+                {/* <TextField
                   size="small"
                   type="time"
                   value={time}
                   min={new Date().toISOString().split("T")[1].split(".")[0]}
                   onChange={(e) => setTime(e.target.value)}
+                /> */}
+                <TextField
+                  size="small"
+                  type="time"
+                  value={time}
+                  min={
+                    date === new Date().toISOString().split("T")[0]
+                      ? new Date().toTimeString().slice(0, 5) // Lấy thời gian hiện tại định dạng HH:MM
+                      : "00:00"
+                  }
+                  onChange={(e) => {
+                    const selectedTime = e.target.value;
+                    const currentTime = new Date().toTimeString().slice(0, 5); // Lấy thời gian hiện tại
+
+                    // Nếu ngày là hôm nay và thời gian chọn nhỏ hơn thời gian hiện tại
+                    if (
+                      date === new Date().toISOString().split("T")[0] &&
+                      selectedTime < currentTime
+                    ) {
+                      setTime(currentTime); // Đặt lại thời gian là thời gian hiện tại
+                    } else {
+                      setTime(selectedTime); // Cập nhật thời gian với giá trị người dùng chọn
+                    }
+                  }}
                 />
               </div>
               <Typography variant="h6" className="my-auto mt-5">

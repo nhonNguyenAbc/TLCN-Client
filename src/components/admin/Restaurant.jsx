@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
-import { restaurant } from "../../constants/table_head";
+import { promotion, restaurant } from "../../constants/table_head";
 import {
   Button,
   DialogBody,
@@ -14,8 +14,12 @@ import {
 } from "@material-tailwind/react";
 import {
   Container,
+  FormControl,
   InputAdornment,
+  InputLabel,
+  MenuItem,
   OutlinedInput,
+  Select,
   TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -31,6 +35,7 @@ import {
 import { Toast } from "../../configs/SweetAlert2";
 import Loading from "../shared/Loading";
 import { handleDelete } from "../../utils/deleteImage";
+import { useGetAllPromotionQuery } from "../../apis/promotionApi";
 const TABLE_ROWS = [
   {
     name: "Nhà hàng A",
@@ -95,15 +100,7 @@ const Restaurant = () => {
   const [updateCloseTime, setUpdateCloseTime] = React.useState("");
   const [updateDescription, setUpdateDescription] = React.useState("");
   const [updatePrice_Per_Table, setUpdatePrice_Per_Table] = React.useState(0);
-  // const [TABLE_ROWS, setTABLE_ROWS] = React.useState([]);
-  // const getRestaurant = async () => {
-  //   const data = await getAllRestaurants();
-  //   setTABLE_ROWS(data);
-  // };
-  // useEffect(() => {
-  //   getRestaurant();
-  // }, []);
-  // console.log(TABLE_ROWS);
+  const [updatePromotion, setUpdatePromotion] = React.useState("")
   const [page, setPage] = React.useState(1);
   const {
     data: restaurants,
@@ -117,58 +114,8 @@ const Restaurant = () => {
   const [deleteRestaurant, { error: errorDeleted, isLoading: isDeleted }] =
     useDeleteRestaurantMutation();
 
-  // useEffect(() => {
-  //   if (
-  //     !restaurants?.data.find((restaurant) => restaurant._id === selectedId)
-  //   ) {
-  //     dispatch(resetSelectedId());
+  const { data: getPromotion, error: errorGetted, isLoading: isGetted } = useGetAllPromotionQuery();
 
-  //     dispatch(resetAvatar_Update());
-  //     dispatch(resetSlider1_Update());
-  //     dispatch(resetSlider2_Update());
-  //     dispatch(resetSlider3_Update());
-  //     dispatch(resetSlider4_Update());
-  //   } else {
-  //     const data = restaurants?.data?.find(
-  //       (restaurant) => restaurant._id === selectedId
-  //     );
-  //     setUpdateName(data?.name);
-  //     setUpdateAddress(data?.address);
-  //     setUpdateOpenTime(data?.openTime);
-  //     setUpdateCloseTime(data?.closeTime);
-  //     setUpdateDescription(data?.description);
-  //     dispatch(
-  //       setAvatar_Update({
-  //         value: data?.imageUrls,
-  //         publicId: data?.public_id_avatar,
-  //       })
-  //     );
-  //     dispatch(
-  //       setSlider1_Update({
-  //         value: data?.slider1,
-  //         publicId: data?.public_id_slider1,
-  //       })
-  //     );
-  //     dispatch(
-  //       setSlider2_Update({
-  //         value: data?.slider2,
-  //         publicId: data?.public_id_slider2,
-  //       })
-  //     );
-  //     dispatch(
-  //       setSlider3_Update({
-  //         value: data?.slider3,
-  //         publicId: data?.public_id_slider3,
-  //       })
-  //     );
-  //     dispatch(
-  //       setSlider4_Update({
-  //         value: data?.slider4,
-  //         publicId: data?.public_id_slider4,
-  //       })
-  //     );
-  //   }
-  // }, [selectedId, restaurants, dispatch]);
   useEffect(() => {
     if (selectedId !== -1) {
       const data = restaurants?.data?.find(
@@ -215,12 +162,7 @@ const Restaurant = () => {
   }, [selectedId, restaurants]);
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error}</div>;
-  //   { label: "Tên", col: 1 },
-  //   { label: "Hình ảnh", col: 1 },
-  //   { label: "Địa chỉ", col: 1 },
-  //   { label: "Thời gian mở cửa", col: 1 },
-  //   { label: "Thời gian đóng cửa", col: 1 },
-  // ];
+
   const list_restaurant = restaurants?.data.map((restaurant) => {
     return {
       id: restaurant._id,
@@ -304,6 +246,7 @@ const Restaurant = () => {
         public_id_slider3: public_id_slider3_update,
         public_id_slider4: public_id_slider4_update,
         price_per_table: updatePrice_Per_Table,
+        promotions: updatePromotion,
       },
     });
     return data;
@@ -846,6 +789,21 @@ const Restaurant = () => {
                   value={updateDescription}
                   onChange={(e) => setUpdateDescription(e.target.value)}
                 />
+                <FormControl fullWidth>
+                  <InputLabel id="restaurant">Khuyến mãi</InputLabel>
+                  <Select
+                    labelId="promotion"
+                    label="Khuyến mãi"
+                    value={updatePromotion}
+                    onChange={(e) => setUpdatePromotion(e.target.value)}
+                  >
+                    {getPromotion.data.map((promotion, index) => (
+                      <MenuItem key={index} value={promotion.code}>
+                        {promotion.name} (giảm {promotion.discountValue}% - {promotion.status})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </div>
             </div>
             <div></div>

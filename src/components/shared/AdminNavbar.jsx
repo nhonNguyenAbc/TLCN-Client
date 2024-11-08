@@ -64,9 +64,9 @@ const AdminNavbar = () => {
           /> */}
         </div>
       </div>
-      {/* <MobileNav open={isNavOpen} className="overflow-scroll">
+      {/* <Collapse open={isNavOpen} className="overflow-scroll">
         <NavList />
-      </MobileNav> */}
+      </Collapse> */}
     </Navbar>
   );
 };

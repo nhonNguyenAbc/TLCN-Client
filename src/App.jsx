@@ -16,9 +16,10 @@ import Homepage from "./pages/Homepage";
 import LoginAdmin from "./pages/LoginAdmin";
 import ResetPasswordPage from "./pages/ResetPage";
 import UpdatePassPage from "./pages/UpdatePassPage";
-
 import Successpage from "./pages/Successpage";
 import Failcheckoutpage from "./pages/Failpage";
+import PromotionPage from "./pages/PromotionPage";
+import VideoFeed from "./pages/ReviewPage";
 function App() {
   return (
     <BrowserRouter>
@@ -30,6 +31,7 @@ function App() {
           <Route path="/update-password" element={<UpdatePassPage />} />
           <Route path="register" element={<Registerpage />} />
           <Route path="restaurant" element={<RestaurantList />} />
+          <Route path="restaurants/promotion" element={<PromotionPage />} />
           <Route path="restaurant/:id" element={<RestaurantDetail />} />
           <Route path="order" element={<Order />} />
           <Route path="about-us" element={<AboutUs />} />
@@ -40,6 +42,7 @@ function App() {
           <Route path="fail" element={<Failcheckoutpage />} />
           <Route path="*" element={<NotFoundpage />} />
         </Route>
+        <Route path="restaurants/review" element={<VideoFeed />} />
         <Route path="/dashboard" element={<Adminpage />} />
         <Route path="/staff" element={<Staffpage />} />
         <Route path="/loginAD" element={<LoginAdmin />} />

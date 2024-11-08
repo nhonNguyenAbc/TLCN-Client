@@ -10,5 +10,8 @@ const API_ROUTE = {
   LOG: "/logs",
   STAT: "/stats",
   TABLE: "/tables",
+  PROMOTION: "/promotions",
+  VIDEO: "/videos",
+  COMMENT: "/comments",
 };
 export { RESTAURANT_API, API_ROUTE, LOCAL_RESTAURANT_API };

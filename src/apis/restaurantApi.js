@@ -6,17 +6,23 @@ export const restaurantApi = createApi({
   tagTypes: ["Restaurant"],
   endpoints: (builder) => ({
     getAllRestaurants: builder.query({
-      query: ({ page, sort, upper, lower }) =>
-        "?page=" +
-        page +
-        "&sort=" +
-        sort +
-        "&upper=" +
-        upper +
-        "&lower=" +
-        lower,
-      providesTags: ["Restaurant"],
+      query: ({ sort = -1, page = 1, size = 8, field = "createdAt", searchTerm, priceRange = "all" }) => ({
+        url: "",
+        params: { sort, page, size, field, searchTerm, priceRange },
+      }),
     }),
+    getAllRestaurantPromotion: builder.query({
+      query: ({ page = 1, size = 8}) => ({
+        url: "/promotions",
+        params: { page, size },
+      }),
+    }),
+    // getAllRestaurants: builder.query({
+    //   query: ({ page = 1, size = 5, field = 'name', sort = -1, searchTerm = '' }) => 
+    //     `?page=${page}&size=${size}&field=${field}&sort=${sort}&searchTerm=${searchTerm}`,
+    //   providesTags: ["Restaurant"],
+    // }),
+
     getAllRestaurantByUserId: builder.query({
       query: (page) => ({
         url: `own/?page=${page}`,
@@ -121,4 +127,5 @@ export const {
   useDeleteRestaurantMutation,
   useGetAllRestaurantsByUserIdQuery,
   useGetAllRestaurantByUserIdQuery,
+  useGetAllRestaurantPromotionQuery,
 } = restaurantApi;

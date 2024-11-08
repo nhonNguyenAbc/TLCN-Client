@@ -28,6 +28,14 @@ const table = [
   { label: "Số người mỗi bàn", col: 1 },
   { label: "Giá / 1 người", col: 1 },
 ];
+const promotion = [
+  { label: "Khuyến mãi", col: 1 },
+  { label: "Giảm giá", col: 1 },
+  { label: "Ngày bắt đầu", col: 1 },
+  { label: "Ngày kết thúc", col: 1 },
+  { label: "Trạng thái", col: 1 },
+
+];
 const restaurant = [
   { label: "Tên", col: 1 },
   { label: "Hình ảnh", col: 1 },
@@ -54,4 +62,4 @@ const staff_order = [
   { label: "Trạng thái", col: 1 },
   { label: "Số người", col: 1 },
 ];
-export { history, employee, menu, restaurant, order, staff_order, table };
+export { promotion, history, employee, menu, restaurant, order, staff_order, table };
