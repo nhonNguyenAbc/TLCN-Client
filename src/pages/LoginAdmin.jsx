@@ -76,6 +76,8 @@ const LoginAdmin = () => {
         localStorage.setItem("user", username);
         localStorage.setItem("id", result.data.user_id);
         localStorage.setItem("token", result.data.token);
+        const token = localStorage.getItem("token");
+        console.log("Token from localStorage:", token);  // Kiểm tra xem token có tồn tại không
         navigate(result.data.redirect_url);
       });
     } catch (error) {

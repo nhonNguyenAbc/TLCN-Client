@@ -14,6 +14,7 @@ import CheckOrder from "../components/Staff/CheckOrder";
 import Table from "../components/admin/Table";
 import Checkout from "../components/Staff/Checkout";
 import Promotion from "../components/admin/Promotion";
+import Video from "../components/admin/Video";
 const admin_sidebar = [
   {
     title: {
@@ -35,7 +36,6 @@ const admin_sidebar = [
       { label: "Nhà hàng", elements: <Restaurant /> },
       { label: "Nhân viên", elements: <Employee /> },
       { label: "Thực đơn", elements: <Menu /> },
-      { label: "Bàn", elements: <Table /> },
       {
         label: "Đơn hàng",
         elements: <Order />,
@@ -43,6 +43,10 @@ const admin_sidebar = [
       {
         label: "Khuyến mãi",
         elements: <Promotion />,
+      },
+      {
+        label: "Video",
+        elements: <Video />,
       },
     ],
   },

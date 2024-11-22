@@ -42,83 +42,23 @@
     overflow: visible;
 }
 
-/* <div>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
+.description {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;  /* Giới hạn số dòng hiển thị */
+    -webkit-box-orient: vertical;
+    overflow: hidden; /* Ẩn phần văn bản vượt quá */
+    text-overflow: ellipsis; /* Thêm dấu "..." ở cuối nếu bị cắt */
+}
 
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  df
-  <br>
-  </br>
-  
-  </div>
-   */
+.text-blue-500 {
+    color: #3b82f6;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}
+

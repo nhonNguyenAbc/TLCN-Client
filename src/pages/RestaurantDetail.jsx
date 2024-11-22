@@ -60,23 +60,31 @@ const RestaurantDetail = () => {
       : null
   );
 
-  const [menu, setMenu] = React.useState(
-    JSON.parse(localStorage.getItem("menu")) || []
-  );
+  // const [menu, setMenu] = React.useState(
+  //   JSON.parse(localStorage.getItem("menu")) || []
+  // );
+  const [menu, setMenu] = React.useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("menu")) || [];
+    } catch (error) {
+      console.error("Failed to parse menu from localStorage:", error);
+      return []; // Trả về mảng rỗng nếu xảy ra lỗi
+    }
+  });
   const [total, setTotal] = React.useState(
     JSON.parse(localStorage.getItem("total")) || 0
   );
   React.useEffect(() => {
     localStorage.setItem("total", JSON.stringify(total));
   }, [total]);
-  React.useEffect(() => {
-    const storedOrder = JSON.parse(localStorage.getItem("order")) || {};
-    storedOrder.totalPeople = people;
-    localStorage.setItem("order", JSON.stringify(storedOrder));
-  }, [people]);
+  // React.useEffect(() => {
+  //   const storedOrder = JSON.parse(localStorage.getItem("order")) || {};
+  //   storedOrder.totalPeople = people;
+  //   localStorage.setItem("order", JSON.stringify(storedOrder));
+  // }, [people]);
 
   React.useEffect(() => {
-    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
     const currentOrder = storedOrders[id] || {};
     setMenu(currentOrder.menu || []);
     setTotal(currentOrder.total || 0);
@@ -154,7 +162,7 @@ const RestaurantDetail = () => {
     setTotal(newTotal);
 
     // Lưu menu vào localStorage với từng nhà hàng
-    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
     storedOrders[id] = {
       menu: newMenu,
       total: newTotal,
@@ -162,7 +170,7 @@ const RestaurantDetail = () => {
       date: date,
       time: time,
     };
-    localStorage.setItem("orders", JSON.stringify(storedOrders));
+    localStorage.setItem("order", JSON.stringify(storedOrders));
   };
 
   const handleRemoveFromCart = (item) => {
@@ -181,7 +189,7 @@ const RestaurantDetail = () => {
       setTotal(newTotal);
 
       // Lưu menu vào localStorage với từng nhà hàng
-      const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+      const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
       storedOrders[id] = {
         menu: newMenu,
         total: newTotal,
@@ -189,7 +197,7 @@ const RestaurantDetail = () => {
         date: date,
         time: time,
       };
-      localStorage.setItem("orders", JSON.stringify(storedOrders));
+      localStorage.setItem("order", JSON.stringify(storedOrders));
     }
   };
 
@@ -216,11 +224,11 @@ const RestaurantDetail = () => {
     };
 
     // Lưu thông tin đặt hàng vào localStorage với từng nhà hàng
-    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
     storedOrders[id] = result;
-    localStorage.setItem("orders", JSON.stringify(storedOrders));
+    localStorage.setItem("order", JSON.stringify(storedOrders));
 
-    navigate("/checkout");
+    navigate("/checkout", { state: { restaurantId: id } });
   };
 
   const handlePeopleChange = (e) => {
@@ -235,7 +243,7 @@ const RestaurantDetail = () => {
     setTotal(newTotal);
 
     // Lưu thông tin vào localStorage cho từng nhà hàng
-    const storedOrders = JSON.parse(localStorage.getItem("orders")) || {};
+    const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
     storedOrders[id] = {
       menu: menu,
       total: newTotal,
@@ -243,7 +251,7 @@ const RestaurantDetail = () => {
       date: date,
       time: time,
     };
-    localStorage.setItem("orders", JSON.stringify(storedOrders));
+    localStorage.setItem("order", JSON.stringify(storedOrders));
   };
 
   return (

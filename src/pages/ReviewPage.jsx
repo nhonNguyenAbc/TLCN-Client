@@ -6,16 +6,28 @@ import throttle from "lodash.throttle";
 import { NavbarWithSublist } from "../components/shared/NavbarWithSublist";
 import { Banner } from "../components/shared/Banner";
 import "./VideoFeed.css";
+import { remove as removeDiacritics } from "diacritics";
+import { useNavigate } from "react-router-dom";
+import { useCreateCommentMutation, useGetCommentsForVideoQuery } from "../apis/commentApi";
 
 const VideoFeed = () => {
     const { data: videos = [], isLoading, isError } = useGetVideosQuery();
+    const [createComment, { isLoading: isCreatingComment }] = useCreateCommentMutation();
+
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [isMuted, setIsMuted] = useState(true);
+    const [isMuted, setIsMuted] = useState(false);
     const [showComments, setShowComments] = useState(false);
-    const [expanded, setExpanded] = useState(false);
-    const [newComment, setNewComment] = useState(""); // state for new comment
+    const [newComment, setNewComment] = useState("");
+    const [progress, setProgress] = useState(0); // Trạng thái để theo dõi tiến trình
     const containerRef = useRef(null);
     const videoRefs = useRef([]);
+    const [showFullDescription, setShowFullDescription] = useState(false);
+    const [showSeekbar, setShowSeekbar] = useState(false); // New state for showing seekbar
+
+    const navigate = useNavigate();
+    const { data: commentsData, isFetching } = useGetCommentsForVideoQuery(videos[currentIndex]?._id, {
+        skip: !videos[currentIndex]?._id,
+    });
 
     const handleScroll = throttle(() => {
         if (!containerRef.current) return;
@@ -56,32 +68,77 @@ const VideoFeed = () => {
         });
     }, [currentIndex]);
 
-    const toggleMute = (e) => {
-        e.stopPropagation();
-        setIsMuted(!isMuted);
+    useEffect(() => {
+        // Cập nhật giá trị progress khi video thay đổi
+        if (videoRefs.current[currentIndex]) {
+            const interval = setInterval(() => {
+                setProgress(videoRefs.current[currentIndex]?.getCurrentTime() || 0);
+            }, 500); // Cập nhật mỗi nửa giây
+
+            return () => clearInterval(interval);
+        }
+    }, [currentIndex]);
+    useEffect(() => {
+        if (videoRefs.current[currentIndex]) {
+            const interval = setInterval(() => {
+                // Chỉ cập nhật progress khi video đang phát
+                if (videoRefs.current[currentIndex].getInternalPlayer().getPaused() === false) {
+                    setProgress(videoRefs.current[currentIndex]?.getCurrentTime() || 0);
+                }
+            }, 100); // Cập nhật mỗi nửa giây
+
+            return () => clearInterval(interval);
+        }
+    }, [currentIndex]);
+
+    const handleSeekbarChange = (e, index) => {
+        const newTime = e.target.value;
+        videoRefs.current[index]?.seekTo(parseFloat(newTime));
+        setProgress(newTime);
     };
 
     const toggleComments = () => {
         setShowComments(!showComments);
     };
 
-    const toggleExpand = () => {
-        setExpanded(!expanded);
-    };
-
-    const handleCommentSubmit = (e, videoId) => {
+    const handleCommentSubmit = async (e, videoId) => {
         e.preventDefault();
         if (newComment.trim()) {
-            // Logic to add comment to the video (e.g., API call)
-            // For now, just logging the comment
-            console.log(`Comment on video ${videoId}: ${newComment}`);
-            setNewComment(""); // Clear the input after submitting
+            try {
+                await createComment({ videoId, content: newComment }).unwrap();
+                setNewComment(""); // Clear the input after submitting
+            } catch (error) {
+                console.error("Failed to post comment:", error);
+            }
         }
     };
 
+    const formatRestaurantName = (name) => {
+        if (!name) return "";
+        const noDiacritics = removeDiacritics(name);
+        return `#${noDiacritics.toLowerCase().replace(/\s+/g, "").replace(/-/g, "#")}`;
+    };
+
+    const toggleMute = () => {
+        setIsMuted(!isMuted);  // Chuyển trạng thái bật/tắt âm thanh
+    };
+
+
     if (isLoading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
     if (isError) return <div className="h-screen flex items-center justify-center">Error loading videos.</div>;
-    if (!videos.length) return null;
+    if (!videos.length) {
+        return (
+            <div>
+                <div>
+                    <Banner />
+                    <NavbarWithSublist />
+                </div>
+                <div className="h-screen flex items-center justify-center">
+                    <p className="text-xl text-gray-500">Không có video nào hiện tại.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -99,28 +156,31 @@ const VideoFeed = () => {
                         <div
                             key={video._id}
                             className="h-[80vh] snap-start relative flex transition-all duration-300"
+                            onMouseEnter={() => setShowSeekbar(true)} // Show seekbar on hover
+                            onMouseLeave={() => setShowSeekbar(false)} // Hide seekbar when mouse leaves
                         >
                             <div
                                 className={`h-full pt-2 ${showComments ? "w-[60vw]" : "w-full"} transition-all duration-300 border-r-4 border-gray-300 ${showComments ? "border-solid" : ""}`}
                             >
-                                <div className="h-full w-full rounded-lg overflow-hidden relative shadow-lg">
+                                <div className="relative h-full w-full bg-black rounded-lg overflow-hidden shadow-lg">
                                     {!showComments && (
-                                        <div className="absolute bottom-14 left-0 z-10 bg-opacity-50 p-2 rounded-lg text-white w-full">
-                                            <h2
-                                                className={`text-base font-normal ${expanded ? "line-clamp-none" : "line-clamp-2"}`}
-                                            >
-                                                {expanded || video.title.length <= 84
-                                                    ? video.title
-                                                    : `${video.title.substring(0, 84)}...`}
-                                            </h2>
-                                            {video.title.length > 84 && (
-                                                <button
-                                                    className="text-sm text-blue-400 mt-2"
-                                                    onClick={toggleExpand}
+                                        <div
+                                            className={`absolute bottom-4 left-4 text-white p-2 rounded-lg text-sm max-w-[90%] transition-all duration-300 z-50`}
+                                        >
+                                            <p className={`description ${showFullDescription ? 'line-clamp-none' : ''}`}>
+                                                {video.description ? video.description : "No description available"}
+                                            </p>
+                                            {video.description?.length > 200 && (
+                                                <span
+                                                    className="text-blue-500 cursor-pointer"
+                                                    onClick={() => setShowFullDescription(!showFullDescription)}
                                                 >
-                                                    {expanded ? "Thu gọn" : "Xem thêm"}
-                                                </button>
+                                                    {showFullDescription ? " Ẩn bớt" : " Xem thêm"}
+                                                </span>
                                             )}
+                                            <p className="text-blue-300 cursor-pointer hover:underline" onClick={() => navigate("/restaurant/" + video.restaurant)}>
+                                                {formatRestaurantName(video.restaurantName)}
+                                            </p>
                                         </div>
                                     )}
 
@@ -128,10 +188,12 @@ const VideoFeed = () => {
                                         ref={(el) => (videoRefs.current[index] = el)}
                                         url={video.videoUrl}
                                         playing={index === currentIndex}
-                                        controls={true}
+                                        controls={false} // Disable default controls
                                         width="100%"
                                         height="100%"
                                         muted={isMuted}
+                                        style={{ cursor: "pointer" }}  // Thêm dòng này để thay đổi con trỏ thành pointer
+
                                         loop={true}
                                         playsinline={true}
                                         config={{
@@ -143,22 +205,35 @@ const VideoFeed = () => {
                                         }}
                                     />
 
-                                    <button
-                                        onClick={toggleMute}
-                                        className="absolute bottom-16 right-4 z-10 bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-70 transition-all"
-                                    >
-                                        {isMuted ? (
-                                            <VolumeX className="w-6 h-6 text-white" />
-                                        ) : (
-                                            <Volume2 className="w-6 h-6 text-white" />
-                                        )}
-                                    </button>
+                                    {/* Custom Seekbar */}
+                                    {showSeekbar && (
+                                        <div className="absolute bottom-0 w-full bg-opacity-50 bg-black">
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max={videoRefs.current[index]?.getDuration() || 100}
+                                                value={progress}
+                                                onChange={(e) => handleSeekbarChange(e, index)}
+                                                className="w-full h-2"
+                                            />
+                                        </div>
+                                    )}
 
                                     <button
                                         onClick={toggleComments}
                                         className="absolute bottom-28 right-4 z-10 bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-70 transition-all"
                                     >
                                         <MessageSquare className="w-6 h-6 text-white" />
+                                    </button>
+                                    <button
+                                        onClick={toggleMute}
+                                        className="absolute bottom-16 right-4 z-10 bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                    >
+                                        {isMuted ? (
+                                            <VolumeX className="w-6 h-6 text-white" />  // Icon khi tắt âm
+                                        ) : (
+                                            <Volume2 className="w-6 h-6 text-white" />  // Icon khi bật âm
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -167,26 +242,30 @@ const VideoFeed = () => {
                             {showComments && (
                                 <div className="h-full w-[40vw] bg-white p-4 overflow-y-auto shadow-lg relative flex flex-col justify-between">
                                     <div className="mb-4">
-                                        <h2 className="text-lg font-bold mb-4">{video.title}</h2>
+                                        <h2 className="text-lg font-bold mb-4">{video.description}</h2>
+                                        <p className="text-blue-300 cursor-pointer hover:underline" onClick={() => navigate("/restaurant/" + video.restaurant)}>
+                                            {formatRestaurantName(video.restaurantName)}
+                                        </p>
                                         <p className="border-b-2 border-gray-300">Comments</p>
 
-                                        {video.comments && video.comments.length > 0 ? (
+                                        {isFetching ? (
+                                            <p>Loading comments...</p>
+                                        ) : commentsData?.comments?.length > 0 ? (
                                             <div className="mb-24">
-                                                {video.comments.map((comment, index) => (
-                                                    <div key={index} className="mb-4">
-                                                        <p className="font-semibold">{comment.user?.name || 'Unknown User'}</p>
-                                                        <p className="text-gray-600">{comment.content}</p>
-                                                        <p className="text-sm text-gray-400">Likes: {comment.likes}</p>
+                                                {commentsData.comments.map((comment) => (
+                                                    <div key={comment._id}>
+                                                        <p className="font-semibold">{comment.user?.name || "Unknown User"}</p>
+                                                        <p>{comment.content}</p>
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="text-gray-500">No comments yet.</p>
+                                            <p>No comments yet.</p>
                                         )}
                                     </div>
 
-                                    {/* Cố định form bình luận */}
-                                    <div className="sticky bottom-0 left-0 w-full bg-white p-4 shadow-lg">
+                                    {/* Form to submit comment, positioned at the bottom */}
+                                    <div className="sticky bottom-0 left-0 w-full bg-white p-4 shadow-lg z-10">
                                         <form
                                             onSubmit={(e) => handleCommentSubmit(e, video._id)}
                                             className="flex items-center space-x-2"
@@ -196,18 +275,20 @@ const VideoFeed = () => {
                                                 onChange={(e) => setNewComment(e.target.value)}
                                                 placeholder="Write a comment..."
                                                 className="flex-1 border rounded-lg p-2 resize-none"
-                                                rows={3} // Set initial height
+                                                rows={3}
                                             />
                                             <button
                                                 type="submit"
                                                 className="bg-blue-500 text-white p-2 rounded-lg"
+                                                disabled={isCreatingComment}
                                             >
-                                                Post
+                                                {isCreatingComment ? "Posting..." : "Post"}
                                             </button>
                                         </form>
                                     </div>
                                 </div>
                             )}
+
                         </div>
                     ))}
                 </div>
@@ -215,5 +296,6 @@ const VideoFeed = () => {
         </div>
     );
 };
+
 
 export default VideoFeed;

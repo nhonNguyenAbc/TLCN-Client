@@ -10,6 +10,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useLocation } from "react-router-dom";
 const Checkoutpage = () => {
   const location = useLocation();
+  const { restaurantId } = location.state || {};
+  console.log("idcheckout:", restaurantId);
   const queryParams = new URLSearchParams(location.search);
   const stepFromQuery = parseInt(queryParams.get("step"), 10);
   const [activeStep, setActiveStep] = React.useState(stepFromQuery || 0);
@@ -51,7 +53,9 @@ const Checkoutpage = () => {
           </Step>
         </Stepper>
       </div>
-      {activeStep === 0 && <Step1Checkout handleNext={handleNext} />}
+      {activeStep === 0 && (
+        <Step1Checkout restaurantId={restaurantId} handleNext={handleNext} />
+      )}
       {/* {activeStep === 1 && (
         <Step2Checkout handleNext={handleNext} handlePrev={handlePrev} />
       )} */}

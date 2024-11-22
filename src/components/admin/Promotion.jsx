@@ -21,8 +21,8 @@ const Promotion = () => {
     const [description, setDescription] = useState("");
     const [updateName, setUpdateName] = useState("");
     const [updateDiscountValue, setUpdateDiscountValue] = useState(0);
-    const [updateStartDate, setUpdateStartDate] = useState("");  
-    const [updateEndDate, setUpdateEndDate] = useState("");      
+    const [updateStartDate, setUpdateStartDate] = useState("");
+    const [updateEndDate, setUpdateEndDate] = useState("");
     const [updateDescription, setUpdateDescription] = useState("");
     const [updateCode, setUpdateCode] = useState("");
     const dispatch = useDispatch();
@@ -35,7 +35,7 @@ const Promotion = () => {
     const [createPromotion, { isLoading: isAdded, error: addError }] = useCreatePromotionMutation();
     const [updatePromotion, { isLoading: isUpdated, error: updatedError }] = useUpdatePromotionMutation();
     const [deletePromotion, { isLoading: isDeleted, error: deleteError }] =
-    useDeletePromotionMutation();
+        useDeletePromotionMutation();
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -55,33 +55,33 @@ const Promotion = () => {
     };
     const handleDeleteSubmit = async () => {
         try {
-          const result = await deletePromotion(selectedId);
-          Toast.fire({
-            icon: "success",
-            title: "Xóa thành công",
-          }).then(() => {
-            
-          });
+            const result = await deletePromotion(selectedId);
+            Toast.fire({
+                icon: "success",
+                title: "Xóa thành công",
+            }).then(() => {
+
+            });
         } catch (error) {
-          Toast.fire({
-            icon: "error",
-            title: "Xóa thất bại",
-          });
+            Toast.fire({
+                icon: "error",
+                title: "Xóa thất bại",
+            });
         }
-      };
-      useEffect(() => {
+    };
+    useEffect(() => {
         if (!promotions?.data?.find((promotion) => promotion._id === selectedId)) {
-          dispatch(resetSelectedId());
+            dispatch(resetSelectedId());
         } else {
-          const promotion = promotions?.data?.find((promotion) => promotion._id === selectedId);
-          setUpdateCode(promotion?.code);
-          setUpdateDescription(promotion?.description);
-          setUpdateDiscountValue(promotion?.discountValue);
-          setUpdateName(promotion?.name);
-          setUpdateStartDate(promotion?.startDate),
-          setUpdateEndDate(promotion?.endDate)
+            const promotion = promotions?.data?.find((promotion) => promotion._id === selectedId);
+            setUpdateCode(promotion?.code);
+            setUpdateDescription(promotion?.description);
+            setUpdateDiscountValue(promotion?.discountValue);
+            setUpdateName(promotion?.name);
+            setUpdateStartDate(promotion?.startDate),
+                setUpdateEndDate(promotion?.endDate)
         }
-      }, [promotions, selectedId, dispatch]);
+    }, [promotions, selectedId, dispatch]);
     const handleAddSubmit = async () => {
         try {
             const result = await createPromotion({
@@ -157,78 +157,78 @@ const Promotion = () => {
                 sizeUpdate="md"
                 bodyUpdate={
                     <Container>
-                         <div className="grid grid-cols-5 gap-4 mt-2">
-                                <FormControl fullWidth className="col-span-2">
-                                    <Typography variant="h6" className="my-auto">Mã khuyến mãi:</Typography>
-                                    <TextField
-                                        label="Mã"
-                                        value={updateCode}
-                                        onChange={(e) => setUpdateCode(e.target.value)}
-                                    />
-                                </FormControl>
-                                <FormControl fullWidth className="col-span-2">
-                                    <Typography variant="h6" className="my-auto">
-                                        Tên chương trình:
-                                    </Typography>
-                                    <TextField
-                                        label="Tên"
-                                        placeholder="Tên chương trình"
-                                        value={updateName}
-                                        onChange={(e) => setUpdateName(e.target.value)}
-                                    />
-                                </FormControl>
-                                <FormControl fullWidth className="col-span-2">
-                                    <Typography variant="h6" className="my-auto">Mô tả:</Typography>
-                                    <TextField
-                                        label="Mô tả"
-                                        value={updateDescription}
-                                        onChange={(e) => setUpdateDescription(e.target.value)}
-                                    />
-                                </FormControl>
-                                <FormControl fullWidth className="col-span-2 mt-5">
-                                    <Typography variant="h6" className="my-auto">
-                                        Giảm giá (%):
-                                    </Typography>
-                                    <TextField
-                                        size="sm"
-                                        placeholder="Giảm giá (%)"
-                                        value={updateDiscountValue}
-                                        onChange={(e) =>
-                                            setUpdateDiscountValue(
-                                                isNaN(e.target.value)
+                        <div className="grid grid-cols-5 gap-4 mt-2">
+                            <FormControl fullWidth className="col-span-2">
+                                <Typography variant="h6" className="my-auto">Mã khuyến mãi:</Typography>
+                                <TextField
+                                    label="Mã"
+                                    value={updateCode}
+                                    onChange={(e) => setUpdateCode(e.target.value)}
+                                />
+                            </FormControl>
+                            <FormControl fullWidth className="col-span-2">
+                                <Typography variant="h6" className="my-auto">
+                                    Tên chương trình:
+                                </Typography>
+                                <TextField
+                                    label="Tên"
+                                    placeholder="Tên chương trình"
+                                    value={updateName}
+                                    onChange={(e) => setUpdateName(e.target.value)}
+                                />
+                            </FormControl>
+                            <FormControl fullWidth className="col-span-2">
+                                <Typography variant="h6" className="my-auto">Mô tả:</Typography>
+                                <TextField
+                                    label="Mô tả"
+                                    value={updateDescription}
+                                    onChange={(e) => setUpdateDescription(e.target.value)}
+                                />
+                            </FormControl>
+                            <FormControl fullWidth className="col-span-2 mt-5">
+                                <Typography variant="h6" className="my-auto">
+                                    Giảm giá (%):
+                                </Typography>
+                                <TextField
+                                    size="sm"
+                                    placeholder="Giảm giá (%)"
+                                    value={updateDiscountValue}
+                                    onChange={(e) =>
+                                        setUpdateDiscountValue(
+                                            isNaN(e.target.value)
+                                                ? 0
+                                                : e.target.value < 0
                                                     ? 0
-                                                    : e.target.value < 0
-                                                        ? 0
-                                                        : e.target.value
-                                            )
-                                        }
-                                    />
-                                </FormControl>
+                                                    : e.target.value
+                                        )
+                                    }
+                                />
+                            </FormControl>
 
-                                {/* Start Date */}
-                                <FormControl fullWidth className="col-span-2 mt-5">
-                                    <Typography variant="h6" className="my-auto">
-                                        Ngày bắt đầu:
-                                    </Typography>
-                                    <TextField
-                                        type="date"
-                                        value={updateStartDate}
-                                        onChange={(e) => setUpdateStartDate(e.target.value)}
-                                    />
-                                </FormControl>
+                            {/* Start Date */}
+                            <FormControl fullWidth className="col-span-2 mt-5">
+                                <Typography variant="h6" className="my-auto">
+                                    Ngày bắt đầu:
+                                </Typography>
+                                <TextField
+                                    type="date"
+                                    value={updateStartDate}
+                                    onChange={(e) => setUpdateStartDate(e.target.value)}
+                                />
+                            </FormControl>
 
-                                {/* End Date */}
-                                <FormControl fullWidth className="col-span-2 mt-5">
-                                    <Typography variant="h6" className="my-auto">
-                                        Ngày kết thúc:
-                                    </Typography>
-                                    <TextField
-                                        type="date"
-                                        value={updateEndDate}
-                                        onChange={(e) => setUpdateEndDate(e.target.value)}
-                                    />
-                                </FormControl>
-                            </div>
+                            {/* End Date */}
+                            <FormControl fullWidth className="col-span-2 mt-5">
+                                <Typography variant="h6" className="my-auto">
+                                    Ngày kết thúc:
+                                </Typography>
+                                <TextField
+                                    type="date"
+                                    value={updateEndDate}
+                                    onChange={(e) => setUpdateEndDate(e.target.value)}
+                                />
+                            </FormControl>
+                        </div>
                     </Container>
                 }
                 updateSubmit={updateSubmit}
@@ -335,7 +335,7 @@ const Promotion = () => {
                                         type="date"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        
+
                                     />
                                 </FormControl>
                             </div>
