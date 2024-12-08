@@ -797,7 +797,7 @@ const Restaurant = () => {
                     value={updatePromotion}
                     onChange={(e) => setUpdatePromotion(e.target.value)}
                   >
-                    {getPromotion.data.map((promotion, index) => (
+                    {getPromotion?.data.map((promotion, index) => (
                       <MenuItem key={index} value={promotion.code}>
                         {promotion.name} (giảm {promotion.discountValue}% - {promotion.status})
                       </MenuItem>

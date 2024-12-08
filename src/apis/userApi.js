@@ -98,6 +98,18 @@ export const userApi = createApi({
       }),
       providesTags: ["User"],
     }),
+    updateUserById: builder.mutation({
+      query: ({ data }) => ({
+        url: `/user/update`,
+        method: "PUT",
+        body: data,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["User"], // Xóa cache của User khi cập nhật thành công
+    }),
     login: builder.mutation({
       query: ({ username, email, phone_number, password }) => ({
         url: "/login",
@@ -134,4 +146,8 @@ export const userApi = createApi({
   }),
 });
 
-export const { useGetUserByIdQuery, useLoginMutation } = userApi;
+export const { 
+  useGetUserByIdQuery, 
+  useUpdateUserByIdMutation, 
+  useLoginMutation 
+} = userApi;

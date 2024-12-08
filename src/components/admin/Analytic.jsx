@@ -51,6 +51,10 @@ const Analytic = () => {
   const { data, error, isLoading } = useGetTotalRevenueOrder5YearsQuery();
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+  if (data && !Object.keys(data.data).length) {
+    return <div>Không có dữ liệu để hiển thị.</div>;
+  }
+  
   const chartData = {
     labels: [
       "Tháng 1",
@@ -124,7 +128,7 @@ const Analytic = () => {
         <section className="ms-8 me-8 mt-8 col-span-3">
           <Card>
             <CardBody className="!p-2">
-              <div className="flex gap-2 flex-wrap justify-between px-4 !mt-4 ">
+              {/* <div className="flex gap-2 flex-wrap justify-between px-4 !mt-4 ">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-1">
                     <span className="h-2 w-2 bg-blue-500 rounded-full"></span>
@@ -145,7 +149,8 @@ const Analytic = () => {
                     </Typography>
                   </div>
                 </div>
-              </div>
+              </div> */}
+              <text>Biểu đồ danh thu của nhà hàng trong 6 năm gần đây</text>
               <Line data={chartData} options={options} />
             </CardBody>
             <CardFooter className="flex gap-6 flex-wrap items-center justify-between">

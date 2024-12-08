@@ -1,69 +1,43 @@
-import { Card, Typography, Input, CardBody } from "@material-tailwind/react";
-import { Divider } from "@mui/material";
-import { useState } from "react";
+import { Card, Typography, Input, CardBody, Select, Option, Button } from "@material-tailwind/react";
+import { useState, useEffect } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import { staff_order } from "../../constants/table_head";
-import Pagination from "../shared/Pagination";
 import {
+  useDeleteItemFromOrderMutation,
   useGetCheckOutOrdersQuery,
   useUpdateCheckOutOrderMutation,
+  useUpdateOrderMutation,
+  useUpdatePaymentStatusMutation,
 } from "../../apis/orderApi";
 import { useDispatch, useSelector } from "react-redux";
 import { Toast } from "../../configs/SweetAlert2";
-import { resetSelectedId } from "../../features/slices/selectIdSlice";
 import Loading from "../shared/Loading";
+import { useDeleteMenuItemMutation, useGetMenusQuery } from "../../apis/menuApi";
+import { Divider } from "@mui/material";
+import Pagination from "../shared/Pagination";
 
 const Checkout = () => {
   const [active, setActive] = useState(1);
+  const [phone, setPhone] = useState('');
   const [subactive, setSubactive] = useState(1);
-  const TABLE_ROWS = [
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-  ];
-  const dispatch = useDispatch();
-  const TABLE_HEAD = ["Tên món ăn", "Số lượng", "Đơn vị", "Giá", "Thành tiền"];
-  const {
-    data: orders,
-    isLoading: orderLoading,
-    error: orderError,
-  } = useGetCheckOutOrdersQuery(active);
+  const { data: menus, isLoading, error } = useGetMenusQuery(); // Lấy danh sách món ăn từ API
+  const [updateOrder] = useUpdateOrderMutation();
+  const [deleteOrder] = useDeleteItemFromOrderMutation();
+  const [updatePaymentStatus] = useUpdatePaymentStatusMutation();
+  const handlePhoneChange = (event) => {
+    setPhone(event.target.value);
+  };
+  const TABLE_ROWS = [];
+  const TABLE_HEAD = ["Tên món ăn", "Số lượng", "Đơn vị", "Giá", "Thành tiền", "Hành động"];
+  const { data: orders, isLoading: orderLoading, error: orderError, refetch } = useGetCheckOutOrdersQuery({ page: active, phone: phone });
+
   const [updateCheckOutOrder, { isLoading: isAdded, isError: isAddError }] =
     useUpdateCheckOutOrderMutation();
   const selectedId = useSelector((state) => state.selectedId.value);
+
+  const [selectedMenu, setSelectedMenu] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
   const handleUpdateCheckOut = async () => {
     try {
       const message = await updateCheckOutOrder({ id: selectedId }).unwrap();
@@ -75,7 +49,103 @@ const Checkout = () => {
       });
     }
   };
+  const handlePaymentOrder = async () => {
+    try {
+      const paymentMethod = "CREDIT_CARD"; // Hoặc lấy từ form người dùng nếu cần
+      const totalAmount = orders?.data.find(order => order._id === selectedId)?.total; // Tổng tiền đơn hàng
+      const amount_received = orders?.data.find(order => order._id === selectedId)?.amount_received; // Tổng tiền đơn hàng
+      const amount_due = totalAmount - amount_received
+      const response = await updatePaymentStatus({
+        orderId: selectedId,
+        paymentMethod,
+        amount_due
 
+      }).unwrap();
+      if (response.data.paymentLinkRes?.checkoutUrl) {
+        // Mở liên kết thanh toán trong tab mới
+        window.open(response.data.paymentLinkRes?.checkoutUrl, "_blank");
+      }
+      Toast.fire({
+        icon: "success",
+        title: "Thanh toán thành công!",
+      });
+
+      // Mở link thanh toán nếu có trong response
+      if (response.paymentUrl) {
+        window.open(response.paymentUrl, "_blank");
+      }
+    } catch (error) {
+      Toast.fire({
+        icon: "error",
+        title: "Thanh toán thất bại!",
+      });
+    }
+  };
+  useEffect(() => {
+    if (phone) {
+      refetch();
+    }
+  }, [phone, active]);
+
+  const handleUpdateOrder = async () => {
+    try {
+      const updatedOrder = {
+        newListMenu: [
+          {
+            ...selectedMenu,  // Lấy toàn bộ thuộc tính của selectedMenu
+            quantity: quantity,  // Thêm thuộc tính số lượng vào menu
+            totalPrice: (selectedMenu.price * quantity * (1 - selectedMenu.discount / 100)) // Tính toán tổng giá
+          }
+        ],
+        total: 0, // Tổng số tiền sẽ được cập nhật trong backend nếu cần.
+      };
+
+      // Cập nhật đơn hàng với newListMenu đã được thay đổi
+      await updateOrder({ id: selectedId, updatedOrder });
+
+      Toast.fire({
+        icon: "success",
+        title: "Cập nhật đơn hàng thành công!",
+      });
+    } catch (error) {
+      Toast.fire({
+        icon: "error",
+        title: "Cập nhật đơn hàng thất bại!",
+      });
+    }
+  };
+
+
+  const handleDeleteOrderItem = async (menuId) => {
+    try {
+      console.log("id", menuId)
+      // Gọi API xóa món ăn khỏi đơn hàng
+      await deleteOrder({ orderId: selectedId, id: menuId });
+      Toast.fire({
+        icon: "success",
+        title: "Xóa món ăn thành công!",
+      });
+    } catch (error) {
+      Toast.fire({
+        icon: "error",
+        title: "Xóa món ăn thất bại!",
+      });
+    }
+  };
+  // Khai báo hàm formatDateTime sử dụng const
+  const formatDateTime = (dateTime) => {
+    const date = new Date(dateTime);
+
+    return date.toLocaleString('vi-VN', {
+      weekday: 'long',  // Thứ trong tuần (e.g., "Thứ Hai")
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  };
   if (orderLoading)
     return (
       <div>
@@ -83,15 +153,15 @@ const Checkout = () => {
       </div>
     );
   if (orderError) return <div>Error: {orderError}</div>;
+
   const list_order = orders?.data.map((order, index) => ({
     id: order._id,
     order: order.orderCode,
-    name: order.name,
-    phone: order.phone_number,
+    checkin: formatDateTime(order.checkin),
     total: order.total,
     status: order.status,
-    peopleAmount: order.total_people,
   }));
+
   return (
     <>
       <AdminLayout
@@ -130,22 +200,25 @@ const Checkout = () => {
                   >
                     {
                       orders?.data.find((order) => order._id === selectedId)
-                        ?.name
+                        ?.name || "WALK IN CUSTORMER"
                     }
                   </Typography>
-                  <Typography variant="h6" color="blue-gray">
-                    Số điện thoại:
-                  </Typography>
-                  <Typography
-                    variant="body"
-                    className="col-span-2"
-                    color="blue-gray"
-                  >
-                    {
-                      orders?.data.find((order) => order._id === selectedId)
-                        ?.phone_number
-                    }
-                  </Typography>
+                  {!orders?.data.find((order) => order._id === selectedId)?.is_walk_in && (
+                    <>
+                      <Typography variant="h6" color="blue-gray">
+                        Số điện thoại:
+                      </Typography>
+                      <Typography
+                        variant="body"
+                        className="col-span-2"
+                        color="blue-gray"
+                      >
+                        {
+                          orders?.data.find((order) => order._id === selectedId)
+                            ?.phone_number
+                        }
+                      </Typography></>
+                  )}
                 </div>
               </div>
               <Divider />
@@ -158,6 +231,9 @@ const Checkout = () => {
                   Phương thức thanh toán
                 </Typography>
                 <div className="col-span-2 grid grid-cols-3">
+                {!orders?.data.find((order) => order._id === selectedId)?.is_walk_in && (
+
+                  <>
                   <Typography variant="h6" color="blue-gray">
                     Hình thức thanh toán
                   </Typography>
@@ -170,7 +246,8 @@ const Checkout = () => {
                       orders?.data.find((order) => order._id === selectedId)
                         ?.payment
                     }
-                  </Typography>
+                  </Typography></>
+                )}
                   <Typography variant="h6" color="blue-gray">
                     Trạng thái
                   </Typography>
@@ -196,18 +273,36 @@ const Checkout = () => {
                   Thông tin đơn hàng
                 </Typography>
                 <div className="col-span-2 grid grid-cols-3">
+                  {!orders?.data.find((order) => order._id === selectedId)?.is_walk_in && (
+                    <>
+                      <Typography variant="h6" color="blue-gray">
+                        Số người
+                      </Typography>
+                      <Typography
+                        variant="body"
+                        className="col-span-2"
+                        color="blue-gray"
+                      >
+                        {
+                          orders?.data.find((order) => order._id === selectedId)
+                            ?.total_people
+                        }
+                      </Typography>
+                    </>
+                  )}
                   <Typography variant="h6" color="blue-gray">
-                    Số người
+                    Đã nhận:
                   </Typography>
                   <Typography
                     variant="body"
                     className="col-span-2"
                     color="blue-gray"
                   >
-                    {
+                    {Number(
                       orders?.data.find((order) => order._id === selectedId)
-                        ?.total_people
-                    }
+                        ?.amount_received
+                    ).toLocaleString("en-US")}{" "}
+                    đ
                   </Typography>
                   <Typography variant="h6" color="blue-gray">
                     Tổng cộng:
@@ -223,16 +318,55 @@ const Checkout = () => {
                     ).toLocaleString("en-US")}{" "}
                     đ
                   </Typography>
+
                 </div>
               </div>
               <Divider />
-              <Typography
-                variant="h5"
-                color="blue-gray"
-                className="font-bold mt-5"
-              >
+              <Typography variant="h5" color="blue-gray" className="font-bold mt-5">
                 Danh sách thực đơn
               </Typography>
+
+              {/* Form cập nhật món ăn */}
+              <div className="mt-5 flex justify-center gap-8">
+                <div className="w-1/4">
+                  <Select
+                    label="Chọn món ăn"
+                    value={selectedMenu ? selectedMenu.name : ''}
+                    onChange={(value) => setSelectedMenu(menus.data.find(menu => menu.name === value))}
+                    className="w-full mb-4"
+                  >
+                    {menus && menus.data.map(menu => (
+                      <Option key={menu._id} value={menu.name}>
+                        {menu.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+
+                <div className="w-1/4">
+                  <Input
+                    label="Số lượng"
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                    min={1}
+                    className="mb-4"
+                  />
+                </div>
+
+                <div className="w-1/8">
+                  <Button
+                    color="blue"
+                    onClick={handleUpdateOrder}
+                    className="w-full"
+                  >
+                    Thêm món
+                  </Button>
+                </div>
+              </div>
+
+
+              {/* Hiển thị danh sách món trong đơn hàng */}
               <table className="w-full table-auto text-center mt-5">
                 <thead>
                   <tr>
@@ -256,14 +390,14 @@ const Checkout = () => {
                   {orders?.data
                     .find((order) => order._id === selectedId)
                     ?.list_menu?.slice((subactive - 1) * 5, subactive * 5)
-                    .map(({ name, price, discount, quantity, unit }, index) => {
+                    .map(({ name, price, discount, quantity, unit, _id }, index) => {
                       const isLast = index === TABLE_ROWS.length - 1;
                       const classes = isLast
                         ? "p-4"
                         : "p-4 border-b border-blue-gray-50 text-center";
 
                       return (
-                        <tr key={name}>
+                        <tr key={_id}>
                           <td className={classes}>
                             <Typography
                               variant="small"
@@ -317,17 +451,31 @@ const Checkout = () => {
                               đ
                             </Typography>
                           </td>
+                          <td className={classes}>
+                            <Button
+                              color="red"
+                              onClick={() => handleDeleteOrderItem(_id)}
+                            >
+                              Xóa
+                            </Button>
+                          </td>
                         </tr>
+
                       );
                     })}
-                  {/* <tr className="bg-blue-gray-50/50">
-                    <td className="p-4">Tổng cộng</td>
-                    <td></td>
-                    <td></td>
-                    <td className="p-4">1000000</td>
-                  </tr> */}
+
                 </tbody>
               </table>
+              <Divider />
+
+              <div className="flex justify-end mx-10 my-4">
+                <Button
+                  color="green"
+                  onClick={handlePaymentOrder} // Gọi hàm xử lý thanh toán
+                >
+                  Thanh toán
+                </Button>
+              </div>
               <Pagination
                 page={Math.ceil(
                   orders?.data?.find((order) => order._id === selectedId)
@@ -336,6 +484,7 @@ const Checkout = () => {
                 active={subactive}
                 setActive={setSubactive}
               />
+
             </CardBody>
           </Card>
         }
@@ -346,10 +495,13 @@ const Checkout = () => {
             label="Tìm kiếm"
             iconFamily="material-icons"
             iconName="search"
-            placeholder="Tìm kiếm sản phẩm"
+            placeholder="Nhập số điện thoại"
+            value={phone}
+            onChange={handlePhoneChange}
           />
         </div>
       </AdminLayout>
+
     </>
   );
 };

@@ -9,6 +9,7 @@ import {
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import SearchBarComponent from "../restaurant/SearchBarComponent";
+import { useNavigate } from "react-router-dom";
 
 function NavList() {
   return (
@@ -64,7 +65,7 @@ function NavList() {
 
 export const NavbarWithSublist = () => {
   const [openNav, setOpenNav] = useState(false);
-
+  const navigate = useNavigate()
   React.useEffect(() => {
     window.addEventListener(
       "resize",
@@ -75,7 +76,7 @@ export const NavbarWithSublist = () => {
   return (
     <Navbar className="mx-auto max-w-screen-3xl rounded-none px-4 py-2 sticky top-0 z-50">
       <div className="flex items-center justify-between text-blue-gray-900">
-        <div className="flex items-center">
+        <div className="flex items-center cursor-pointer" onClick={()=>navigate('/')}>
           <img
             src="https://mindxschool.gitbook.io/~gitbook/image?url=https%3A%2F%2F2763219643-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FbApz6rKK01BWUpp5sM0n%252Ficon%252FTW0u7G4eX3NYfEpPqzqW%252Flogo.png%3Falt%3Dmedia%26token%3D3b580b4c-805c-47d5-bde5-9023a590e7a5&width=32&dpr=4&quality=100&sign=975a9163111fdc2e62e7d70701c224f6620d130c61f209c61dc0cd301c370ad"
             alt="Logo"

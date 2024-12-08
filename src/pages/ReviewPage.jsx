@@ -141,12 +141,12 @@ const VideoFeed = () => {
     }
 
     return (
-        <div>
-            <div className="fixed inset-0 bg-transparent p-4">
-                <div>
+        <>
+            <div className=" inset-0 bg-transparent">
+                {/* <div>
                     <Banner />
                     <NavbarWithSublist />
-                </div>
+                </div> */}
                 <div
                     ref={containerRef}
                     className={`h-[80vh] ${showComments ? "w-[100vw]" : "w-[60vw]"} overflow-y-scroll snap-y snap-mandatory scrollbar-hide rounded-lg shadow-lg mx-auto`}
@@ -293,7 +293,7 @@ const VideoFeed = () => {
                     ))}
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

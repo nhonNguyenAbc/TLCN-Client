@@ -51,9 +51,9 @@ const Table = ({
                         handleDetailOpen();
                         dispatch(setSelectedId(row.id));
                       }}
-                      colSpan={TABLE_HEAD[index].col}
+                      colSpan={TABLE_HEAD[index]?.col}
                     >
-                      {TABLE_HEAD[index].label === "Hình ảnh" ? (
+                      {TABLE_HEAD[index]?.label === "Hình ảnh" ? (
                         <img
                           src={value}
                           alt="avatar"

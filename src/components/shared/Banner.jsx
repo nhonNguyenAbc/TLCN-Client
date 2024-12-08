@@ -13,6 +13,7 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import {
+  ClipboardDocumentListIcon,
   CubeTransparentIcon,
   UserCircleIcon,
   CodeBracketSquareIcon,
@@ -30,10 +31,16 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useNavigate } from "react-router-dom";
 // profile menu component
 const profileMenuItems = [
-  // {
-  //   label: "My Profile",
-  //   icon: UserCircleIcon,
-  // },
+  {
+    label: "My Profile",
+    icon: UserCircleIcon,
+    path: "/profile", // Đường dẫn cho Profile
+  },
+  {
+    label: "History",
+    icon: ClipboardDocumentListIcon,
+    path: "/history", 
+  },
   // {
   //   label: "Edit Profile",
   //   icon: Cog6ToothIcon,
@@ -56,9 +63,19 @@ function ProfileMenu() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const navigate = useNavigate();
   const closeMenu = () => setIsMenuOpen(false);
-  const handleSignOut = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  // const handleSignOut = () => {
+  //   localStorage.removeItem("token");
+  //   navigate("/login");
+  // };
+  const handleMenuClick = (label, path) => {
+    if (label === "Sign Out") {
+      // Xử lý Sign Out
+      localStorage.removeItem("token");
+      navigate("/login");
+    } else {
+      // Chuyển hướng sang trang tương ứng
+      navigate(path);
+    }
   };
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
@@ -84,34 +101,34 @@ function ProfileMenu() {
         </Button>
       </MenuHandler>
       <MenuList className="p-1">
-        {profileMenuItems.map(({ label, icon }, key) => {
-          const isLastItem = key === profileMenuItems.length - 1;
-          return (
-            <MenuItem
-              key={label}
-              onClick={isLastItem ? handleSignOut : closeMenu}
-              className={`flex items-center gap-2 rounded ${
-                isLastItem
-                  ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
-                  : ""
-              }`}
+      {profileMenuItems.map(({ label, icon, path }, key) => {
+        const isLastItem = key === profileMenuItems.length - 1;
+        return (
+          <MenuItem
+            key={label}
+            onClick={() => handleMenuClick(label, path)}
+            className={`flex items-center gap-2 rounded ${
+              isLastItem
+                ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
+                : ""
+            }`}
+          >
+            {React.createElement(icon, {
+              className: `h-4 w-4 ${isLastItem ? "text-red-500" : ""}`,
+              strokeWidth: 2,
+            })}
+            <Typography
+              as="span"
+              variant="small"
+              className="font-normal"
+              color={isLastItem ? "red" : "inherit"}
             >
-              {React.createElement(icon, {
-                className: `h-4 w-4 ${isLastItem ? "text-red-500" : ""}`,
-                strokeWidth: 2,
-              })}
-              <Typography
-                as="span"
-                variant="small"
-                className="font-normal"
-                color={isLastItem ? "red" : "inherit"}
-              >
-                {label}
-              </Typography>
-            </MenuItem>
-          );
-        })}
-      </MenuList>
+              {label}
+            </Typography>
+          </MenuItem>
+        );
+      })}
+    </MenuList>
     </Menu>
   );
 }

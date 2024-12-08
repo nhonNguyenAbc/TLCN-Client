@@ -26,6 +26,7 @@ import Step2Checkout from "../restaurant/Step2Checkout";
 import Step3Checkout from "./Step3Checkout";
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  useCreateOrderMutation,
   useGetAllOrdersByStaffIdQuery,
   useGetAllOrdersQuery,
   useGetCheckInOrdersQuery,
@@ -37,51 +38,12 @@ import { useGetMenusQuery } from "../../apis/menuApi";
 import { useDispatch, useSelector } from "react-redux";
 import { Toast } from "../../configs/SweetAlert2";
 import { resetSelectedId } from "../../features/slices/selectIdSlice";
+import CreateOrder from "./CreateOrder";
 const CheckOrder = () => {
   const [active, setActive] = useState(1);
+  
   const [subactive, setSubactive] = useState(1);
-  const TABLE_ROWS = [
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-    {
-      name: "001",
-      quantity: 1,
-      price: 1000000,
-    },
-  ];
+  const TABLE_ROWS = [];
   const TABLE_HEAD = [
     { label: "Tên món ăn", col: 1 },
     { label: "Giá", col: 1 },
@@ -98,9 +60,7 @@ const CheckOrder = () => {
 
   const handleNext = () => !isLastStep && setActiveStep((cur) => cur + 1);
   const handlePrev = () => !isFirstStep && setActiveStep((cur) => cur - 1);
-  // const {data: orders, isLoading: orderLoading, error: orderError} = useGetAllOrdersQuery();
-  // if (orderLoading) return <div>Loading...</div>;
-  // if (orderError) return <div>Error: {orderError}</div>;
+
   const {
     data: restaurants,
     isLoading: restaurantLoading,
@@ -111,6 +71,7 @@ const CheckOrder = () => {
     upper: 100000000,
     lower: 0,
   });
+
   const {
     data: menus,
     isLoading: menuLoading,
@@ -383,18 +344,13 @@ const CheckOrder = () => {
                         </tr>
                       );
                     })}
-                  {/* <tr className="bg-blue-gray-50/50">
-                    <td className="p-4">Tổng cộng</td>
-                    <td></td>
-                    <td></td>
-                    <td className="p-4">1000000</td>
-                  </tr> */}
+                 
                 </tbody>
               </table>
               <Pagination
                 page={Math.ceil(
                   orders?.data?.find((order) => order._id === selectedId)
-                    ?.list_menu.length / 5
+                    ?.list_menu?.length / 5
                 )}
                 active={subactive}
                 setActive={setSubactive}
@@ -482,53 +438,7 @@ const CheckOrder = () => {
                   <table className="w-full table-auto text-left mt-5">
                     <TableHeader TABLE_HEAD={TABLE_HEAD} />
                     <tbody>
-                      {/* {TABLE_ROWS.slice((subactive - 1) * 4, subactive * 4).map(
-                        ({ name, job, date }, index) => {
-                          const isLast = index === TABLE_ROWS.length - 1;
-                          const classes = isLast
-                            ? "p-4"
-                            : "p-4 border-b border-blue-gray-50";
-
-                          return (
-                            <tr key={name}>
-                              <td className={classes}>
-                                <Typography
-                                  variant="small"
-                                  color="blue-gray"
-                                  className="font-normal"
-                                >
-                                  {name}
-                                </Typography>
-                              </td>
-                              <td className={classes}>
-                                <Typography
-                                  variant="small"
-                                  color="blue-gray"
-                                  className="font-normal"
-                                >
-                                  {job}
-                                </Typography>
-                              </td>
-                              <td className={classes}>
-                                <Typography
-                                  variant="small"
-                                  color="blue-gray"
-                                  className="font-normal"
-                                >
-                                  {date}
-                                </Typography>
-                              </td>
-                              <td className={classes}>
-                                <Tooltip content="Xóa món ăn">
-                                  <IconButton color="red">
-                                    <DeleteIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                              </td>
-                            </tr>
-                          );
-                        }
-                      )} */}
+                      
                       {TABLE_ROWS.slice((subactive - 1) * 5, subactive * 5).map(
                         ({ name, quantity, price }, index) => {
                           const isLast = index === TABLE_ROWS.length - 1;
@@ -641,7 +551,7 @@ const CheckOrder = () => {
           </IconButton>
         </DialogHeader>
         <DialogBody>
-          <Container className="mb-5">
+          {/* <Container className="mb-5">
             <Stepper
               activeStep={activeStep}
               isLastStep={(value) => setIsLastStep(value)}
@@ -670,12 +580,13 @@ const CheckOrder = () => {
                 3
               </Step>
             </Stepper>
-          </Container>
-          {activeStep === 0 && <Step1Checkout handleNext={handleNext} />}
+          </Container> */}
+          <CreateOrder handleNext={handleNext}/>
+          {/* {activeStep === 0 && <Step1Checkout handleNext={handleNext} />}
           {activeStep === 1 && (
             <Step2Checkout handleNext={handleNext} handlePrev={handlePrev} />
           )}
-          {activeStep === 2 && <Step3Checkout handleOpen={handleOpen} />}
+          {activeStep === 2 && <Step3Checkout handleOpen={handleOpen} />} */}
         </DialogBody>
       </Dialog>
     </>

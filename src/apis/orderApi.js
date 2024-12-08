@@ -36,6 +36,16 @@ export const orderApi = createApi({
       }),
       providesTags: ["Order"],
     }),
+    getUserOrders: builder.query({
+      query: (page) => ({
+        url: "/user?page=" + page,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }),
+      providesTags: ["Order"],
+    }),
     getOrderById: builder.query({
       query: (id) => `/order/${id}`,
       providesTags: [{ type: "Order", id: "ALL" }],
@@ -82,6 +92,30 @@ export const orderApi = createApi({
       }),
       invalidatesTags: ["Order"],
     }),
+    createWalkinOrder: builder.mutation({
+      query: (newOrder) => ({
+        url: "/walkin/",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: newOrder,
+      }),
+      invalidatesTags: ["Order"],
+    }),
+    
+    updatePaymentStatus: builder.mutation({
+      query: ({ orderId, paymentMethod, amount_due }) => ({
+        url: `/walkin/pay/${orderId}`, // Endpoint của API
+        method: 'PATCH', // Hoặc 'PUT' nếu backend của bạn yêu cầu
+        body: { paymentMethod, amount_due }, // Payload gửi lên server
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }),
+    }),
     updateOrder: builder.mutation({
       query: ({ id, updatedOrder }) => ({
         url: `/${id}`,
@@ -105,10 +139,16 @@ export const orderApi = createApi({
       }),
       invalidatesTags: ["Order"],
     }),
-
+    deleteItemFromOrder: builder.mutation({
+      query: ({ orderId, id }) => ({
+        url: `/${orderId}/items/${id}`, // Đường dẫn API
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Order'], // Cập nhật lại thông tin đơn hàng sau khi xóa món ăn
+    }),
     getCheckInOrders: builder.query({
-      query: (page) => ({
-        url: `/checkin?page=` + page,
+      query: ({page,phone}) => ({
+        url: `/checkin?page=${page}&phone=${phone}`,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -117,8 +157,8 @@ export const orderApi = createApi({
       providesTags: ["Order"],
     }),
     getCheckOutOrders: builder.query({
-      query: (page) => ({
-        url: `/checkout?page=` + page,
+      query: ({page,phone}) => ({
+        url: `/checkout?page=${page}&phone=${phone}`,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -233,19 +273,32 @@ export const orderApi = createApi({
         },
       }),
     }),
+    getTotalRevenueForYear: builder.query({
+      query: ({ year }) => ({
+        url: '/revenue/current-years', 
+        params: { year }, 
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }),
+    })
   }),
 });
 
 export const {
+  useUpdatePaymentStatusMutation,
   useGetAllOrdersQuery,
   useGetOrderByIdQuery,
   useConfirmOrderQuery,
   useConfirmDirectOrderMutation,
   usePayOrderMutation,
   useCreateOrderMutation,
+  useCreateWalkinOrderMutation,
   useCreateDirectOrderMutation,
   useUpdateOrderMutation,
   useDeleteOrderMutation,
+  useDeleteItemFromOrderMutation,
   useUpdateCheckInOrderMutation,
   useUpdateCheckOutOrderMutation,
   useGetCheckInOrdersQuery,
@@ -259,5 +312,7 @@ export const {
   useGetMostFrequentRestaurantNameQuery,
   useGetAllOrdersByUserIdQuery,
   useGetTotalRevenueOrder5YearsQuery,
+  useGetTotalRevenueForYearQuery,
   useGetAllOrdersByStaffIdQuery,
+  useGetUserOrdersQuery
 } = orderApi;

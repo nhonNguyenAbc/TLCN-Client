@@ -27,22 +27,7 @@ import Loading from "../shared/Loading";
 import { Container, MenuItem, Select, TextField, Dialog } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useGetAllRestaurantsByUserIdQuery } from "../../apis/restaurantApi";
-const TABLE_ROWS = [
-  {
-    id: "001",
-    name: "Nguyễn Văn A",
-    gender: "Nam",
-    username: "nguyenvana",
-    password: "123456",
-  },
-  {
-    id: "002",
-    name: "Nguyễn Văn B",
-    gender: "Nam",
-    username: "nguyenvanb",
-    password: "123456",
-  },
-];
+
 const Employee = () => {
   const [active, setActive] = useState(1);
   const navigate = useNavigate();
@@ -103,6 +88,7 @@ const Employee = () => {
       username: employee.staff.username,
     };
   });
+  console.log('list', list_employee)
   const handleAddSubmit = async () => {
     try {
       const result = await createEmployee({
@@ -164,6 +150,7 @@ const Employee = () => {
       });
     }
   };
+  console.log('select', selectedId)
   return (
     <>
       <AdminLayout
@@ -187,64 +174,49 @@ const Employee = () => {
                   className="h-[200px] w-auto object-cover mx-auto"
                 />
               </div>
-              <div className="col-span-2 grid grid-cols-3 gap-4 my-auto">
-                <Typography
-                  variant="h6"
-                  color="blue-gray"
-                  className="text-left my-auto"
-                >
-                  Họ và tên:
-                </Typography>
-                <Typography color="blue-gray" className="col-span-2 text-left">
-                  {
-                    employees?.data.find(
-                      (employee) => employee._id === selectedId
-                    )?.name
-                  }
-                </Typography>
-                <Typography
-                  variant="h6"
-                  color="blue-gray"
-                  className="text-left"
-                >
-                  Email:
-                </Typography>
-                <Typography color="blue-gray" className="col-span-2 text-left">
-                  {
-                    employees?.data.find(
-                      (employee) => employee._id === selectedId
-                    )?.email
-                  }
-                </Typography>
-                <Typography
-                  variant="h6"
-                  color="blue-gray"
-                  className="text-left"
-                >
-                  Số điện thoại:
-                </Typography>
-                <Typography color="blue-gray" className="col-span-2 text-left">
-                  {
-                    employees?.data.find(
-                      (employee) => employee._id === selectedId
-                    )?.phone
-                  }
-                </Typography>
-                <Typography
-                  variant="h6"
-                  color="blue-gray"
-                  className="text-left"
-                >
-                  Tên đăng nhập:
-                </Typography>
-                <Typography color="blue-gray" className="col-span-2 text-left">
-                  {
-                    employees?.data.find(
-                      (employee) => employee._id === selectedId
-                    )?.username
-                  }
-                </Typography>
-              </div>
+              {employees?.data && selectedId ? (
+              // Tìm nhân viên ngoài JSX
+              (() => {
+                const employee = employees?.data.find(
+                  (employee) => employee._id === selectedId
+                );
+                if (employee) {
+                  return (
+                    <div className="col-span-2 grid grid-cols-3 gap-4 my-auto">
+                      <Typography variant="h6" color="blue-gray" className="text-left my-auto">
+                        Họ và tên:
+                      </Typography>
+                      <Typography color="blue-gray" className="col-span-2 text-left">
+                        {employee.staff.name}
+                      </Typography>
+
+                      <Typography variant="h6" color="blue-gray" className="text-left">
+                        Email:
+                      </Typography>
+                      <Typography color="blue-gray" className="col-span-2 text-left">
+                        {employee.staff.email}
+                      </Typography>
+
+                      <Typography variant="h6" color="blue-gray" className="text-left">
+                        Số điện thoại:
+                      </Typography>
+                      <Typography color="blue-gray" className="col-span-2 text-left">
+                        {employee.staff.phone}
+                      </Typography>
+
+                      <Typography variant="h6" color="blue-gray" className="text-left">
+                        Tên đăng nhập:
+                      </Typography>
+                      <Typography color="blue-gray" className="col-span-2 text-left">
+                        {employee.staff.username}
+                      </Typography>
+                    </div>
+                  );
+                }
+              })()
+            ) : (
+              <p>Loading...</p> // Hiển thị khi đang tải dữ liệu
+            )}
             </div>
           </>
         }

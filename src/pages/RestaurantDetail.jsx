@@ -32,23 +32,11 @@ const RestaurantDetail = () => {
   const [people, setPeople] = React.useState(
     JSON.parse(localStorage.getItem("order"))?.totalPeople || 0
   );
-  // const [date, setDate] = React.useState(
-  //   JSON.parse(localStorage.getItem("order"))?.checkin.split("T")[0] ||
-  //     new Date().toISOString().split("T")[0]
-  // );
+ 
   const [date, setDate] = React.useState(
     new Date().toISOString().split("T")[0] // Ngày hiện tại ở định dạng YYYY-MM-DD
   );
-  // const [time, setTime] = React.useState(
-  //   JSON.parse(localStorage.getItem("order"))
-  //     ? JSON.parse(localStorage.getItem("order"))
-  //         .checkin.split("T")[1]
-  //         .split(".")[0]
-  //         .split(":")
-  //         .slice(0, 2)
-  //         .join(":")
-  //     : null
-  // );
+  
   const [time, setTime] = React.useState(
     JSON.parse(localStorage.getItem("order"))
       ? JSON.parse(localStorage.getItem("order"))
@@ -60,15 +48,13 @@ const RestaurantDetail = () => {
       : null
   );
 
-  // const [menu, setMenu] = React.useState(
-  //   JSON.parse(localStorage.getItem("menu")) || []
-  // );
+
   const [menu, setMenu] = React.useState(() => {
     try {
       return JSON.parse(localStorage.getItem("menu")) || [];
     } catch (error) {
       console.error("Failed to parse menu from localStorage:", error);
-      return []; // Trả về mảng rỗng nếu xảy ra lỗi
+      return []; 
     }
   });
   const [total, setTotal] = React.useState(
@@ -77,11 +63,7 @@ const RestaurantDetail = () => {
   React.useEffect(() => {
     localStorage.setItem("total", JSON.stringify(total));
   }, [total]);
-  // React.useEffect(() => {
-  //   const storedOrder = JSON.parse(localStorage.getItem("order")) || {};
-  //   storedOrder.totalPeople = people;
-  //   localStorage.setItem("order", JSON.stringify(storedOrder));
-  // }, [people]);
+ 
 
   React.useEffect(() => {
     const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
@@ -101,35 +83,7 @@ const RestaurantDetail = () => {
     );
   if (restaurantError) return <div>Error</div>;
 
-  // const handleAddToCart = (item) => {
-  //   const newMenu = [...menu];
-  //   const index = newMenu.findIndex((i) => i._id === item._id);
-  //   if (index === -1) {
-  //     newMenu.push({ ...item, quantity: 1 });
-  //     setTotal(total + item.price * (1 - item.discount / 100));
-  //   } else {
-  //     newMenu[index].quantity++;
-  //     setTotal(total + item.price * (1 - newMenu[index].discount / 100));
-  //   }
-  //   setMenu(newMenu);
-  //   localStorage.setItem("menu", JSON.stringify(newMenu));
-  // };
-  // const handleRemoveFromCart = (item) => {
-  //   const newMenu = [...menu];
-  //   const index = newMenu.findIndex((i) => i._id === item._id);
-  //   if (index === -1) return;
-  //   if (newMenu[index].quantity === 1) {
-  //     newMenu.splice(index, 1);
-  //     setTotal(total - item.price * (1 - item.discount / 100));
-  //   } else {
-  //     newMenu[index].quantity--;
-  //     setTotal(total - item.price * (1 - newMenu[index].discount / 100));
-  //   }
-  //   setMenu(newMenu);
-
-  //   localStorage.setItem("menu", JSON.stringify(newMenu));
-  //   localStorage.setItem("total", JSON.stringify(total));
-  // };
+  
   const calculateTotal = (menu, people) => {
     // Tính tổng tiền từ menu
     const baseTotal = menu.reduce(
@@ -201,18 +155,7 @@ const RestaurantDetail = () => {
     }
   };
 
-  // const handleCheckout = () => {
-  //   const result = {
-  //     restaurantName: restaurants.data.restaurant.name,
-  //     totalPeople: people,
-  //     total: total,
-  //     menu: menu,
-  //     checkin: date + "T" + time + ":00.000Z",
-  //     restaurantId: id,
-  //   };
-  //   localStorage.setItem("order", JSON.stringify(result));
-  //   navigate("/checkout");
-  // };
+
   const handleCheckout = () => {
     const result = {
       restaurantName: restaurants.data.restaurant.name,
@@ -386,85 +329,18 @@ const RestaurantDetail = () => {
                 <Typography variant="h6" className="my-auto">
                   Số người
                 </Typography>
-                {/* <Select
-                  value={table}
-                  placeholder="Số bàn"
-                  className="border-black rounded-lg"
-                  labelProps={{
-                    className: "hidden",
-                  }}
-                  onChange={(e) => setTable(e)}
-                >
-                  {[...Array(tableCount + 1)].map((_, index) => (
-                    <Option key={index} value={index}>
-                      {index}
-                    </Option>
-                  ))}
-                </Select> */}
+                
                 <TextField
                   size="small"
                   value={people}
-                  // onChange={(e) => {
-                  //   const value = parseInt(e.target.value, 10);
-                  //   // Kiểm tra số người hợp lệ
-                  //   const updatedPeople =
-                  //     isNaN(value) || value < 0
-                  //       ? 0
-                  //       : value > restaurants.data.totalPeople
-                  //       ? restaurants.data.totalPeople
-                  //       : value;
-
-                  //   setPeople(updatedPeople);
-
-                  //   // Tính giá thêm khi số người lớn hơn 10
-                  //   if (updatedPeople > 10) {
-                  //     const additionalPeople = updatedPeople - 10;
-                  //     const additionalCost =
-                  //       additionalPeople *
-                  //       restaurants.data.restaurant.price_per_table;
-                  //     const baseTotal =
-                  //       JSON.parse(localStorage.getItem("menu"))?.reduce(
-                  //         (acc, item) => {
-                  //           return (
-                  //             acc +
-                  //             item.price *
-                  //               item.quantity *
-                  //               (1 - item.discount / 100)
-                  //           );
-                  //         },
-                  //         0
-                  //       ) || 0;
-                  //     setTotal(baseTotal + additionalCost);
-                  //   } else {
-                  //     // Tổng chỉ tính từ menu nếu số người <= 10
-                  //     const baseTotal =
-                  //       JSON.parse(localStorage.getItem("menu"))?.reduce(
-                  //         (acc, item) => {
-                  //           return (
-                  //             acc +
-                  //             item.price *
-                  //               item.quantity *
-                  //               (1 - item.discount / 100)
-                  //           );
-                  //         },
-                  //         0
-                  //       ) || 0;
-                  //     setTotal(baseTotal);
-                  //   }
-                  // }}
+                  
                   onChange={handlePeopleChange}
                 />
 
                 <Typography variant="h6" className="my-auto">
                   Ngày nhận bàn
                 </Typography>
-                {/* <TextField
-                  size="small"
-                  type="date"
-                  value={date}
-                  min={new Date().toISOString().split("T")[0]}
-                  onChange={(e) => setDate(e.target.value)}
-                /> */}
+               
                 <TextField
                   size="small"
                   type="date"
@@ -485,13 +361,7 @@ const RestaurantDetail = () => {
                 <Typography variant="h6" className="my-auto">
                   Thời gian đến
                 </Typography>
-                {/* <TextField
-                  size="small"
-                  type="time"
-                  value={time}
-                  min={new Date().toISOString().split("T")[1].split(".")[0]}
-                  onChange={(e) => setTime(e.target.value)}
-                /> */}
+              
                 <TextField
                   size="small"
                   type="time"
@@ -520,20 +390,7 @@ const RestaurantDetail = () => {
               <Typography variant="h6" className="my-auto mt-5">
                 Thực đơn
               </Typography>
-              {/* <div className="flex items-center justify-between gap-4 mt-5">
-                <Typography variant="medium" className="my-auto w-[125px] ">
-                  Bò kho xào nấm kim châm
-                </Typography>
-                <Typography variant="medium" className="my-auto">
-                  1x
-                </Typography>
-                <Typography variant="medium" className="my-auto">
-                  {Number(100000).toLocaleString("en-US")} VNĐ
-                </Typography>
-                <IconButton color="red">
-                  <DeleteIcon />
-                </IconButton>
-              </div> */}
+             
               {menu &&
                 menu.length > 0 &&
                 menu.map((item) => (
@@ -574,6 +431,8 @@ const RestaurantDetail = () => {
                 className="mt-5 w-full"
                 color="blue"
                 onClick={handleCheckout}
+                disabled={people <= 0} // Disable button nếu people <= 0
+
               >
                 Đặt chỗ
               </Button>

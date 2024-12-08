@@ -20,6 +20,9 @@ import Successpage from "./pages/Successpage";
 import Failcheckoutpage from "./pages/Failpage";
 import PromotionPage from "./pages/PromotionPage";
 import VideoFeed from "./pages/ReviewPage";
+import ProfilePage from "./pages/ProfilePage";
+import HistoryPage from "./pages/HistoryPage";
+
 function App() {
   return (
     <BrowserRouter>
@@ -30,9 +33,13 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/update-password" element={<UpdatePassPage />} />
           <Route path="register" element={<Registerpage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="history" element={<HistoryPage />} />
           <Route path="restaurant" element={<RestaurantList />} />
           <Route path="restaurants/promotion" element={<PromotionPage />} />
           <Route path="restaurant/:id" element={<RestaurantDetail />} />
+          <Route path="restaurants/review" element={<VideoFeed />} />
+
           <Route path="order" element={<Order />} />
           <Route path="about-us" element={<AboutUs />} />
           <Route path="contact" element={<Contact />} />
@@ -42,7 +49,6 @@ function App() {
           <Route path="fail" element={<Failcheckoutpage />} />
           <Route path="*" element={<NotFoundpage />} />
         </Route>
-        <Route path="restaurants/review" element={<VideoFeed />} />
         <Route path="/dashboard" element={<Adminpage />} />
         <Route path="/staff" element={<Staffpage />} />
         <Route path="/loginAD" element={<LoginAdmin />} />

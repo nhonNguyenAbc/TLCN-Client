@@ -48,18 +48,18 @@ const restaurant = [
 
 const order = [
   { label: "Mã", col: 1 },
-  { label: "Người nhận bàn", col: 1 },
-  { label: "Số điện thoại", col: 1 },
+  { label: "Checkin", col: 1 },
+  { label: "Checkout", col: 1 },
   { label: "Tổng tiền", col: 1 },
   { label: "Trạng thái", col: 1 },
   { label: "Số người", col: 1 },
 ];
 const staff_order = [
   { label: "Mã", col: 1 },
-  { label: "Người nhận bàn", col: 1 },
-  { label: "Số điện thoại", col: 1 },
+  { label: "Ngày nhận bàn", col: 1 },
+  // { label: "Số điện thoại", col: 1 },
   { label: "Tổng tiền", col: 1 },
   { label: "Trạng thái", col: 1 },
-  { label: "Số người", col: 1 },
+  // { label: "Số người", col: 1 },
 ];
 export { promotion, history, employee, menu, restaurant, order, staff_order, table };

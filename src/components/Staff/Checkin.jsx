@@ -17,52 +17,17 @@ import Loading from "../shared/Loading";
 
 const Checkin = () => {
   const [active, setActive] = useState(1);
+  const [phone, setPhone] = useState('');
+
   const [subactive, setSubactive] = useState(1);
-  const TABLE_ROWS = [
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-    {
-      name: "001",
-      role: "USER",
-      action: "Tạo tài khoản",
-      date: "23/04/18",
-    },
-  ];
+  const TABLE_ROWS = [];
   const dispatch = useDispatch();
   const TABLE_HEAD = ["Tên món ăn", "Số lượng", "Đơn vị", "Giá", "Thành tiền"];
   const {
     data: orders,
     isLoading: orderLoading,
     error: orderError,
-  } = useGetCheckInOrdersQuery(active);
+  } = useGetCheckInOrdersQuery({active,phone});
   const [updateCheckInOrder, { isLoading: isAdded, isError: isAddError }] =
     useUpdateCheckInOrderMutation();
   const selectedId = useSelector((state) => state.selectedId.value);
@@ -77,7 +42,22 @@ const Checkin = () => {
       });
     }
   };
-
+  const handlePhoneChange = (event) => {
+    setPhone(event.target.value);
+  };
+  const formatDateTime = (dateTime) => {
+    const date = new Date(dateTime);
+    
+    return date.toLocaleString('vi-VN', {
+      weekday: 'long',  // Thứ trong tuần (e.g., "Thứ Hai")
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  };
   if (orderLoading)
     return (
       <div>
@@ -88,11 +68,9 @@ const Checkin = () => {
   const list_order = orders?.data.map((order, index) => ({
     id: order._id,
     order: order.orderCode,
-    name: order.name,
-    phone: order.phone_number,
+    checkin: formatDateTime(order.checkin),
     total: Number(order.total).toLocaleString("en-US") + " đ",
     status: order.status,
-    peopleAmount: order.total_people,
   }));
   return (
     <>
@@ -322,12 +300,7 @@ const Checkin = () => {
                         </tr>
                       );
                     })}
-                  {/* <tr className="bg-blue-gray-50/50">
-                    <td className="p-4">Tổng cộng</td>
-                    <td></td>
-                    <td></td>
-                    <td className="p-4">1000000</td>
-                  </tr> */}
+                  
                 </tbody>
               </table>
               <Pagination
@@ -343,13 +316,15 @@ const Checkin = () => {
         }
       >
         <div className="flex items-center justify-between gap-4">
-          <Input
-            size="sm"
-            label="Tìm kiếm"
-            iconFamily="material-icons"
-            iconName="search"
-            placeholder="Tìm kiếm sản phẩm"
-          />
+        <Input
+        size="sm"
+        label="Tìm kiếm"
+        iconFamily="material-icons"
+        iconName="search"
+        placeholder="Nhập số điện thoại"
+        value={phone}
+        onChange={handlePhoneChange}
+      />
         </div>
       </AdminLayout>
     </>

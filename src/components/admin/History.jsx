@@ -44,9 +44,9 @@ const History = () => {
 
   const list_logs = logs?.data?.map((log) => ({
     _id: log._id,
-    name: log.user[0].username,
-    role: log.user[0].role,
-    action: log.activity,
+    name: log?.user[0]?.username,
+    role: log?.user[0]?.role,
+    action: log?.activity,
     date: new Date(log.created_at).toLocaleDateString("en-GB"),
   }));
   return (
