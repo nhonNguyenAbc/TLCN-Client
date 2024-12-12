@@ -29,7 +29,6 @@ export const menuApi = createApi({
         url: "/",
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: menuItemData,
@@ -37,36 +36,19 @@ export const menuApi = createApi({
       invalidatesTags: ["Menu"],
     }),
     updateMenuItem: builder.mutation({
-      query: ({
-        id,
-        restaurant_id,
-        name,
-        code,
-        category,
-        description,
-        unit,
-        price,
-        discount,
-      }) => ({
-        url: `/menu/${id}`,
+      query: (formData) => ({
+        url: `/menu/${formData.get("id")}`, // Lấy ID từ FormData
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: {
-          restaurant_id,
-          name,
-          code,
-          category,
-          description,
-          unit,
-          price,
-          discount,
-        },
+        body: formData,
       }),
       invalidatesTags: ["Menu"],
     }),
+    
+    
+    
     deleteMenuItem: builder.mutation({
       query: (id) => ({
         url: `/menu/${id}`,

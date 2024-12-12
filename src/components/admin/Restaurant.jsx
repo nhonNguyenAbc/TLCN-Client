@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import { promotion, restaurant } from "../../constants/table_head";
+import provinces from "hanhchinhvn/dist/tinh_tp.json";
+import districts from "hanhchinhvn/dist/quan_huyen.json";
 import {
   Button,
   DialogBody,
@@ -36,30 +38,7 @@ import { Toast } from "../../configs/SweetAlert2";
 import Loading from "../shared/Loading";
 import { handleDelete } from "../../utils/deleteImage";
 import { useGetAllPromotionQuery } from "../../apis/promotionApi";
-const TABLE_ROWS = [
-  {
-    name: "Nhà hàng A",
-    image: (
-      <img
-        className="h-auto w-32"
-        src="https://pasgo.vn/Upload/anh-chi-tiet/slide-bo-to-quan-moc-tran-van-giau-1-normal-2318787163432.webp"
-      />
-    ),
-    address: "Địa chỉ nhà hàng A",
-    open: "7:00",
-    close: "22:00",
-  },
-];
-const image = {
-  image1:
-    "https://pasgo.vn/Upload/anh-chi-tiet/slide-bo-to-quan-moc-tran-van-giau-1-normal-2318787163432.webp",
-  image2:
-    "https://pasgo.vn/Upload/anh-chi-tiet/slide-bo-to-quan-moc-tran-van-giau-1-normal-2318787163432.webp",
-  image3:
-    "https://pasgo.vn/Upload/anh-chi-tiet/slide-bo-to-quan-moc-tran-van-giau-1-normal-2318787163432.webp",
-  image4:
-    "https://pasgo.vn/Upload/anh-chi-tiet/slide-bo-to-quan-moc-tran-van-giau-1-normal-2318787163432.webp",
-};
+
 
 const Restaurant = () => {
   const [open, setOpen] = React.useState(false);
@@ -88,19 +67,42 @@ const Restaurant = () => {
   const [public_id_slider3_update, setPublic_Id_Slider3_Update] = useState("");
   const [public_id_slider4_update, setPublic_Id_Slider4_Update] = useState("");
 
+
+  const provinceList = Object.values(provinces);
+  const [districtList, setDistrictList] = useState([]);
+
+
+
+
   const [name, setName] = React.useState("");
-  const [address, setAddress] = React.useState("");
+  const [address, setAddress] = useState({
+    province: "",
+    provinceCode: "",
+    district: "",
+    districtCode: "",
+    detail: "",
+  });
   const [openTime, setOpenTime] = React.useState("");
   const [closeTime, setCloseTime] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [price_per_table, setPrice_Per_Table] = React.useState(0);
   const [updateName, setUpdateName] = React.useState("");
-  const [updateAddress, setUpdateAddress] = React.useState("");
+  const [updateAddress, setUpdateAddress] = React.useState({
+    province: "",
+    provinceCode: "",
+    district: "",
+    districtCode: "",
+    detail: "",
+  });
   const [updateOpenTime, setUpdateOpenTime] = React.useState("");
   const [updateCloseTime, setUpdateCloseTime] = React.useState("");
   const [updateDescription, setUpdateDescription] = React.useState("");
   const [updatePrice_Per_Table, setUpdatePrice_Per_Table] = React.useState(0);
   const [updatePromotion, setUpdatePromotion] = React.useState("")
+  const [orderAvailable, setOrderAvailable] = React.useState(0);
+  const [peopleAvailable, setPeopleAvailable] = React.useState(0)
+  const [limitTime, setLimitTime] = React.useState(0)
+
   const [page, setPage] = React.useState(1);
   const {
     data: restaurants,
@@ -123,11 +125,20 @@ const Restaurant = () => {
       );
 
       setUpdateName(data?.name);
-      setUpdateAddress(data?.address);
+      setUpdateAddress({
+        province: data?.address.province,
+        provinceCode: data?.address.provinceCode,
+        district: data?.address.district,
+        districtCode: data?.address.districtCode,
+        detail: data?.address.detail
+      });
       setUpdateOpenTime(data?.openTime);
       setUpdateCloseTime(data?.closeTime);
       setUpdateDescription(data?.description);
       setUpdatePrice_Per_Table(data?.price_per_table);
+      setOrderAvailable(data?.orderAvailable);
+      setPeopleAvailable(data?.peopleAvailable);
+      setLimitTime(data?.limitTime);
       setAvatar_Url_Update(
         data?.image_url
           .replace("upload/", "upload/q_auto:low/")
@@ -160,6 +171,27 @@ const Restaurant = () => {
       setPublic_Id_Slider4_Update(data?.public_id_slider4);
     }
   }, [selectedId, restaurants]);
+
+  useEffect(() => {
+    if (address.provinceCode) {
+      const filteredDistricts = Object.values(districts).filter(
+        (district) => district.parent_code === address.provinceCode
+      );
+      setDistrictList(filteredDistricts);
+    } else {
+      setDistrictList([]);
+    }
+  }, [address.provinceCode]);
+  useEffect(() => {
+    if (updateAddress.provinceCode) {
+      const filteredDistricts = Object.values(districts).filter(
+        (district) => district.parent_code === updateAddress.provinceCode
+      );
+      setDistrictList(filteredDistricts);
+    }
+  }, [updateAddress.provinceCode, districts]);
+
+
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error}</div>;
 
@@ -168,7 +200,7 @@ const Restaurant = () => {
       id: restaurant._id,
       name: restaurant.name,
       imageUrls: restaurant.image_url,
-      address: restaurant.address,
+      address: `${restaurant?.address?.detail || ""}, ${restaurant?.address?.district || ""}, ${restaurant?.address?.province || ""}`,
       price_per_table:
         Number(restaurant.price_per_table).toLocaleString("en-US") + " đ",
       openTime: restaurant.openTime,
@@ -179,7 +211,13 @@ const Restaurant = () => {
     try {
       const data = await createRestaurant({
         name,
-        address,
+        address: {
+          province: address.province,
+          provinceCode: address.provinceCode,
+          district: address.district,
+          districtCode: address.districtCode,
+          detail: address.detail
+        },
         openTime,
         closeTime,
         description,
@@ -202,7 +240,11 @@ const Restaurant = () => {
         }).then(() => {
           handleOpen();
           setName("");
-          setAddress("");
+          setAddress({
+            province: '',
+            district: '',
+            detail: ''
+          });
           setOpenTime("");
           setCloseTime("");
           setDescription("");
@@ -235,6 +277,9 @@ const Restaurant = () => {
         openTime: updateOpenTime,
         closeTime: updateCloseTime,
         description: updateDescription,
+        peopleAvailable: peopleAvailable,
+        orderAvailable: orderAvailable,
+        limitTime: limitTime,
         image_url: avatar_url_update,
         slider1: slider1_update,
         slider2: slider2_update,
@@ -251,6 +296,7 @@ const Restaurant = () => {
     });
     return data;
   };
+  console.log('updatedata', updateAddress)
   const handleDeleteSubmit = async () => {
     try {
       const data = await deleteRestaurant(selectedId);
@@ -321,7 +367,7 @@ const Restaurant = () => {
                   Địa chỉ:
                 </Typography>
                 <Typography variant="medium" className="col-span-2 my-auto">
-                  {updateAddress}
+                  {updateAddress.detail}, {updateAddress.district}, {updateAddress.province}
                 </Typography>
                 <div className="grid grid-cols-3 col-span-3 gap-8">
                   <div>
@@ -715,19 +761,86 @@ const Restaurant = () => {
                   value={updateName}
                   onChange={(e) => setUpdateName(e.target.value)}
                 />
-                <Typography variant="h6" className="my-auto">
-                  Địa chỉ:
-                </Typography>
-                <TextField
-                  className="col-span-2"
-                  type="text"
-                  value={updateAddress}
-                  multiline
-                  size="small"
-                  minRows={2}
-                  maxRows={3}
-                  onChange={(e) => setUpdateAddress(e.target.value)}
-                />
+                <div className="grid grid-cols-1 gap-2">
+                  {/* Dropdown Tỉnh/Thành phố */}
+                  <FormControl fullWidth>
+                    <InputLabel id="province-select-label">Tỉnh/Thành phố</InputLabel>
+                    <Select
+                      labelId="province-select-label"
+                      value={updateAddress.province}
+                      label="Tỉnh/Thành phố"
+                      onChange={(e) => {
+                        const selectedName = e.target.value;
+                        const selectedCode = Object.values(provinces).find(
+                          (province) => province.name === selectedName
+                        )?.code || "";
+
+                        setUpdateAddress({
+                          ...updateAddress,
+                          province: selectedName,
+                          provinceCode: selectedCode,
+                          district: "",
+                          districtCode: "",
+                        });
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>Chọn Tỉnh/Thành phố</em>
+                      </MenuItem>
+                      {provinceList.map((province) => (
+                        <MenuItem key={province.code} value={province.name}>
+                          {province.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Dropdown Quận/Huyện */}
+                  <FormControl fullWidth disabled={!updateAddress.provinceCode}>
+                    <InputLabel id="district-select-label">Quận/Huyện</InputLabel>
+                    <Select
+                      labelId="district-select-label"
+                      value={updateAddress.district}
+                      label="Quận/Huyện"
+                      onChange={(e) => {
+                        const selectedName = e.target.value;
+                        const selectedCode = districtList.find(
+                          (district) => district.name === selectedName
+                        )?.code || "";
+
+                        setUpdateAddress({
+                          ...updateAddress,
+                          district: selectedName,
+                          districtCode: selectedCode,
+                        });
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>Chọn Quận/Huyện</em>
+                      </MenuItem>
+                      {districtList.map((district) => (
+                        <MenuItem key={district.code} value={district.name}>
+                          {district.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* TextField Địa chỉ chi tiết */}
+                  <TextField
+                    label="Địa chỉ chi tiết"
+                    type="text"
+                    size="small"
+                    value={updateAddress.detail || ""}
+                    onChange={(e) =>
+                      setUpdateAddress((prevAddress) => ({
+                        ...prevAddress,
+                        detail: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
                 <div className="grid grid-cols-3 col-span-3 gap-8">
                   <div>
                     <Typography variant="h6" className="my-auto">
@@ -773,6 +886,74 @@ const Restaurant = () => {
                       size="small"
                       value={updateCloseTime}
                       onChange={(e) => setUpdateCloseTime(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 col-span-3 gap-8">
+                  <div>
+                    <Typography variant="h6" className="my-auto">
+                      Số lượng bàn:
+                    </Typography>
+                    <OutlinedInput
+                      className="col-span-2"
+                      type="text"
+                      size="small"
+                      value={Number(orderAvailable).toLocaleString(
+                        "en-US"
+                      )}
+                      endAdornment={
+                        <InputAdornment position="end">bàn</InputAdornment>
+                      }
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/,/g, "");
+                        setOrderAvailable(
+                          isNaN(value) ? 0 : value < 0 ? 0 : value
+                        );
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <Typography variant="h6" className="my-auto">
+                      Sức chứa:
+                    </Typography>
+                    <OutlinedInput
+                      className="col-span-2"
+                      type="text"
+                      size="small"
+                      value={Number(peopleAvailable).toLocaleString(
+                        "en-US"
+                      )}
+                      endAdornment={
+                        <InputAdornment position="end">người</InputAdornment>
+                      }
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/,/g, "");
+                        setPeopleAvailable(
+                          isNaN(value) ? 0 : value < 0 ? 0 : value
+                        );
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <Typography variant="h6" className="my-auto">
+                      Thời gian giữ chỗ tối đa:
+                    </Typography>
+                    <OutlinedInput
+                      className="col-span-2"
+                      type="text"
+                      size="small"
+                      value={Number(limitTime).toLocaleString(
+                        "en-US"
+                      )}
+                      endAdornment={
+                        <InputAdornment position="end">giờ</InputAdornment>
+                      }
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/,/g, "");
+                        setLimitTime(
+                          isNaN(value) ? 0 : value < 0 ? 0 : value
+                        );
+                      }}
                     />
                   </div>
                 </div>
@@ -1181,6 +1362,7 @@ const Restaurant = () => {
                   Tên:
                 </Typography>
                 <TextField
+                  label="Tên nhà hàng"
                   className="col-span-2"
                   type="text"
                   size="small"
@@ -1190,16 +1372,104 @@ const Restaurant = () => {
                 <Typography variant="h6" className="my-auto">
                   Địa chỉ:
                 </Typography>
-                <TextField
-                  className="col-span-2"
-                  type="text"
-                  size="small"
-                  multiline
-                  minRows={2}
-                  maxRows={3}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
+                <div className="grid grid-cols-1 gap-2">
+                  {/* Dropdown Tỉnh/Thành phố */}
+                  <FormControl fullWidth>
+                    <InputLabel id="province-select-label">Tỉnh/Thành phố</InputLabel>
+                    <Select
+                      labelId="province-select-label"
+                      value={address.province}
+                      label="Tỉnh/Thành phố"
+                      onChange={(e) => {
+                        const selectedName = e.target.value;
+                        const selectedCode =
+                          Object.values(provinces).find(
+                            (province) => province.name === selectedName
+                          )?.code || "";
+
+                        setAddress({
+                          ...address,
+                          province: selectedName,
+                          provinceCode: selectedCode,
+                          district: "", // Reset district
+                          districtCode: "", // Reset districtCode
+                        });
+                      }}
+                      MenuProps={{
+                        disablePortal: true,
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                            zIndex: 1300,
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>Chọn Tỉnh/Thành phố</em>
+                      </MenuItem>
+                      {provinceList.map((province) => (
+                        <MenuItem key={province.code} value={province.name}>
+                          {province.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Dropdown Quận/Huyện */}
+                  <FormControl fullWidth disabled={!address.provinceCode}>
+                    <InputLabel id="district-select-label">Quận/Huyện</InputLabel>
+                    <Select
+                      labelId="district-select-label"
+                      value={address.district}
+                      label="Quận/Huyện"
+                      onChange={(e) => {
+                        const selectedName = e.target.value;
+                        const selectedCode =
+                          districtList.find((district) => district.name === selectedName)
+                            ?.code || "";
+
+                        setAddress({
+                          ...address,
+                          district: selectedName,
+                          districtCode: selectedCode,
+                        });
+                      }}
+                      MenuProps={{
+                        disablePortal: true,
+                        PaperProps: {
+                          style: {
+                            maxHeight: 200,
+                            zIndex: 1300,
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>Chọn Quận/Huyện</em>
+                      </MenuItem>
+                      {districtList.map((district) => (
+                        <MenuItem key={district.code} value={district.name}>
+                          {district.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* TextField Địa chỉ chi tiết */}
+                  <TextField
+                    label="Địa chỉ chi tiết"
+                    type="text"
+                    size="small"
+                    value={address.detail || ""}
+                    onChange={(e) =>
+                      setAddress((prevAddress) => ({
+                        ...prevAddress,
+                        detail: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
 
                 <div className="grid grid-cols-3 col-span-3 gap-4">
                   <div>

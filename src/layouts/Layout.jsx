@@ -3,13 +3,13 @@ import { Banner } from "../components/shared/Banner";
 import { NavbarWithSublist } from "../components/shared/NavbarWithSublist";
 import { Footer } from "../components/shared/Footer";
 
-const Layout = () => {
+const Layout = ({ showFooter = true }) => {
   return (
     <>
       <Banner />
       <NavbarWithSublist />
       <Outlet />
-      <Footer />
+      {showFooter && <Footer />}
     </>
   );
 };

@@ -20,7 +20,7 @@ const menu = [
   // { label: "Mô tả", col: 1 },
   { label: "Giá / Khẩu phần", col: 1 },
   { label: "Đơn vị", col: 1 },
-  { label: "Giảm giá", col: 1 },
+  { label: "Hình ảnh", col: 1 },
 ];
 const table = [
   { label: "Nhà hàng", col: 1 },
@@ -54,6 +54,7 @@ const order = [
   { label: "Trạng thái", col: 1 },
   { label: "Số người", col: 1 },
 ];
+
 const staff_order = [
   { label: "Mã", col: 1 },
   { label: "Ngày nhận bàn", col: 1 },

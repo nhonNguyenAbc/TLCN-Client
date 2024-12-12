@@ -8,13 +8,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rating } from "@mui/material";
+import StarRatings from "react-star-ratings";
 const ProductCard = ({
   _id,
   name,
   address,
   openTime,
   closeTime,
-  description,
+  rating,
   image_url,
   price_per_table,
 }) => {
@@ -37,13 +38,25 @@ const ProductCard = ({
 
         <div className="w-full pt-0 h-[70px]">
           <Typography
-            variant="small"
+            variant="paragraph"
             color="blue-gray"
             className=" text-center"
           >
-            {address}
+            {address.detail}, { address.district}, {address.province}
           </Typography>
         </div>
+        <div className="flex justify-center mb-2">
+        {/* Hiển thị sao bằng react-star-ratings */}
+        <StarRatings
+          rating={rating} // Giá trị rating
+          starRatedColor="#FFCC00" // Màu sao
+          starEmptyColor="#ddd" // Màu sao trống
+          starDimension="24px" // Kích thước sao
+          starSpacing="4px" // Khoảng cách giữa các sao
+          numberOfStars={5} // Tổng số sao
+          name="rating"
+        />
+      </div>
         <Typography color="blue-gray" variant="h6" className=" text-center">
           {openTime} - {closeTime}
         </Typography>
@@ -55,6 +68,7 @@ const ProductCard = ({
             /người
           </Typography>
         </div>
+       
         {/* <Typography color="black" variant="h4" className="text-center">
           {Number(price / peopleAmount).toLocaleString("en-US")} đ
         </Typography> */}

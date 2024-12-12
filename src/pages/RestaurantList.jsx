@@ -9,13 +9,17 @@ const RestaurantPage = () => {
   const [field, setField] = useState("createdAt"); 
   const [priceRange, setPriceRange] = useState("all"); 
   const [page, setPage] = useState(1);
+  const [provinceCode, setProvinceCode] = useState("10");
+  const [districtCode, setDistrictCode] = useState("");
 
   const { data: restaurants, error, isLoading } = useGetAllRestaurantsQuery({
     searchTerm,
     sort,
     field,
     priceRange,
-    page
+    page,
+    provinceCode,
+    districtCode
   });
 
   if (isLoading) {
@@ -37,6 +41,8 @@ const RestaurantPage = () => {
           setPriceRange={setPriceRange} 
           page={page}
           setPage={setPage}
+          setProvinceCode={setProvinceCode}
+          setDistrictCode={setDistrictCode}
         />
       </div>
     </>
@@ -44,4 +50,3 @@ const RestaurantPage = () => {
 };
 
 export default RestaurantPage;
-

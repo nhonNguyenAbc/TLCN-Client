@@ -22,6 +22,7 @@ import { Toast } from "../configs/SweetAlert2";
 import Tablist from "../components/shared/Tablist";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
+import { CloudCog } from "lucide-react";
 const AdminLayout = ({
   children,
   name,
@@ -42,11 +43,14 @@ const AdminLayout = ({
   overflow,
   updateOverflow,
   updateSubmit,
+  rejectSubmit,
   handleDeleteSubmit,
   isUpdated,
+  isOrder,
   pagination,
   page,
   setPage,
+  setStatus
 }) => {
   const {
     detailOpen,
@@ -83,7 +87,7 @@ const AdminLayout = ({
   const handleUpdateSubmit = async () => {
     try {
       const message = await updateSubmit();
-      if (message.status === 200 || message.data.status === 200) {
+      if (message?.status === 200 || message?.data?.status === 200) {
         Toast.fire({
           icon: "success",
           title: "Cập nhật thành công",
@@ -92,6 +96,26 @@ const AdminLayout = ({
         });
       }
     } catch (err) {
+      console.log('error', err)
+      Toast.fire({
+        icon: "error",
+        title: "Cập nhật thất bại",
+      });
+    }
+  };
+  const handleRejectOrder  = async () => {
+    try {
+      const message = await rejectSubmit();
+      if (message?.status === 200 || message?.data?.status === 200) {
+        Toast.fire({
+          icon: "success",
+          title: "Cập nhật thành công",
+        }).then(() => {
+          handleUpdateClose();
+        });
+      }
+    } catch (err) {
+      console.log('error', err)
       Toast.fire({
         icon: "error",
         title: "Cập nhật thất bại",
@@ -108,7 +132,7 @@ const AdminLayout = ({
           {children}
         </div>
 
-        {tablist && <Tablist TABS={tablist} />}
+        {tablist && <Tablist TABS={tablist} setStatus={setStatus} />}
 
         {noDetail ? (
           <Table
@@ -175,8 +199,10 @@ const AdminLayout = ({
               >
                 <span>Cập nhật</span>
               </Button>
+              
             </DialogActions>
           )}
+          
           {!noDelete && (
             <DialogActions>
               <Button
@@ -190,6 +216,7 @@ const AdminLayout = ({
               </Button>
             </DialogActions>
           )}
+          
         </div>
       </Dialog>
       <Dialog
@@ -219,6 +246,15 @@ const AdminLayout = ({
           >
             {!isUpdated && <span>Xác nhận</span>}
           </Button>
+          {/* //Buton */}
+         {isOrder && (<Button
+            variant="gradient"
+            color="red"
+            onClick={handleRejectOrder}
+            loading={isUpdated}
+          >
+            <span>Từ chối</span>
+          </Button>)}
         </DialogActions>
       </Dialog>
     </>
@@ -243,5 +279,7 @@ AdminLayout.propTypes = {
   overflow: PropTypes.bool,
   updateOverflow: PropTypes.bool,
   noDetail: PropTypes.bool,
+  isOrder: PropTypes.bool, // thêm prop isOrder
+
 };
 export default AdminLayout;

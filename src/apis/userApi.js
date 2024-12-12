@@ -98,6 +98,17 @@ export const userApi = createApi({
       }),
       providesTags: ["User"],
     }),
+    changePassword: builder.mutation({
+      query: ({ oldPassword, newPassword }) => ({
+        url: '/change-password',
+        method: 'POST',
+        body: { oldPassword, newPassword },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      }),
+    }),
     updateUserById: builder.mutation({
       query: ({ data }) => ({
         url: `/user/update`,
@@ -149,5 +160,6 @@ export const userApi = createApi({
 export const { 
   useGetUserByIdQuery, 
   useUpdateUserByIdMutation, 
-  useLoginMutation 
+  useLoginMutation,
+  useChangePasswordMutation 
 } = userApi;

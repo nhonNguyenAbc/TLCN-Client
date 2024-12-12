@@ -5,10 +5,16 @@ export const restaurantApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: RESTAURANT_API + API_ROUTE.RESTAURANT }),
   tagTypes: ["Restaurant"],
   endpoints: (builder) => ({
+    getProvinces: builder.query({
+      query: () => '/provinces',
+    }),
+    getDistrictsByProvince: builder.query({
+      query: (provinceCode) => `/districts/${provinceCode}`,
+    }),
     getAllRestaurants: builder.query({
-      query: ({ sort = -1, page = 1, size = 8, field = "createdAt", searchTerm, priceRange = "all" }) => ({
+      query: ({ sort = -1, page = 1, size = 8, field = "rating", searchTerm, priceRange = "all", provinceCode="",districtCode='' }) => ({
         url: "",
-        params: { sort, page, size, field, searchTerm, priceRange },
+        params: { sort, page, size, field, searchTerm, priceRange, provinceCode, districtCode },
       }),
     }),
     getAllRestaurantPromotion: builder.query({
@@ -17,11 +23,6 @@ export const restaurantApi = createApi({
         params: { page, size },
       }),
     }),
-    // getAllRestaurants: builder.query({
-    //   query: ({ page = 1, size = 5, field = 'name', sort = -1, searchTerm = '' }) => 
-    //     `?page=${page}&size=${size}&field=${field}&sort=${sort}&searchTerm=${searchTerm}`,
-    //   providesTags: ["Restaurant"],
-    // }),
 
     getAllRestaurantByUserId: builder.query({
       query: (page) => ({
@@ -73,7 +74,7 @@ export const restaurantApi = createApi({
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: {
+        body: JSON.stringify({
           name,
           address,
           openTime,
@@ -90,7 +91,7 @@ export const restaurantApi = createApi({
           public_id_slider2,
           public_id_slider3,
           public_id_slider4,
-        },
+        }),        
       }),
       invalidatesTags: ["Restaurant"],
     }),
@@ -128,4 +129,6 @@ export const {
   useGetAllRestaurantsByUserIdQuery,
   useGetAllRestaurantByUserIdQuery,
   useGetAllRestaurantPromotionQuery,
+  useGetDistrictsByProvinceQuery,
+  useGetProvincesQuery
 } = restaurantApi;

@@ -123,13 +123,19 @@ const Promotion = () => {
 
     if (isLoading) return <Loading />;
     if (error) return <div>Error</div>;
-
+    const formatDate = (date) => {
+        const d = new Date(date);
+        const day = d.getDate().toString().padStart(2, '0');
+        const month = (d.getMonth() + 1).toString().padStart(2, '0'); // Tháng bắt đầu từ 0
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
     const list_promotion = promotions?.data.map((promotion) => ({
         id: promotion._id,
         name: promotion.name,
-        discountValue: promotion.discountValue,
-        startDate: promotion.startDate,
-        endDate: promotion.endDate,
+        discountValue: `${promotion.discountValue}%`,
+        startDate: promotion.startDate ? formatDate(promotion.startDate) : null,
+        endDate: promotion.endDate ? formatDate(promotion.endDate) : null,
         status: promotion.status
     }));
 
@@ -143,15 +149,35 @@ const Promotion = () => {
                 page={active}
                 setPage={setActive}
                 updateContent="Chỉnh sửa"
-                deleteContent="Xóa bàn"
+                deleteContent="Xóa khuyến mãi"
                 size="md"
-                headerDetail="Chi tiết bàn"
+                headerDetail="Chi tiết Khuyến mãi"
                 bodyDetail={
                     <Container>
-                        <div className="grid grid-cols-2 gap-4">
-                            {/* Các thông tin chi tiết */}
-                        </div>
-                    </Container>
+                    <div className="grid grid-cols-3 gap-4">
+                    <Typography variant="h6">Khuyến mãi: </Typography>
+                      <Typography className="col-span-2">
+                        {promotions?.data.find((promotion) => promotion._id === selectedId)?.name}
+                      </Typography>
+                      <Typography variant="h6">Mô tả: </Typography>
+                      <Typography className="col-span-2">
+                      {promotions?.data.find((promotion) => promotion._id === selectedId)?.description}
+                      </Typography>
+                      <Typography variant="h6">Giảm giá: </Typography>
+                      <Typography className="col-span-2">
+                        {promotions?.data.find((promotion) => promotion._id === selectedId)?.discountValue}%
+                      </Typography>
+                      <Typography variant="h6">Ngày bắt đầu: </Typography>
+                      <Typography className="col-span-2">
+                      {formatDate(promotions?.data.find((promotion) => promotion._id === selectedId)?.startDate)}
+                      </Typography>
+                      <Typography variant="h6">Ngày kết thúc: </Typography>
+                      <Typography className="col-span-2">
+                        {formatDate(promotions?.data.find((promotion) => promotion._id === selectedId)?.endDate)}
+                      </Typography>
+          
+                    </div>
+                  </Container>
                 }
                 headerUpdate="Chỉnh sửa khuyến mãi"
                 sizeUpdate="md"

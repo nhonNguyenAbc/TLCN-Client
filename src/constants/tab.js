@@ -1,20 +1,20 @@
 const order_tab = [
   {
     label: "Tất cả",
-    value: "ALL",
+    value: "",
   },
   {
-    label: "Chờ thanh toán",
+    label: "Chờ xác nhận",
     value: "PENDING",
   },
   {
-    label: "Đã thanh toán",
+    label: "Đặt thành công",
     value: "SUCCESS",
   },
-  {
-    label: "Đang sử dụng",
-    value: "ON_HOLD",
-  },
+  // {
+  //   label: "Đang sử dụng",
+  //   value: "ON_HOLD",
+  // },
   {
     label: "Đã trả bàn",
     value: "COMPLETED",

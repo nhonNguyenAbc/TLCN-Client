@@ -3,6 +3,8 @@ import { useGetVideosByUserIdQuery, useAddVideoMutation, useUpdateVideoMutation,
 import { Button } from '@material-tailwind/react';
 import Pagination from '../shared/Pagination';
 import { useGetAllRestaurantByUserIdQuery } from '../../apis/restaurantApi'; // Assuming you have a restaurantApi defined
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; //
 
 const Video = ({ userId }) => {
     const [active, setActive] = useState(1);
@@ -57,7 +59,7 @@ const Video = ({ userId }) => {
         }));
     };
 
-    // Submit video form
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -85,6 +87,7 @@ const Video = ({ userId }) => {
                     setShowModal(false);
                     setVideoData({ title: '', description: '', videoFile: null, videoId: '', restaurantId: '' });
                     refetchVideos();
+                    toast.success('Video đã được cập nhật thành công!');
                 }
             } else {
                 if (videoData.videoFile) {
@@ -96,12 +99,15 @@ const Video = ({ userId }) => {
                     setShowModal(false);
                     setVideoData({ title: '', description: '', videoFile: null, videoId: '', restaurantId: '' });
                     refetchVideos();
+                    toast.success('Video đã được thêm thành công!');
                 }
             }
         } catch (err) {
             console.error("Error adding/updating video:", err);
+            toast.error('Đã có lỗi xảy ra!'); // Thông báo lỗi
         }
     };
+
 
     const handleShowDeleteDialog = (video) => {
         setVideoToDelete(video);
@@ -115,6 +121,8 @@ const Video = ({ userId }) => {
                 if (response?.data) {
                     refetchVideos();
                 }
+                toast.success('Video đã được xóa thành công!');
+
             }
         } catch (err) {
             console.error("Error deleting video:", err);
@@ -135,7 +143,7 @@ const Video = ({ userId }) => {
     return (
         <div className="m-4">
             <div className="flex items-center justify-between gap-4">
-                <h1 className="text-xl font-semibold mb-4">Danh sách Video của User</h1>
+                <h1 className="text-xl font-semibold mb-4">Danh sách Video</h1>
                 <Button
                     variant="outlined"
                     className="w-auto"
@@ -214,7 +222,7 @@ const Video = ({ userId }) => {
 
             {/* Modal for add/edit video */}
             {showModal && (
-                <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-6 w-96 rounded-lg">
                         <h3 className="text-xl font-semibold mb-4">{isEditMode ? 'Sửa Video' : 'Thêm Video Mới'}</h3>
                         <form onSubmit={handleSubmit}>
@@ -275,6 +283,7 @@ const Video = ({ userId }) => {
                     </div>
                 </div>
             )}
+            <ToastContainer className="w-auto" /> 
         </div>
     );
 };

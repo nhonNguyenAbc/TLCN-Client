@@ -16,6 +16,20 @@ export const orderApi = createApi({
       }),
       providesTags: ["Order"],
     }),
+    updateOrderStatus: builder.mutation({
+      query: ({ orderId, newStatus }) => ({
+        url: `/update-status`, // Route để cập nhật status
+        method: 'PUT',
+        body: { orderId, newStatus },
+      }),
+    }),
+    updateOrderRating: builder.mutation({
+      query: ({ orderId, rating }) => ({
+        url: `/${orderId}/rating`,
+        method: 'PUT',
+        body: { rating },
+      }),
+    }),
     getAllOrdersByStaffId: builder.query({
       query: (page) => ({
         url: "/staff?page=" + page,
@@ -27,15 +41,22 @@ export const orderApi = createApi({
       providesTags: ["Order"],
     }),
     getAllOrdersByUserId: builder.query({
-      query: (page) => ({
-        url: "/owner?page=" + page,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }),
+      query: ({ page = 1, status = 'PENDING' }) => {
+        let url = `/owner?page=${page}`;
+        if (status) {
+          url += `&status=${status}`; // Thêm `status` vào URL nếu có
+        }
+        return {
+          url,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        };
+      },
       providesTags: ["Order"],
     }),
+    
     getUserOrders: builder.query({
       query: (page) => ({
         url: "/user?page=" + page,
@@ -314,5 +335,7 @@ export const {
   useGetTotalRevenueOrder5YearsQuery,
   useGetTotalRevenueForYearQuery,
   useGetAllOrdersByStaffIdQuery,
-  useGetUserOrdersQuery
+  useGetUserOrdersQuery,
+  useUpdateOrderRatingMutation,
+  useUpdateOrderStatusMutation 
 } = orderApi;

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { UserIcon } from '@heroicons/react/24/solid'
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Button,
@@ -19,32 +20,100 @@ import { useGetMenuItemsByAnyFieldQuery } from "../apis/menuApi";
 import { useGetRestaurantByIdQuery } from "../apis/restaurantApi";
 import Loading from "../components/shared/Loading";
 import { TextField } from "@mui/material";
+import { useCreateReviewMutation, useGetReviewsByRestaurantQuery } from "../apis/reviewApi";
+import Pagination from "../components/shared/Pagination";
+import { current } from "@reduxjs/toolkit";
 
 const RestaurantDetail = () => {
   const { id } = useParams();
+  const [page, setPage] = useState(1)
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [createReview, { isLoading }] = useCreateReviewMutation();
+  const [content, setContent] = useState("");
+  const [image, setImage] = useState(null);
+  const fileInputRef = useRef(null);
+  const commentSectionRef = useRef(null);
+
   const {
     data: restaurants,
     isLoading: restaurantLoading,
     error: restaurantError,
   } = useGetRestaurantByIdQuery(id);
+  const {
+    data: reviews,
+    isLoading: reviewLoading,
+    error: reviewError,
+    refetch
+  } = useGetReviewsByRestaurantQuery({ restaurant_id: id, page })
   const navigate = useNavigate();
-  const [table, setTable] = React.useState(0);
   const [people, setPeople] = React.useState(
     JSON.parse(localStorage.getItem("order"))?.totalPeople || 0
   );
- 
+
   const [date, setDate] = React.useState(
     new Date().toISOString().split("T")[0] // Ngày hiện tại ở định dạng YYYY-MM-DD
   );
-  
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+      setImage(file); // Cập nhật file ảnh để gửi trong `formData`
+    }
+  };
+  const handleSubmit = async () => {
+    if (!content) {
+      alert("Vui lòng nhập nội dung bình luận.");
+      return;
+    }
+
+    const formData = new FormData(); // Tạo form data để gửi file
+    formData.append("restaurant_id", id); // Thêm ID nhà hàng
+    formData.append("content", content); // Thêm nội dung bình luận
+    if (image) {
+      formData.append("image", image); // Thêm file ảnh nếu có
+    }
+
+    try {
+      const response = await createReview(formData).unwrap(); // Gọi API qua RTK Query
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      // Load lại dữ liệu mới từ server
+      refetch();
+
+      // Reset dữ liệu sau khi gửi thành công
+      setContent(''); // Reset content về rỗng
+      setImage(null); // Reset ảnh đã chọn về null
+      setSelectedImage(null)
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Có lỗi xảy ra khi gửi đánh giá.");
+    }
+  };
+  useEffect(() => {
+    if (commentSectionRef.current) {
+      commentSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [page]);
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const [time, setTime] = React.useState(
     JSON.parse(localStorage.getItem("order"))
       ? JSON.parse(localStorage.getItem("order"))
-          ?.checkin?.split("T")[1]
-          ?.split(".")[0]
-          ?.split(":")
-          ?.slice(0, 2)
-          ?.join(":")
+        ?.checkin?.split("T")[1]
+        ?.split(".")[0]
+        ?.split(":")
+        ?.slice(0, 2)
+        ?.join(":")
       : null
   );
 
@@ -54,7 +123,7 @@ const RestaurantDetail = () => {
       return JSON.parse(localStorage.getItem("menu")) || [];
     } catch (error) {
       console.error("Failed to parse menu from localStorage:", error);
-      return []; 
+      return [];
     }
   });
   const [total, setTotal] = React.useState(
@@ -63,7 +132,7 @@ const RestaurantDetail = () => {
   React.useEffect(() => {
     localStorage.setItem("total", JSON.stringify(total));
   }, [total]);
- 
+
 
   React.useEffect(() => {
     const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
@@ -83,7 +152,7 @@ const RestaurantDetail = () => {
     );
   if (restaurantError) return <div>Error</div>;
 
-  
+
   const calculateTotal = (menu, people) => {
     // Tính tổng tiền từ menu
     const baseTotal = menu.reduce(
@@ -196,6 +265,15 @@ const RestaurantDetail = () => {
     };
     localStorage.setItem("order", JSON.stringify(storedOrders));
   };
+  let promotionValue = null;
+  if (restaurants?.data?.restaurant?.promotionDetails && Object.keys(restaurants.data.restaurant.promotionDetails).length > 0) {
+    promotionValue = restaurants.data.restaurant.promotionDetails.discountValue;
+  }
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  };
 
   return (
     <>
@@ -244,7 +322,7 @@ const RestaurantDetail = () => {
               <div className="grid grid-cols-4 my-4">
                 <Typography variant="h6">Địa chỉ:</Typography>
                 <Typography variant="medium" className="col-span-3">
-                  {restaurants.data.restaurant.address}
+                  {restaurants.data.restaurant.address.detail}, {restaurants.data.restaurant.address.district}, {restaurants.data.restaurant.address.province}
                 </Typography>
               </div>
               <div className="grid grid-cols-4 my-4">
@@ -256,6 +334,23 @@ const RestaurantDetail = () => {
                   đ/ người khi quá 10 người
                 </Typography>
               </div>
+              {promotionValue && (
+                <div className="grid grid-cols-4 my-4">
+                  <Typography variant="h6">Khuyến mãi:</Typography>
+                  <div className="col-span-3">
+                    <Typography variant="medium" className="mb-2 text-red-600">
+                      {restaurants?.data?.restaurant?.promotionDetails?.description}
+                    </Typography>
+                    <Typography variant="medium" className="text-red-600">
+                      {`Áp dụng từ ${formatDate(restaurants.data.restaurant.promotionDetails.startDate)} đến ${formatDate(
+                        restaurants.data.restaurant.promotionDetails.endDate
+                      )}`}
+                    </Typography>
+                  </div>
+                </div>
+              )}
+
+
             </CardBody>
           </Card>
           <Card className="mt-5">
@@ -273,7 +368,10 @@ const RestaurantDetail = () => {
               <Typography variant="h3" color="black">
                 Thực đơn
               </Typography>
-              <div className="grid grid-cols-4 my-3">
+              <div className="grid grid-cols-5 my-3">
+                <Typography variant="h6" className="my-auto">
+                  Hình ảnh
+                </Typography>
                 <Typography variant="h6" className="my-auto">
                   Tên món
                 </Typography>
@@ -283,9 +381,13 @@ const RestaurantDetail = () => {
                 <Typography variant="h6" className="my-auto">
                   Đơn vị
                 </Typography>
+
               </div>
               {restaurants.data.menus.map((item) => (
-                <div key={item} className="grid grid-cols-4 my-3">
+                <div key={item} className="grid grid-cols-5 my-4">
+                  <Typography variant="medium" className="my-auto h-16 w-16">
+                    <img src={item.image.url} alt="card-image" className="object-cover " />
+                  </Typography>
                   <Typography variant="medium" className="my-auto">
                     {item.name}
                   </Typography>
@@ -294,7 +396,7 @@ const RestaurantDetail = () => {
                     color="black"
                     className="my-auto"
                   >
-                    {(item.price * (1 - item.discount / 100)).toLocaleString(
+                    {(item.price * (1 - promotionValue / 100)).toLocaleString(
                       "en-US"
                     )}
                     {"   "}
@@ -306,9 +408,9 @@ const RestaurantDetail = () => {
                   <Typography variant="medium" className="my-auto">
                     {item.unit}
                   </Typography>
-                  <Button
+                  <Button ref={commentSectionRef}
                     variant="outlined"
-                    className="border-[#FF333a] text-[#FF333a]"
+                    className="border-[#FF333a] text-[#FF333a] h-10 my-auto"
                     color="red"
                     onClick={() => handleAddToCart(item)}
                   >
@@ -317,6 +419,126 @@ const RestaurantDetail = () => {
                 </div>
               ))}
             </CardBody>
+
+          </Card>
+          <Card className="mt-5" >
+            {/* Header cho section bình luận */}
+            <Typography variant="h3" color="black" className="ml-6">
+              Bình luận đánh giá
+            </Typography>
+            <CardBody className="flex items-start mt-3 shadow-md">
+              {/* Avatar mặc định */}
+              <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-4">
+              <UserIcon className="w-6 h-6 text-black" />
+
+              </div>
+
+              {/* Khung bình luận */}
+              <div className="flex-1">
+                <textarea
+                  className="w-full border p-2 rounded-md"
+                  placeholder="Nhập bình luận của bạn..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                />
+                <div className="flex items-center justify-between mt-2">
+                  {/* Chọn ảnh */}
+                  <input
+                    type="file"
+                    className="border p-2 rounded-md"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                  />
+                  {/* Nút đăng */}
+                  <button
+                    onClick={handleSubmit}
+                    className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Đang đăng..." : "Đăng"}
+                  </button>
+                </div>
+              </div>
+            </CardBody>
+            {/* Hiển thị ảnh đã chọn nếu có */}
+            <Card className="mt-5 ">
+
+              {selectedImage && (
+                <div className="relative">
+
+                  <img
+                    alt="Selected"
+                    className="h-32 w-auto object-cover rounded-md"
+                    src={selectedImage}
+                  />
+                  <button
+                    className="absolute top-0  bg-red-500 text-white p-1 "
+                    onClick={handleRemoveImage}
+                  >
+                    x
+                  </button>
+                </div>
+              )}
+            </Card>
+
+            {/* Danh sách bình luận */}
+            {reviewLoading && <Typography>Đang tải bình luận...</Typography>}
+            {reviewError && <Typography>Lỗi khi tải bình luận!</Typography>}
+            {reviews && reviews.data.data.length > 0 && (
+              <div className="ml-4">
+                {reviews.data.data.map((review) => (
+                  <div
+                    key={review._id}
+                    className="flex flex-col mt-3 border p-3 rounded-md shadow-md"
+                  >
+                    {/* Header (Avatar + Username) */}
+                    <div className="flex items-center mb-2">
+                      <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+                        <Typography variant="h6" className="text-black">
+                        <UserIcon className="w-6 h-6 text-black" />
+                        </Typography>
+                      </div>
+                      <Typography variant="medium" className="text-black">
+                        {review.username}
+                      </Typography>
+                    </div>
+
+                    {/* Nội dung bình luận */}
+                    <div className="flex-1 ml-4">
+                      <Typography variant="medium" className="text-black mb-2">
+                        {review.content}
+                      </Typography>
+
+                      {/* Hiển thị ảnh nếu có */}
+                      {review.image?.url && (
+                        <div className="mt-2">
+                          <img
+                            alt="Uploaded"
+                            src={review.image.url}
+                            className=" h-32 w-auto object-cover rounded-md"
+                          />
+                        </div>
+                      )}
+
+                      {/* Hiển thị thời gian */}
+                      <Typography variant="small" className="mt-1 text-gray-500">
+                        {new Date(review.created_at).toLocaleString()}
+                      </Typography>
+                    </div>
+
+                  </div>
+
+                ))}
+                {reviews.data.totalPages > 1 && (
+                  <Pagination
+                    page={reviews.data.totalPages}
+                    active={page}
+                    setActive={setPage}
+                  />
+                )}
+              </div>
+            )}
+
           </Card>
         </div>
         <div className="">
@@ -329,18 +551,18 @@ const RestaurantDetail = () => {
                 <Typography variant="h6" className="my-auto">
                   Số người
                 </Typography>
-                
+
                 <TextField
                   size="small"
                   value={people}
-                  
+
                   onChange={handlePeopleChange}
                 />
 
                 <Typography variant="h6" className="my-auto">
                   Ngày nhận bàn
                 </Typography>
-               
+
                 <TextField
                   size="small"
                   type="date"
@@ -361,7 +583,7 @@ const RestaurantDetail = () => {
                 <Typography variant="h6" className="my-auto">
                   Thời gian đến
                 </Typography>
-              
+
                 <TextField
                   size="small"
                   type="time"
@@ -390,7 +612,7 @@ const RestaurantDetail = () => {
               <Typography variant="h6" className="my-auto mt-5">
                 Thực đơn
               </Typography>
-             
+
               {menu &&
                 menu.length > 0 &&
                 menu.map((item) => (
@@ -406,7 +628,7 @@ const RestaurantDetail = () => {
                     </Typography>
                     <Typography variant="medium" className="my-auto">
                       {Number(
-                        item.price * (1 - item.discount / 100)
+                        item.price * (1 - promotionValue / 100)
                       ).toLocaleString("en-US")}{" "}
                       đ
                     </Typography>
@@ -432,7 +654,6 @@ const RestaurantDetail = () => {
                 color="blue"
                 onClick={handleCheckout}
                 disabled={people <= 0} // Disable button nếu people <= 0
-
               >
                 Đặt chỗ
               </Button>

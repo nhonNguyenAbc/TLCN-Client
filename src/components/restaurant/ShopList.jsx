@@ -3,20 +3,40 @@ import FilterComponent from "./FilterComponent";
 import ProductCard from "./ProductCard";
 import Pagination from "../shared/Pagination";
 
-
-const ShopList = ({ restaurants, setSort, setField, setPriceRange, setPage, page }) => {
-  const filteredRestaurants = restaurants.data;
-  const pagination = restaurants.info;
+const ShopList = ({ 
+  restaurants, 
+  setSort, 
+  setField, 
+  setPriceRange, 
+  setPage, 
+  page,
+  setProvinceCode,
+  setDistrictCode 
+}) => {
+  // Safely handle cases where restaurants might be undefined
+  const filteredRestaurants = restaurants?.data || [];
+  const pagination = restaurants?.info || { number_of_pages: 0 };
 
   const handleSortChange = (value) => {
     const [field, order] = value.split('-');
     setField(field); 
     setSort(order === 'asc' ? 1 : -1);
+    setPage(1); // Reset to first page when sorting changes
   };
 
   const handlePriceChange = (value) => {
     setPriceRange(value); 
     setPage(1); 
+  };
+
+  const handleProvinceChange = (provinceCode) => {
+    setProvinceCode(provinceCode);
+    setPage(1);
+  };
+
+  const handleDistrictChange = (districtCode) => {
+    setDistrictCode(districtCode);
+    setPage(1);
   };
 
   return (
@@ -26,6 +46,8 @@ const ShopList = ({ restaurants, setSort, setField, setPriceRange, setPage, page
         <FilterComponent
           handleSort={handleSortChange}
           handlePriceChange={handlePriceChange}
+          handleProvinceChange={handleProvinceChange}
+          handleDistrictChange={handleDistrictChange}
         />
       </div>
       <div className="grid grid-cols-4 gap-x-4 gap-y-8">
@@ -33,14 +55,15 @@ const ShopList = ({ restaurants, setSort, setField, setPriceRange, setPage, page
           <ProductCard key={restaurant._id} {...restaurant} />
         ))}
       </div>
-      <Pagination
-        page={pagination.number_of_pages}
-        active={page}
-        setActive={setPage}
-      />
+      {pagination.number_of_pages > 1 && (
+        <Pagination
+          page={pagination.number_of_pages}
+          active={page}
+          setActive={setPage}
+        />
+      )}
     </div>
   );
 };
-
 
 export default ShopList;

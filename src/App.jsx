@@ -38,7 +38,6 @@ function App() {
           <Route path="restaurant" element={<RestaurantList />} />
           <Route path="restaurants/promotion" element={<PromotionPage />} />
           <Route path="restaurant/:id" element={<RestaurantDetail />} />
-          <Route path="restaurants/review" element={<VideoFeed />} />
 
           <Route path="order" element={<Order />} />
           <Route path="about-us" element={<AboutUs />} />
@@ -48,6 +47,9 @@ function App() {
           <Route path="success" element={<Successpage />} />
           <Route path="fail" element={<Failcheckoutpage />} />
           <Route path="*" element={<NotFoundpage />} />
+        </Route>
+        <Route path="/" element={<Layout showFooter={false} />}>
+          <Route path="restaurants/review" element={<VideoFeed />} />
         </Route>
         <Route path="/dashboard" element={<Adminpage />} />
         <Route path="/staff" element={<Staffpage />} />

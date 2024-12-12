@@ -3,9 +3,10 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { setTab } from "../../features/slices/tabSlice";
 
-const Tablist = ({ TABS }) => {
+const Tablist = ({ TABS, setStatus }) => {
   const tab = useSelector((state) => state.tab.value);
   const dispatch = useDispatch();
+
   return (
     <div className="flex flex-col items-center justify-between gap-4 md:flex-row mb-3">
       <Tabs value={tab} className="w-full" as="div">
@@ -15,7 +16,8 @@ const Tablist = ({ TABS }) => {
               key={value}
               value={value}
               onClick={() => {
-                dispatch(setTab(value));
+                dispatch(setTab(value)); // Cập nhật tab trong redux
+                setStatus(value); // Cập nhật status khi tab thay đổi
               }}
             >
               &nbsp;&nbsp;{label}&nbsp;&nbsp;
@@ -34,8 +36,7 @@ Tablist.propTypes = {
       value: PropTypes.string.isRequired,
     })
   ).isRequired,
-  tab: PropTypes.string.isRequired,
-  setTab: PropTypes.func.isRequired,
+  setStatus: PropTypes.func.isRequired, // Chỉ cần nhận setStatus
 };
 
 export default Tablist;

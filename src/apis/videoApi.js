@@ -16,8 +16,12 @@ export const videoApi = createApi({
   endpoints: (builder) => ({
     // API lấy danh sách video
     getVideos: builder.query({
-      query: () => '/', 
+      query: ({ restaurantName }) => {
+        const queryParam = restaurantName ? `?restaurantName=${restaurantName}` : '';
+        return `/${queryParam}`;
+      },
     }),
+    
 
     // API thêm video
     addVideo: builder.mutation({

@@ -3,22 +3,24 @@ import ReactPlayer from "react-player";
 import { useGetVideosQuery } from "../apis/videoApi";
 import { Volume2, VolumeX, MessageSquare } from "lucide-react";
 import throttle from "lodash.throttle";
-import { NavbarWithSublist } from "../components/shared/NavbarWithSublist";
-import { Banner } from "../components/shared/Banner";
 import "./VideoFeed.css";
 import { remove as removeDiacritics } from "diacritics";
 import { useNavigate } from "react-router-dom";
 import { useCreateCommentMutation, useGetCommentsForVideoQuery } from "../apis/commentApi";
+import { UserIcon } from "@heroicons/react/24/solid";
 
 const VideoFeed = () => {
-    const { data: videos = [], isLoading, isError } = useGetVideosQuery();
+    const [searchTerm, setSearchTerm] = useState(""); // State để lưu thông tin tìm kiếm
+    const [restaurantName, setRestaurantName] = useState(""); // Lưu thông tin tên nhà hàng để tìm kiếm
+
+    const { data: videos = [], isLoading, isError } = useGetVideosQuery({ restaurantName }); // Gọi dữ liệu dựa vào `searchTerm`
     const [createComment, { isLoading: isCreatingComment }] = useCreateCommentMutation();
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState("");
-    const [progress, setProgress] = useState(0); // Trạng thái để theo dõi tiến trình
+    const [progress, setProgress] = useState(0);
     const containerRef = useRef(null);
     const videoRefs = useRef([]);
     const [showFullDescription, setShowFullDescription] = useState(false);
@@ -122,17 +124,17 @@ const VideoFeed = () => {
     const toggleMute = () => {
         setIsMuted(!isMuted);  // Chuyển trạng thái bật/tắt âm thanh
     };
-
+    const handleSearch = () => {
+        // Gán search term khi nhấn nút Search
+        setRestaurantName(searchTerm);
+    };
 
     if (isLoading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
     if (isError) return <div className="h-screen flex items-center justify-center">Error loading videos.</div>;
     if (!videos.length) {
         return (
             <div>
-                <div>
-                    <Banner />
-                    <NavbarWithSublist />
-                </div>
+
                 <div className="h-screen flex items-center justify-center">
                     <p className="text-xl text-gray-500">Không có video nào hiện tại.</p>
                 </div>
@@ -143,19 +145,36 @@ const VideoFeed = () => {
     return (
         <>
             <div className=" inset-0 bg-transparent">
-                {/* <div>
-                    <Banner />
-                    <NavbarWithSublist />
-                </div> */}
+                {!showComments && (
+                    <div className="flex search-container p-4 justify-end mr-4">
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)} // Ghi nhận thông tin input
+                            placeholder="Nhập tên nhà hàng cần tìm..."
+                            className="border p-2 rounded-lg"
+                        />
+                        <button
+                            onClick={handleSearch} // Gọi hàm tìm kiếm khi nhấn nút
+                            className="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        >
+                            Search
+                        </button>
+                    </div>
+                )}
+
+
                 <div
                     ref={containerRef}
-                    className={`h-[80vh] ${showComments ? "w-[100vw]" : "w-[60vw]"} overflow-y-scroll snap-y snap-mandatory scrollbar-hide rounded-lg shadow-lg mx-auto`}
+                    className={`${showComments ? "h-[70vh]" : "h-[70vh]"
+                        } ${showComments ? "w-[90vw]" : "w-[60vw]"} ${showComments ? "mt-8" : "mt-2"
+                        } overflow-y-scroll snap-y snap-mandatory scrollbar-hide rounded-lg shadow-lg mx-auto`}
                     style={{ scrollBehavior: "smooth" }}
                 >
                     {videos.map((video, index) => (
                         <div
                             key={video._id}
-                            className="h-[80vh] snap-start relative flex transition-all duration-300"
+                            className="h-[70vh] snap-start relative flex transition-all duration-300"
                             onMouseEnter={() => setShowSeekbar(true)} // Show seekbar on hover
                             onMouseLeave={() => setShowSeekbar(false)} // Hide seekbar when mouse leaves
                         >
@@ -205,7 +224,6 @@ const VideoFeed = () => {
                                         }}
                                     />
 
-                                    {/* Custom Seekbar */}
                                     {showSeekbar && (
                                         <div className="absolute bottom-0 w-full bg-opacity-50 bg-black">
                                             <input
@@ -253,9 +271,12 @@ const VideoFeed = () => {
                                         ) : commentsData?.comments?.length > 0 ? (
                                             <div className="mb-24">
                                                 {commentsData.comments.map((comment) => (
-                                                    <div key={comment._id}>
-                                                        <p className="font-semibold">{comment.user?.name || "Unknown User"}</p>
-                                                        <p>{comment.content}</p>
+                                                    <div className="mb-3 mt-2" key={comment._id}>
+                                                        <div className="flex items-center">
+                                                        <UserIcon className="h-8 w-8 mb-1 text-gray-500 mr-2 border-2 border-gray-300 rounded-full p-1" /> {/* Thêm viền */}
+                                                        <p className="font-semibold">{comment?.user?.name}</p>
+                                                        </div>
+                                                        <p className="ml-4">{comment.content}</p>
                                                     </div>
                                                 ))}
                                             </div>

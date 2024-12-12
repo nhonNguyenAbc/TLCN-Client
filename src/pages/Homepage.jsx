@@ -22,58 +22,6 @@ import { useGetAllRestaurantsQuery } from "../apis/restaurantApi";
 import { useState } from "react";
 const Homepage = () => {
   const navigate = useNavigate();
- 
-  //   {
-  //     id: 0,
-  //     rating: 4,
-  //     imageUrl:
-  //       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-  //     name: "Mindx chi nhánh Phú Nhuận",
-  //     distance: 5,
-  //     numReviews: 100,
-  //     price: 100000,
-  //   },
-  //   {
-  //     id: 1,
-  //     rating: 4,
-  //     imageUrl:
-  //       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-  //     name: "Mindx chi nhánh Phú Nhuận",
-  //     distance: 5,
-  //     numReviews: 100,
-  //     price: 100000,
-  //   },
-  //   {
-  //     id: 2,
-  //     rating: 4,
-  //     imageUrl:
-  //       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-  //     name: "Mindx chi nhánh Phú Nhuận",
-  //     distance: 5,
-  //     numReviews: 100,
-  //     price: 100000,
-  //   },
-  //   {
-  //     id: 3,
-  //     rating: 4,
-  //     imageUrl:
-  //       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-  //     name: "Mindx chi nhánh Phú Nhuận",
-  //     distance: 5,
-  //     numReviews: 100,
-  //     price: 100000,
-  //   },
-  //   {
-  //     id: 4,
-  //     rating: 4,
-  //     imageUrl:
-  //       "https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
-  //     name: "Mindx chi nhánh Phú Nhuận",
-  //     distance: 5,
-  //     numReviews: 100,
-  //     price: 100000,
-  //   },
-  // ];
   const {
     data: menus,
     isLoading: menuLoading,
@@ -95,7 +43,7 @@ const Homepage = () => {
   const list_restaurant = restaurants?.data.map((item) => ({
     _id: item._id,
     name: item.name,
-    address: item.address,
+    address: item?.address?.detail,
     openTime: item.openTime,
     closeTime: item.closeTime,
     description: item.description,
@@ -222,15 +170,12 @@ const Homepage = () => {
                 <CardFooter className="w-full pt-0 flex items-center justify-around gap-5">
                   <div></div>
                   <Typography className="text-[#FF333A]" variant="h5">
-                    {(menu.price * (1 - menu.discount / 100)).toLocaleString(
+                    {(menu.price).toLocaleString(
                       "en-US"
                     )}{" "}
                     đ
                   </Typography>
-                  <Typography className="line-through" variant="h6">
-                    {menu.price.toLocaleString("en-US")} đ
-                  </Typography>
-
+                  
                   <Typography color="black" variant="h6">
                     / {menu.unit}
                   </Typography>

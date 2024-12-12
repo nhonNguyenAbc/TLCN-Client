@@ -1,19 +1,35 @@
 import React, { useState } from "react";
 import { Input } from "@material-tailwind/react";
-import { useGetUserByIdQuery, useUpdateUserByIdMutation } from "../apis/userApi";
-
+import { useGetUserByIdQuery, useUpdateUserByIdMutation, useChangePasswordMutation } from "../apis/userApi";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import './profile.css'
 const ProfilePage = ({ userId }) => {
   const { data: userData, isLoading, isError } = useGetUserByIdQuery(userId);
   const [updateUserById] = useUpdateUserByIdMutation();
+  const [changePassword] = useChangePasswordMutation();
   const user = userData?.data;
 
-  const [formType, setFormType] = useState(""); // "update", "changePassword", hoặc "" (giao diện chính)
+  const [formType, setFormType] = useState(""); 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     username: "",
     phone: "",
   });
+
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [notification, setNotification] = useState(null);
 
   React.useEffect(() => {
     if (user) {
@@ -26,22 +42,43 @@ const ProfilePage = ({ userId }) => {
     }
   }, [user]);
 
-  // Xác định title động
   const getTitle = () => {
     if (formType === "update") return "Cập nhật thông tin";
     if (formType === "changePassword") return "Đổi mật khẩu";
     return "Thông tin cá nhân";
   };
 
-  // Hàm xử lý khi nhấn lưu thông tin cập nhật
+  const showNotification = (message, isSuccess) => {
+    setNotification({ message, isSuccess });
+    setTimeout(() => setNotification(null), 4000);
+  };
+
   const handleSaveUpdate = async () => {
     try {
       await updateUserById({ id: userId, data: formData }).unwrap();
-      alert("Thông tin đã được cập nhật thành công!");
-      setFormType(""); // Quay lại giao diện chính
+      showNotification("Thông tin đã được cập nhật thành công!", true);
+      setFormType("");
     } catch (error) {
       console.error("Lỗi khi cập nhật thông tin:", error);
-      alert("Cập nhật thất bại. Vui lòng thử lại.");
+      showNotification("Cập nhật thất bại. Vui lòng thử lại.", false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      showNotification("Mật khẩu mới và xác nhận mật khẩu không khớp.", false);
+      return;
+    }
+    try {
+      await changePassword({
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword,
+      }).unwrap();
+      showNotification("Mật khẩu đã được thay đổi thành công!", true);
+      setFormType("");
+    } catch (error) {
+      console.error("Lỗi khi đổi mật khẩu:", error);
+      showNotification("Đổi mật khẩu thất bại. Vui lòng thử lại.", false);
     }
   };
 
@@ -53,11 +90,27 @@ const ProfilePage = ({ userId }) => {
     return <div className="text-center text-red-500">Lỗi khi tải dữ liệu người dùng.</div>;
   }
 
+  const togglePasswordVisibility = (field) => {
+    setPasswordVisibility((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
   return (
     <div className="max-w-lg mx-auto mt-10 p-5 bg-white shadow rounded">
+      {notification && (
+  <div
+    className={`mb-4 p-3 text-white rounded ${
+      notification.isSuccess ? "bg-green-500" : "bg-red-500"
+    } notification-animation`}
+  >
+    {notification.message}
+  </div>
+)}
+
       <h1 className="text-2xl font-bold mb-5 text-center">{getTitle()}</h1>
 
-      {/* Form chính */}
       {formType === "" && (
         <>
           <div className="space-y-4">
@@ -96,7 +149,6 @@ const ProfilePage = ({ userId }) => {
         </>
       )}
 
-      {/* Form cập nhật thông tin */}
       {formType === "update" && (
         <div className="space-y-4">
           <Input
@@ -140,30 +192,75 @@ const ProfilePage = ({ userId }) => {
         </div>
       )}
 
-      {/* Form đổi mật khẩu */}
       {formType === "changePassword" && (
         <div className="space-y-4">
-          <Input type="password" label="Mật khẩu cũ" className="w-full" />
-          <Input type="password" label="Mật khẩu mới" className="w-full" />
-          <Input type="password" label="Nhập lại mật khẩu mới" className="w-full" />
+          <div className="relative">
+            <Input
+              type={passwordVisibility.oldPassword ? "text" : "password"}
+              label="Mật khẩu cũ"
+              value={passwordData.oldPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+              className="w-full"
+            />
+            <div
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              onClick={() => togglePasswordVisibility("oldPassword")}
+            >
+              {passwordVisibility.oldPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+            </div>
+          </div>
+
+          <div className="relative">
+            <Input
+              type={passwordVisibility.newPassword ? "text" : "password"}
+              label="Mật khẩu mới"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+              className="w-full"
+            />
+            <div
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              onClick={() => togglePasswordVisibility("newPassword")}
+            >
+              {passwordVisibility.newPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+            </div>
+          </div>
+
+          <div className="relative">
+            <Input
+              type={passwordVisibility.confirmPassword ? "text" : "password"}
+              label="Xác nhận mật khẩu"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+              className="w-full"
+            />
+            <div
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              onClick={() => togglePasswordVisibility("confirmPassword")}
+            >
+              {passwordVisibility.confirmPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+            </div>
+          </div>
+
           <div className="mt-4 flex justify-end space-x-2">
             <button
-              onClick={() => setFormType("")}
+              onClick={() =>setFormType("")}
               className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-            >
-              Hủy
-            </button>
-            <button
-              onClick={() => alert("Tính năng đổi mật khẩu chưa được triển khai!")}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Lưu
-            </button>
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleChangePassword}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Đổi mật khẩu
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default ProfilePage;
+        )}
+      </div>
+    );
+  };
+  
+  export default ProfilePage;
+  

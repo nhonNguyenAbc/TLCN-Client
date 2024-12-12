@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import { menu } from "../../constants/table_head";
 import {
@@ -44,6 +44,8 @@ import { Toast } from "../../configs/SweetAlert2";
 import Loading from "../shared/Loading";
 const Menu = () => {
   const selectedId = useSelector((state) => state.selectedId.value);
+  const [imageFile, setImageFile] = useState(null); // Lưu ảnh từ user chọn
+  const [imagePreview, setImagePreview] = useState(null); // Hiển thị ảnh xem trước
   const [active, setActive] = React.useState(1);
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -64,7 +66,7 @@ const Menu = () => {
   const [updatePrice, setUpdatePrice] = useState(0);
   const [updateDiscount, setUpdateDiscount] = useState(0);
   const [updateCode, setUpdateCode] = useState("");
-
+  const fileInputRef = useRef(null);
   const {
     data: menus,
     isLoading: menuLoading,
@@ -108,21 +110,43 @@ const Menu = () => {
       name: menu.name,
       price: Number(menu.price).toLocaleString("en-US") + " đ",
       unit: menu.unit,
-      discount: menu.discount.toString() + "%",
+      image: menu?.image?.url
     };
   });
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file); // Lưu file
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target.result); // Hiển thị ảnh xem trước
+      reader.readAsDataURL(file);
+    }
+  };
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
   const handleAddSubmit = async () => {
     try {
-      const data = await createMenuItem({
-        restaurant_id: restaurant,
-        name: name,
-        code: code,
-        category: category,
-        description: description,
-        unit: unit,
-        price: price,
-        discount: discount,
-      });
+      const formData = new FormData();
+      formData.append("restaurant_id", restaurant);
+      formData.append("name", name);
+      formData.append("code", code);
+      formData.append("category", category);
+      formData.append("description", description);
+      formData.append("unit", unit);
+      formData.append("price", price);
+      formData.append("discount", discount);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      const data = await createMenuItem(formData);
+
       if (data.data.status === 201) {
         Toast.fire({
           icon: "success",
@@ -136,6 +160,8 @@ const Menu = () => {
           setUnit("");
           setPrice(0);
           setDiscount(0);
+          setImageFile(null);
+          setImagePreview(null);
         });
       }
     } catch (err) {
@@ -146,19 +172,51 @@ const Menu = () => {
     }
   };
   const updateSubmit = async () => {
-    const data = await updateMenuItem({
-      id: selectedId,
-      restaurant_id: updateRestaurant,
-      name: updateName,
-      code: updateCode,
-      category: updateCategory,
-      description: updateDescription,
-      unit: updateUnit,
-      price: updatePrice,
-      discount: updateDiscount,
-    });
-    return data;
+    try {
+      const formData = new FormData();
+      formData.append("id", selectedId); // ID của món ăn cần cập nhật
+      formData.append("restaurant_id", updateRestaurant);
+      formData.append("name", updateName);
+      formData.append("code", updateCode);
+      formData.append("category", updateCategory);
+      formData.append("description", updateDescription);
+      formData.append("unit", updateUnit);
+      formData.append("price", updatePrice);
+      formData.append("discount", updateDiscount);
+
+      // Kiểm tra xem có hình ảnh mới không
+      if (imageFile) {
+        formData.append("image", imageFile); // Thêm hình ảnh vào FormData
+      }
+
+      // Gửi dữ liệu cập nhật
+      const data = await updateMenuItem(formData);
+      if (data?.data?.status === 200) {
+        Toast.fire({
+          icon: "success",
+          title: "Cập nhật món ăn thành công",
+        }).then(() => {
+          handleClose();
+          setUpdateName("");
+          setUpdateCode("");
+          setUpdateCategory("");
+          setUpdateDescription("");
+          setUpdateUnit("");
+          setUpdatePrice(0);
+          setUpdateDiscount(0);
+          setImageFile(null);
+          setImagePreview(null);
+        });
+      }
+    } catch (err) {
+      Toast.fire({
+        icon: "error",
+        title: "Cập nhật món ăn thất bại",
+      });
+    }
   };
+
+
   const handleDeleteSubmit = async () => {
     const data = await deleteMenuItem(selectedId);
     if (data.data.status === 200) {
@@ -202,11 +260,11 @@ const Menu = () => {
             <Typography variant="h6">Phân loại: </Typography>
             <Typography className="col-span-2">
               {menus?.data.find((menu) => menu._id === selectedId)?.category ===
-              "Dish"
+                "Dish"
                 ? "Đồ ăn"
                 : category === "Beverage"
-                ? "Đồ uống"
-                : "Tráng miệng"}
+                  ? "Đồ uống"
+                  : "Tráng miệng"}
             </Typography>
             <Typography variant="h6">Mô tả: </Typography>
             <Typography className="col-span-2">
@@ -222,10 +280,7 @@ const Menu = () => {
                 menus?.data.find((menu) => menu._id === selectedId)?.price
               ).toLocaleString("en-US") + " đ"}
             </Typography>
-            <Typography variant="h6">Giảm giá: </Typography>
-            <Typography className="col-span-2">
-              {menus?.data.find((menu) => menu._id === selectedId)?.discount} %
-            </Typography>
+
           </div>
         </Container>
       }
@@ -255,8 +310,32 @@ const Menu = () => {
               value={updateName}
               onChange={(e) => setUpdateName(e.target.value)}
             />
+            <div>
+              <TextField
+                type="file"
+                label=""
+                inputRef={fileInputRef} // Thêm ref vào input
+                onChange={handleImageChange} // Gọi hàm xử lý thay đổi ảnh
+              />
+              {imagePreview && (
+                <div className="relative mt-2">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-32 h-32 object-cover border"
+                  />
+                  {/* Dấu 'X' xoá ảnh */}
+                  <button
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    onClick={handleRemoveImage}
+                  >
+                    &#10005;
+                  </button>
+                </div>
+              )}
+            </div>
             <FormControl fullWidth>
-              <InputLabel id="restaurant">Nhà hàng</InputLabel>
+              <InputLabel id="restaurant">Phân loại</InputLabel>
               <Select
                 labelId="restaurant"
                 label="Phân loại"
@@ -287,8 +366,8 @@ const Menu = () => {
                   isNaN(e.target.value)
                     ? 0
                     : e.target.value < 0
-                    ? 0
-                    : e.target.value
+                      ? 0
+                      : e.target.value
                 )
               }
             />
@@ -299,23 +378,7 @@ const Menu = () => {
               value={updateUnit}
               onChange={(e) => setUpdateUnit(e.target.value)}
             />
-            <TextField
-              size="sm"
-              label="Giảm giá (%)"
-              placeholder="Giảm giá"
-              value={updateDiscount}
-              onChange={(e) =>
-                setUpdateDiscount(
-                  isNaN(e.target.value)
-                    ? 0
-                    : e.target.value < 0
-                    ? 0
-                    : e.target.value > 100
-                    ? 100
-                    : e.target.value
-                )
-              }
-            />
+
             <TextField
               size="sm"
               label="Mô tả"
@@ -374,7 +437,7 @@ const Menu = () => {
                   value={restaurant}
                   onChange={(e) => setRestaurant(e.target.value)}
                 >
-                  {restaurants.data.map((restaurant, index) => (
+                  {restaurants?.data?.map((restaurant, index) => (
                     <MenuItem key={index} value={restaurant._id}>
                       {restaurant.name}
                     </MenuItem>
@@ -387,10 +450,34 @@ const Menu = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
+              <div>
+                <TextField
+                  type="file"
+                  label=""
+                  inputRef={fileInputRef} // Thêm ref vào input
+                  onChange={handleImageChange} // Gọi hàm xử lý thay đổi ảnh
+                />
+                {imagePreview && (
+                  <div className="relative mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover border"
+                    />
+                    {/* Dấu 'X' xoá ảnh */}
+                    <button
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                      onClick={handleRemoveImage}
+                    >
+                      &#10005;
+                    </button>
+                  </div>
+                )}
+              </div>
               <FormControl fullWidth>
-                <InputLabel id="restaurant">Phân loại</InputLabel>
+                <InputLabel id="category">Phân loại</InputLabel>
                 <Select
-                  labelId="restaurant"
+                  labelId="category"
                   label="Phân loại"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
@@ -400,7 +487,6 @@ const Menu = () => {
                   <MenuItem value="Dessert">Tráng miệng</MenuItem>
                 </Select>
               </FormControl>
-
               <TextField
                 label="Mã thức ăn"
                 placeholder="Mã thức ăn"
@@ -408,23 +494,12 @@ const Menu = () => {
                 onChange={(e) => setCode(e.target.value)}
               />
               <FormControl fullWidth>
-                <InputLabel id="price">Giá thành/đơn vị khẩu phần</InputLabel>
                 <OutlinedInput
-                  labelId="price"
-                  label="Giá thành/đơn vị khẩu phần"
                   placeholder="Giá thành/đơn vị khẩu phần"
-                  endAdornment={
-                    <InputAdornment position="end">đ</InputAdornment>
-                  }
+                  endAdornment={<InputAdornment position="end">đ</InputAdornment>}
                   value={price}
                   onChange={(e) =>
-                    setPrice(
-                      isNaN(e.target.value)
-                        ? 0
-                        : e.target.value < 0
-                        ? 0
-                        : e.target.value
-                    )
+                    setPrice(isNaN(e.target.value) ? 0 : Number(e.target.value))
                   }
                 />
               </FormControl>
@@ -434,30 +509,7 @@ const Menu = () => {
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
               />
-              <FormControl fullWidth>
-                <InputLabel id="discount">Giảm giá</InputLabel>
-                <OutlinedInput
-                  labelId="discount"
-                  label="Giảm giá"
-                  value={discount}
-                  endAdornment={
-                    <InputAdornment position="end">%</InputAdornment>
-                  }
-                  onChange={(e) =>
-                    setDiscount(
-                      isNaN(e.target.value)
-                        ? 0
-                        : e.target.value < 0
-                        ? 0
-                        : e.target.value > 100
-                        ? 100
-                        : e.target.value
-                    )
-                  }
-                />
-              </FormControl>
               <TextField
-                size="sm"
                 label="Mô tả"
                 multiline
                 minRows={8}
@@ -465,11 +517,13 @@ const Menu = () => {
                 placeholder="Mô tả món ăn"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="col-span-2 text-black"
+                className="col-span-2"
               />
+
             </div>
           </Container>
         </DialogContent>
+
         <DialogActions>
           <Button variant="gradient" color="green" onClick={handleAddSubmit}>
             <span>Thêm mới</span>
