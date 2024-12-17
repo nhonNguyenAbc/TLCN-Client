@@ -10,13 +10,17 @@ import {
   Option,
   Select,
   Typography,
+  Modal,
+  Dialog,
+  DialogBody,
+  DialogFooter
 } from "@material-tailwind/react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   useGetAllTablesQuery,
   useGetTableByAnyFieldQuery,
 } from "../apis/tableApi";
-import { useGetMenuItemsByAnyFieldQuery } from "../apis/menuApi";
+import { useGetMenuByRestaurantQuery, useGetMenuItemsByAnyFieldQuery } from "../apis/menuApi";
 import { useGetRestaurantByIdQuery } from "../apis/restaurantApi";
 import Loading from "../components/shared/Loading";
 import { TextField } from "@mui/material";
@@ -27,12 +31,19 @@ import { current } from "@reduxjs/toolkit";
 const RestaurantDetail = () => {
   const { id } = useParams();
   const [page, setPage] = useState(1)
+  const [menuPage, setMenuPage] = useState(1)
+  const [replyTo, setReplyTo] = useState(null);
+
   const [selectedImage, setSelectedImage] = useState(null);
   const [createReview, { isLoading }] = useCreateReviewMutation();
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const fileInputRef = useRef(null);
   const commentSectionRef = useRef(null);
+  const menuSectionRef = useRef(null);
+  const [visibleReplies, setVisibleReplies] = useState({});
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     data: restaurants,
@@ -45,6 +56,10 @@ const RestaurantDetail = () => {
     error: reviewError,
     refetch
   } = useGetReviewsByRestaurantQuery({ restaurant_id: id, page })
+
+  const {
+    data: menus
+  } = useGetMenuByRestaurantQuery({ restaurantId: id, page: menuPage })
   const navigate = useNavigate();
   const [people, setPeople] = React.useState(
     JSON.parse(localStorage.getItem("order"))?.totalPeople || 0
@@ -62,42 +77,64 @@ const RestaurantDetail = () => {
       setImage(file); // Cập nhật file ảnh để gửi trong `formData`
     }
   };
-  const handleSubmit = async () => {
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedImage(null);
+  };
+  const handleSubmit = async (parentId = null) => {
     if (!content) {
       alert("Vui lòng nhập nội dung bình luận.");
       return;
     }
-
+    console.log('parent', parentId)
     const formData = new FormData(); // Tạo form data để gửi file
     formData.append("restaurant_id", id); // Thêm ID nhà hàng
     formData.append("content", content); // Thêm nội dung bình luận
-    if (image) {
+    if (parentId !== null && parentId !== undefined) {
+      formData.append("parent_id", parentId); // Thêm ID của bình luận cha, nếu có
+    } if (image) {
       formData.append("image", image); // Thêm file ảnh nếu có
     }
-
     try {
       const response = await createReview(formData).unwrap(); // Gọi API qua RTK Query
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+      setReplyTo(null)
       // Load lại dữ liệu mới từ server
       refetch();
 
       // Reset dữ liệu sau khi gửi thành công
       setContent(''); // Reset content về rỗng
       setImage(null); // Reset ảnh đã chọn về null
-      setSelectedImage(null)
+      setSelectedImage(null);
     } catch (error) {
       console.error("Error:", error);
       alert("Có lỗi xảy ra khi gửi đánh giá.");
     }
   };
+  const toggleReplies = (commentId) => {
+    setVisibleReplies((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId], // Đảo trạng thái true/false
+    }));
+  };
+
   useEffect(() => {
     if (commentSectionRef.current) {
       commentSectionRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [page]);
-
+  useEffect(() => {
+    if (menuSectionRef.current) {
+      menuSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [menuPage]);
   const handleRemoveImage = () => {
     setSelectedImage(null);
     setImage(null);
@@ -152,12 +189,16 @@ const RestaurantDetail = () => {
     );
   if (restaurantError) return <div>Error</div>;
 
+  let promotionValue = null;
+  if (restaurants?.data?.restaurant?.promotionDetails && Object.keys(restaurants.data.restaurant.promotionDetails).length > 0) {
+    promotionValue = restaurants.data.restaurant.promotionDetails.discountValue;
+  }
 
   const calculateTotal = (menu, people) => {
     // Tính tổng tiền từ menu
     const baseTotal = menu.reduce(
       (acc, item) =>
-        acc + item.price * item.quantity * (1 - item.discount / 100),
+        acc + item.price * item.quantity * (1 - promotionValue / 100),
       0
     );
 
@@ -233,6 +274,7 @@ const RestaurantDetail = () => {
       menu: menu,
       checkin: date + "T" + time + ":00.000Z",
       restaurantId: id,
+      promotionValue: promotionValue
     };
 
     // Lưu thông tin đặt hàng vào localStorage với từng nhà hàng
@@ -265,15 +307,104 @@ const RestaurantDetail = () => {
     };
     localStorage.setItem("order", JSON.stringify(storedOrders));
   };
-  let promotionValue = null;
-  if (restaurants?.data?.restaurant?.promotionDetails && Object.keys(restaurants.data.restaurant.promotionDetails).length > 0) {
-    promotionValue = restaurants.data.restaurant.promotionDetails.discountValue;
-  }
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
+  const renderComments = (comments) => {
+    return comments.map((comment) => (
+      <div
+        key={comment._id}
+        className="flex flex-col mt-1 border p-3 rounded-md shadow-md"
+      >
+        {/* Header (Avatar + Username) */}
+        <div className="flex items-center mb-2">
+          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
+            <Typography variant="h6" className="text-black">
+              <UserIcon className="w-4 h-4 text-black" />
+            </Typography>
+          </div>
+          <Typography variant="medium" className="text-black">
+            {comment.username || "Ẩn danh"}
+          </Typography>
+        </div>
+
+        {/* Nội dung bình luận */}
+        <div className="flex-1 ml-4">
+          <Typography variant="medium" className="text-black mb-2">
+            {comment.content}
+          </Typography>
+
+          {/* Hiển thị ảnh nếu có */}
+          {comment.image?.url && (
+            <div className="mt-2">
+              <img
+                alt="Uploaded"
+                src={comment.image.url}
+                className="h-32 w-auto object-cover rounded-md"
+              />
+            </div>
+          )}
+
+          {/* Hiển thị thời gian */}
+          <Typography variant="small" className="mt-1 text-gray-500">
+            {new Date(comment.created_at).toLocaleString()}
+          </Typography>
+        </div>
+
+        {/* Nút ẩn hiện + trả lời */}
+        <div className="flex items-center gap-6 mt-2 ml-4">
+          <button
+            onClick={() => setReplyTo(replyTo === comment._id ? null : comment._id)}
+            className="text-blue-500 hover:underline"
+          >
+            {replyTo === comment._id ? "Hủy" : "Phản hồi"}
+          </button>
+          {comment.replies?.length > 0 && (
+            <button
+              onClick={() => toggleReplies(comment._id)}
+              className="text-blue-500 hover:underline"
+            >
+              {visibleReplies[comment._id]
+                ? "Ẩn bình luận"
+                : `Hiển thị ${comment.replies.length} phản hồi`}
+            </button>
+          )}
+
+
+        </div>
+
+        {/* Form trả lời nếu người dùng đang trả lời bình luận này */}
+        {replyTo === comment._id && (
+          <div className="flex items-start mt-3">
+            <textarea
+              className="w-full border p-2 rounded-md"
+              placeholder="Nhập phản hồi của bạn..."
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+            <button
+              onClick={() => handleSubmit(comment._id)} // Gửi bình luận với parent_id
+              className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md ml-2"
+            >
+              Gửi
+            </button>
+          </div>
+        )}
+
+        {/* Hiển thị replies nếu visibleReplies[comment._id] === true */}
+        {visibleReplies[comment._id] && comment.replies?.length > 0 && (
+          <div className="ml-4 border-l pl-4">
+            {renderComments(comment.replies)}
+          </div>
+        )}
+      </div>
+    ));
+  };
+
+
 
   return (
     <>
@@ -322,7 +453,12 @@ const RestaurantDetail = () => {
               <div className="grid grid-cols-4 my-4">
                 <Typography variant="h6">Địa chỉ:</Typography>
                 <Typography variant="medium" className="col-span-3">
-                  {restaurants.data.restaurant.address.detail}, {restaurants.data.restaurant.address.district}, {restaurants.data.restaurant.address.province}
+                  {restaurants.data.restaurant.address.detail},
+                  {" "}
+                  {["1", "3", "4", "5", "6", "7", "8", "10", "11", "12"].includes(restaurants.data.restaurant.address.district)
+                    ? `Q.${restaurants.data.restaurant.address.district}`
+                    : restaurants.data.restaurant.address.district},
+                  {" "} {restaurants.data.restaurant.address.province}
                 </Typography>
               </div>
               <div className="grid grid-cols-4 my-4">
@@ -363,9 +499,10 @@ const RestaurantDetail = () => {
               </Typography>
             </CardBody>
           </Card>
-          <Card className="mt-5">
+          <Card className="mt-5" ref={menuSectionRef}>
             <CardBody>
-              <Typography variant="h3" color="black">
+              <Typography variant="h3" color="black"
+              >
                 Thực đơn
               </Typography>
               <div className="grid grid-cols-5 my-3">
@@ -383,32 +520,37 @@ const RestaurantDetail = () => {
                 </Typography>
 
               </div>
-              {restaurants.data.menus.map((item) => (
-                <div key={item} className="grid grid-cols-5 my-4">
-                  <Typography variant="medium" className="my-auto h-16 w-16">
-                    <img src={item.image.url} alt="card-image" className="object-cover " />
+              {menus.data.menuItems.map((item) => (
+                <div key={item} className="grid grid-cols-5 my-8">
+                  <Typography variant="medium" className="my-auto w-16 h-auto">
+                    <img
+                      src={item.image.url}
+                      alt="card-image"
+                      className="object-cover h-16 w-16 cursor-pointer"
+                      onClick={() => handleImageClick(item.image.url)} // Khi click vào ảnh sẽ mở modal
+                    />
                   </Typography>
                   <Typography variant="medium" className="my-auto">
                     {item.name}
                   </Typography>
-                  <Typography
-                    variant="medium"
-                    color="black"
-                    className="my-auto"
-                  >
-                    {(item.price * (1 - promotionValue / 100)).toLocaleString(
-                      "en-US"
-                    )}
-                    {"   "}
-                    <span className="line-through opacity-30">
-                      {item.price.toLocaleString("en-US")}
-                    </span>{" "}
-                    đ
-                  </Typography>
+                  {restaurants.data.restaurant.promotionDetails.discountValue ? (
+                    <Typography variant="medium" color="black" className="my-auto">
+                      {(item.price * (1 - promotionValue / 100)).toLocaleString("en-US")}{" "}
+                      <span className="line-through opacity-30">
+                        {item.price.toLocaleString("en-US")}
+                      </span>{" "}
+                      đ
+                    </Typography>
+                  ) : (
+                    <Typography variant="medium" color="black" className="my-auto">
+                      {item.price.toLocaleString("en-US")} đ
+                    </Typography>
+                  )}
+
                   <Typography variant="medium" className="my-auto">
-                    {item.unit}
+                    /{item.unit}
                   </Typography>
-                  <Button ref={commentSectionRef}
+                  <Button
                     variant="outlined"
                     className="border-[#FF333a] text-[#FF333a] h-10 my-auto"
                     color="red"
@@ -416,12 +558,40 @@ const RestaurantDetail = () => {
                   >
                     Thêm vào giỏ hàng
                   </Button>
+
                 </div>
+
               ))}
+              {menus.data.pagination.totalPages > 1 && (
+                <Pagination
+                  page={menus.data.pagination.totalPages}
+                  active={menuPage}
+                  setActive={setMenuPage}
+                />
+              )}
+              <Dialog open={isDialogOpen} handler={handleCloseDialog} className="max-h-[90vh]">
+                <DialogBody className="max-h-full overflow-hidden">
+                  <img
+                    src={selectedImage}
+                    alt="Larger View"
+                    className="w-full max-h-[70vh] object-cover"  // Đảm bảo ảnh vừa với khung dialog, có thể cắt nếu cần
+                  />
+                </DialogBody>
+                <DialogFooter>
+                  <Button
+                    variant="outlined"
+                    color="red"
+                    onClick={handleCloseDialog}
+                    className="mt-4"
+                  >
+                    Đóng
+                  </Button>
+                </DialogFooter>
+              </Dialog>
             </CardBody>
 
           </Card>
-          <Card className="mt-5" >
+          <Card className="mt-5" ref={commentSectionRef}>
             {/* Header cho section bình luận */}
             <Typography variant="h3" color="black" className="ml-6">
               Bình luận đánh giá
@@ -429,7 +599,7 @@ const RestaurantDetail = () => {
             <CardBody className="flex items-start mt-3 shadow-md">
               {/* Avatar mặc định */}
               <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-4">
-              <UserIcon className="w-6 h-6 text-black" />
+                <UserIcon className="w-6 h-6 text-black" />
 
               </div>
 
@@ -451,13 +621,14 @@ const RestaurantDetail = () => {
                   />
                   {/* Nút đăng */}
                   <button
-                    onClick={handleSubmit}
+                    onClick={() => handleSubmit(null)}
                     className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md"
                     disabled={isLoading}
                   >
                     {isLoading ? "Đang đăng..." : "Đăng"}
                   </button>
                 </div>
+
               </div>
             </CardBody>
             {/* Hiển thị ảnh đã chọn nếu có */}
@@ -484,51 +655,9 @@ const RestaurantDetail = () => {
             {/* Danh sách bình luận */}
             {reviewLoading && <Typography>Đang tải bình luận...</Typography>}
             {reviewError && <Typography>Lỗi khi tải bình luận!</Typography>}
-            {reviews && reviews.data.data.length > 0 && (
+            {reviews && reviews.data.length > 0 && (
               <div className="ml-4">
-                {reviews.data.data.map((review) => (
-                  <div
-                    key={review._id}
-                    className="flex flex-col mt-3 border p-3 rounded-md shadow-md"
-                  >
-                    {/* Header (Avatar + Username) */}
-                    <div className="flex items-center mb-2">
-                      <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-                        <Typography variant="h6" className="text-black">
-                        <UserIcon className="w-6 h-6 text-black" />
-                        </Typography>
-                      </div>
-                      <Typography variant="medium" className="text-black">
-                        {review.username}
-                      </Typography>
-                    </div>
-
-                    {/* Nội dung bình luận */}
-                    <div className="flex-1 ml-4">
-                      <Typography variant="medium" className="text-black mb-2">
-                        {review.content}
-                      </Typography>
-
-                      {/* Hiển thị ảnh nếu có */}
-                      {review.image?.url && (
-                        <div className="mt-2">
-                          <img
-                            alt="Uploaded"
-                            src={review.image.url}
-                            className=" h-32 w-auto object-cover rounded-md"
-                          />
-                        </div>
-                      )}
-
-                      {/* Hiển thị thời gian */}
-                      <Typography variant="small" className="mt-1 text-gray-500">
-                        {new Date(review.created_at).toLocaleString()}
-                      </Typography>
-                    </div>
-
-                  </div>
-
-                ))}
+                {renderComments(reviews.data)}
                 {reviews.data.totalPages > 1 && (
                   <Pagination
                     page={reviews.data.totalPages}

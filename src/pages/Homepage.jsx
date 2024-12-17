@@ -131,7 +131,7 @@ const Homepage = () => {
           className="mySwiper mt-10"
         >
           {restaurants?.data.map((restaurant) => (
-            <SwiperSlide key={restaurant.id} className="mb-2">
+            <SwiperSlide key={restaurant.id} className="my-8">
               <ProductCard {...restaurant} />
             </SwiperSlide>
           ))}
@@ -158,9 +158,9 @@ const Homepage = () => {
                 className="mt-6 cursor-pointer"
                 onClick={() => navigate("/restaurant/" + menu.restaurant_id)}
               >
-                <CardHeader color="blue-gray" className="relative h-40">
-            <img src={menu.image} alt="card-image" className="object-cover" />
-          </CardHeader>
+                <CardHeader color="blue-gray" className="relative h-40 w-80">
+                  <img src={menu.image} alt="card-image" className="object-cover" />
+                </CardHeader>
                 <CardBody className="mx-auto w-full h-[20vh] ">
                   <Typography variant="h5">{menu.name}</Typography>
                   <Typography color="blue-gray" className=" text-center">
@@ -175,7 +175,7 @@ const Homepage = () => {
                     )}{" "}
                     đ
                   </Typography>
-                  
+
                   <Typography color="black" variant="h6">
                     / {menu.unit}
                   </Typography>

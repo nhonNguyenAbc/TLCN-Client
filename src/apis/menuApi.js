@@ -46,9 +46,9 @@ export const menuApi = createApi({
       }),
       invalidatesTags: ["Menu"],
     }),
-    
-    
-    
+    getMenuByRestaurant: builder.query({
+      query: ({ restaurantId, page, size=6 }) => `/${restaurantId}?page=${page}&size=${size}`, // Đường dẫn API với tham số truyền vào
+    }),
     deleteMenuItem: builder.mutation({
       query: (id) => ({
         url: `/menu/${id}`,
@@ -82,4 +82,5 @@ export const {
   useDeleteMenuItemMutation,
   useGetMenuItemsByAnyFieldQuery,
   useGetMenusByUserIdQuery,
+  useGetMenuByRestaurantQuery,
 } = menuApi;

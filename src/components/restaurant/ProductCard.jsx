@@ -37,14 +37,18 @@ const ProductCard = ({
         </Typography>
 
         <div className="w-full pt-0 h-[70px]">
-          <Typography
-            variant="paragraph"
-            color="blue-gray"
-            className=" text-center"
-          >
-            {address.detail}, { address.district}, {address.province}
-          </Typography>
-        </div>
+  <Typography
+    variant="paragraph"
+    color="blue-gray"
+    className="text-center"
+  >
+    {address.detail}, 
+    {" "}
+    {["1", "3", "4", "5", "6", "7", "8", "10", "11", "12"].includes(address.district) ? `Q.${address.district}` : address.district}, 
+    {" "}
+    {address.province}
+  </Typography>
+</div>
         <div className="flex justify-center mb-2">
         {/* Hiển thị sao bằng react-star-ratings */}
         <StarRatings

@@ -24,7 +24,7 @@ const VideoFeed = () => {
     const containerRef = useRef(null);
     const videoRefs = useRef([]);
     const [showFullDescription, setShowFullDescription] = useState(false);
-    const [showSeekbar, setShowSeekbar] = useState(false); // New state for showing seekbar
+    const [showSeekbar, setShowSeekbar] = useState(false); 
 
     const navigate = useNavigate();
     const { data: commentsData, isFetching } = useGetCommentsForVideoQuery(videos[currentIndex]?._id, {
@@ -274,7 +274,7 @@ const VideoFeed = () => {
                                                     <div className="mb-3 mt-2" key={comment._id}>
                                                         <div className="flex items-center">
                                                         <UserIcon className="h-8 w-8 mb-1 text-gray-500 mr-2 border-2 border-gray-300 rounded-full p-1" /> {/* Thêm viền */}
-                                                        <p className="font-semibold">{comment?.user?.name}</p>
+                                                        <p className="font-semibold">{comment?.user?.username}</p>
                                                         </div>
                                                         <p className="ml-4">{comment.content}</p>
                                                     </div>

@@ -37,8 +37,6 @@ const FilterComponent = ({
   useEffect(() => {
     // Reset district when province changes
     setSelectedDistrict("");
-    
-    // Call province change handlers
     handleProvinceChange(selectedProvince);
     handleDistrictChange(""); 
   }, [selectedProvince]);
@@ -55,6 +53,8 @@ const FilterComponent = ({
 
   const handleProvinceChangeInternal = (value) => {
     setSelectedProvince(value);
+    setSelectedDistrict(value); // Reset district ngay khi thay đổi province
+
   };
 
   const handleDistrictChangeInternal = (value) => {

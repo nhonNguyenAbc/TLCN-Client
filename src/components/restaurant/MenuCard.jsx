@@ -17,7 +17,7 @@ const ProductCard = ({ id, rating, imageUrl, name, distance }) => {
       onClick={() => navigate("/restaurant/" + id)}
     >
       <CardHeader color="blue-gray" className="relative h-56">
-        <img src={imageUrl} alt="card-image" />
+        <img src={imageUrl} alt="card-image" className="h -56 max-w-70" />
       </CardHeader>
       <CardBody className="mx-auto">
         <Typography variant="h5">{name}</Typography>

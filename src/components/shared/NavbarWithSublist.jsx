@@ -50,7 +50,7 @@ function NavList() {
       >
         <ListItem className="flex items-center gap-2 py-2 pr-4">Về chúng tôi</ListItem>
       </Typography>
-      <Typography
+      {/* <Typography
         as="a"
         href="/contact"
         variant="h5"
@@ -58,7 +58,7 @@ function NavList() {
         className="font-medium"
       >
         <ListItem className="flex items-center gap-2 py-2 pr-4">Liên hệ</ListItem>
-      </Typography>
+      </Typography> */}
     </List>
   );
 }
@@ -78,11 +78,11 @@ export const NavbarWithSublist = () => {
       <div className="flex items-center justify-between text-blue-gray-900">
         <div className="flex items-center cursor-pointer" onClick={()=>navigate('/')}>
           <img
-            src="https://mindxschool.gitbook.io/~gitbook/image?url=https%3A%2F%2F2763219643-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FbApz6rKK01BWUpp5sM0n%252Ficon%252FTW0u7G4eX3NYfEpPqzqW%252Flogo.png%3Falt%3Dmedia%26token%3D3b580b4c-805c-47d5-bde5-9023a590e7a5&width=32&dpr=4&quality=100&sign=975a9163111fdc2e62e7d70701c224f6620d130c61f209c61dc0cd301c370ad"
+            src="https://img.freepik.com/premium-vector/hn-custom-letter-logo-design-initials-logo-letter-logo-modern-2023_290562-784.jpg"
             alt="Logo"
             className="mr-2 h-9 w-9"
           />
-          <span className="text-lg font-bold">Nhà hàng ABC</span>
+          <span className="text-lg font-bold">TableHive H&N</span>
         </div>
         <div className="hidden lg:block">
           <NavList /> {/* Sử dụng SearchBar */}
