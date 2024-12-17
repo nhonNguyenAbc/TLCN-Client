@@ -289,14 +289,11 @@ const RestaurantDetail = () => {
     const newPeople =
       e.target.value < 0 || isNaN(e.target.value) ? 0 : Number(e.target.value);
 
-    // Cập nhật số người
     setPeople(newPeople);
 
-    // Tính lại tổng tiền bao gồm menu và số người
     const newTotal = calculateTotal(menu, newPeople);
     setTotal(newTotal);
 
-    // Lưu thông tin vào localStorage cho từng nhà hàng
     const storedOrders = JSON.parse(localStorage.getItem("order")) || {};
     storedOrders[id] = {
       menu: menu,
@@ -319,7 +316,6 @@ const RestaurantDetail = () => {
         key={comment._id}
         className="flex flex-col mt-1 border p-3 rounded-md shadow-md"
       >
-        {/* Header (Avatar + Username) */}
         <div className="flex items-center mb-2">
           <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
             <Typography variant="h6" className="text-black">
@@ -377,22 +373,23 @@ const RestaurantDetail = () => {
         </div>
 
         {/* Form trả lời nếu người dùng đang trả lời bình luận này */}
-        {replyTo === comment._id && (
-          <div className="flex items-start mt-3">
-            <textarea
-              className="w-full border p-2 rounded-md"
-              placeholder="Nhập phản hồi của bạn..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-            />
-            <button
-              onClick={() => handleSubmit(comment._id)} // Gửi bình luận với parent_id
-              className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md ml-2"
-            >
-              Gửi
-            </button>
-          </div>
-        )}
+        {replyTo === comment._id && localStorage.getItem("token") && (
+  <div className="flex items-start mt-3">
+    <textarea
+      className="w-full border p-2 rounded-md"
+      placeholder="Nhập phản hồi của bạn..."
+      value={content}
+      onChange={(e) => setContent(e.target.value)}
+    />
+    <button
+      onClick={() => handleSubmit(comment._id)}
+      className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md ml-2"
+    >
+      Gửi
+    </button>
+  </div>
+)}
+
 
         {/* Hiển thị replies nếu visibleReplies[comment._id] === true */}
         {visibleReplies[comment._id] && comment.replies?.length > 0 && (
@@ -495,8 +492,15 @@ const RestaurantDetail = () => {
                 Chi tiết về {restaurants.data.restaurant.name}
               </Typography>
               <Typography variant="medium" color="black" className="my-5">
-                {restaurants?.data.restaurant.description}
+                {/* Thay thế '\n' bằng <br /> để hiển thị xuống dòng */}
+                {restaurants?.data.restaurant.description.split('\n').map((line, index) => (
+                  <span key={index}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
               </Typography>
+
             </CardBody>
           </Card>
           <Card className="mt-5" ref={menuSectionRef}>
@@ -622,11 +626,13 @@ const RestaurantDetail = () => {
                   {/* Nút đăng */}
                   <button
                     onClick={() => handleSubmit(null)}
-                    className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md"
-                    disabled={isLoading}
+                    className={`border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md ${!localStorage.getItem("token") ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    disabled={!localStorage.getItem("token") || isLoading}
                   >
                     {isLoading ? "Đang đăng..." : "Đăng"}
                   </button>
+
                 </div>
 
               </div>

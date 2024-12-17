@@ -82,8 +82,8 @@ const HistoryPage = () => {
       )}
 
       {selectedOrder ? (
-        <div className="bg-white shadow-md rounded p-5">
-          <h2 className="text-xl font-bold mb-4">Chi tiết đơn hàng</h2>
+        <div className="bg-white shadow-md rounded p-5 w-full md:w-2/3 lg:w-1/2 mx-auto">
+        <h2 className="text-xl font-bold mb-4">Chi tiết đơn hàng</h2>
           <p>
             <strong>Mã đơn:</strong> {selectedOrder.orderCode}
           </p>

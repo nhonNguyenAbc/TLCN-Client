@@ -152,13 +152,13 @@ const VideoFeed = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)} // Ghi nhận thông tin input
                             placeholder="Nhập tên nhà hàng cần tìm..."
-                            className="border p-2 rounded-lg"
-                        />
+                            className="border-2 border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
                         <button
                             onClick={handleSearch} // Gọi hàm tìm kiếm khi nhấn nút
                             className="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                         >
-                            Search
+                            Tìm kiếm
                         </button>
                     </div>
                 )}
@@ -264,10 +264,10 @@ const VideoFeed = () => {
                                         <p className="text-blue-300 cursor-pointer hover:underline" onClick={() => navigate("/restaurant/" + video.restaurant)}>
                                             {formatRestaurantName(video.restaurantName)}
                                         </p>
-                                        <p className="border-b-2 border-gray-300">Comments</p>
+                                        <p className="border-b-2 border-gray-300">Bình luận</p>
 
                                         {isFetching ? (
-                                            <p>Loading comments...</p>
+                                            <p>Hiển thị bình luận...</p>
                                         ) : commentsData?.comments?.length > 0 ? (
                                             <div className="mb-24">
                                                 {commentsData.comments.map((comment) => (
@@ -281,7 +281,7 @@ const VideoFeed = () => {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p>No comments yet.</p>
+                                            <p>Chưa có bình luận nào.</p>
                                         )}
                                     </div>
 
@@ -294,7 +294,7 @@ const VideoFeed = () => {
                                             <textarea
                                                 value={newComment}
                                                 onChange={(e) => setNewComment(e.target.value)}
-                                                placeholder="Write a comment..."
+                                                placeholder="Viết bình luận của bạn..."
                                                 className="flex-1 border rounded-lg p-2 resize-none"
                                                 rows={3}
                                             />
@@ -303,7 +303,7 @@ const VideoFeed = () => {
                                                 className="bg-blue-500 text-white p-2 rounded-lg"
                                                 disabled={isCreatingComment}
                                             >
-                                                {isCreatingComment ? "Posting..." : "Post"}
+                                                {isCreatingComment ? "Đang đăng tải..." : "Đăng"}
                                             </button>
                                         </form>
                                     </div>
