@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/logs",
+  baseURL: RESTAURANT_API + API_ROUTE.LOG,
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });
