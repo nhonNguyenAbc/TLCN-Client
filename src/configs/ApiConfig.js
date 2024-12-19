@@ -1,5 +1,5 @@
-//const RESTAURANT_API = "https://team1-tc24-server.onrender.com";
-const RESTAURANT_API = "http://localhost:7000";
+const RESTAURANT_API = "https://tlcn-server.onrender.com";
+//const RESTAURANT_API = "http://localhost:7000";
 
 const LOCAL_RESTAURANT_API = "http://localhost:7000";
 const API_ROUTE = {
@@ -13,6 +13,6 @@ const API_ROUTE = {
   PROMOTION: "/promotions",
   VIDEO: "/videos",
   COMMENT: "/comments",
-  REVIEW:"/reviews"
+  REVIEW: "/reviews",
 };
 export { RESTAURANT_API, API_ROUTE, LOCAL_RESTAURANT_API };
