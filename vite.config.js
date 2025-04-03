@@ -1,11 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import vercel from "vite-plugin-vercel";
-// https://vitejs.dev/config/
+
 export default defineConfig({
-  plugins: [react(), vercel()],
-  vercel: {},
-  // optimizeDeps: {
-  //   include: ['hanhchinhvn'],
-  // },
+  plugins: [react()],
+  base: "/", // Đảm bảo đúng đường dẫn cơ sở
+  build: {
+    outDir: "dist",
+    chunkSizeWarningLimit: 1000,
+  },
 });
