@@ -1,5 +1,5 @@
-const RESTAURANT_API = "https://tlcn-server.onrender.com";
-//const RESTAURANT_API = "http://localhost:7000";
+//onst RESTAURANT_API = "https://tlcn-server.onrender.com";
+const RESTAURANT_API = "http://localhost:7000";
 
 const LOCAL_RESTAURANT_API = "http://localhost:7000";
 const API_ROUTE = {
@@ -13,11 +13,8 @@ const API_ROUTE = {
   PROMOTION: "/promotions",
   VIDEO: "/videos",
   COMMENT: "/comments",
-<<<<<<< HEAD
   REVIEW:"/reviews",
-  DISHREVIEW:"/dishreviews"
-=======
+  DISHREVIEW:"/dishreviews",
   REVIEW: "/reviews",
->>>>>>> 86a3da2282b85aacb5bf9502a4a4751e53b2b795
 };
 export { RESTAURANT_API, API_ROUTE, LOCAL_RESTAURANT_API };
