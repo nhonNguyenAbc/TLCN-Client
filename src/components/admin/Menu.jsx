@@ -245,44 +245,58 @@ const Menu = () => {
       headerDetail="Chi tiết món"
       bodyDetail={
         <Container>
-          <div className="grid grid-cols-3 gap-4">
-            <Typography variant="h6">Nhà hàng: </Typography>
-            <Typography className="col-span-2">
-              {
-                menus?.data.find((menu) => menu._id === selectedId)?.restaurant
-                  .name
-              }
-            </Typography>
-            <Typography variant="h6">Tên: </Typography>
-            <Typography className="col-span-2">
-              {menus?.data.find((menu) => menu._id === selectedId)?.name}
-            </Typography>
-            <Typography variant="h6">Phân loại: </Typography>
-            <Typography className="col-span-2">
-              {menus?.data.find((menu) => menu._id === selectedId)?.category ===
-                "Dish"
-                ? "Đồ ăn"
-                : category === "Beverage"
-                  ? "Đồ uống"
-                  : "Tráng miệng"}
-            </Typography>
-            <Typography variant="h6">Mô tả: </Typography>
-            <Typography className="col-span-2">
-              {menus?.data.find((menu) => menu._id === selectedId)?.description}
-            </Typography>
-            <Typography variant="h6">Đơn vị khẩu phần: </Typography>
-            <Typography className="col-span-2">
-              {menus?.data.find((menu) => menu._id === selectedId)?.unit}
-            </Typography>
-            <Typography variant="h6">Giá thành/đơn vị khẩu phần:</Typography>
-            <Typography className="col-span-2">
-              {Number(
-                menus?.data.find((menu) => menu._id === selectedId)?.price
-              ).toLocaleString("en-US") + " đ"}
-            </Typography>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Phần thông tin nằm bên trái */}
+            <div>
+              <div className="grid grid-cols-3 gap-4">
+                <Typography variant="h6">Nhà hàng: </Typography>
+                <Typography className="col-span-2">
+                  {
+                    menus?.data.find((menu) => menu._id === selectedId)?.restaurant.name
+                  }
+                </Typography>
+                <Typography variant="h6">Tên: </Typography>
+                <Typography className="col-span-2">
+                  {menus?.data.find((menu) => menu._id === selectedId)?.name}
+                </Typography>
+                <Typography variant="h6">Phân loại: </Typography>
+                <Typography className="col-span-2">
+                  {menus?.data.find((menu) => menu._id === selectedId)?.category ===
+                    "Dish"
+                    ? "Đồ ăn"
+                    : menus?.data.find((menu) => menu._id === selectedId)?.category ===
+                      "Beverage"
+                      ? "Đồ uống"
+                      : "Tráng miệng"}
+                </Typography>
+                <Typography variant="h6">Mô tả: </Typography>
+                <Typography className="col-span-2">
+                  {menus?.data.find((menu) => menu._id === selectedId)?.description}
+                </Typography>
+                <Typography variant="h6">Đơn vị khẩu phần: </Typography>
+                <Typography className="col-span-2">
+                  {menus?.data.find((menu) => menu._id === selectedId)?.unit}
+                </Typography>
+                <Typography variant="h6">Giá thành/đơn vị khẩu phần:</Typography>
+                <Typography className="col-span-2">
+                  {Number(
+                    menus?.data.find((menu) => menu._id === selectedId)?.price
+                  ).toLocaleString("en-US") + " đ"}
+                </Typography>
+              </div>
+            </div>
 
+            {/* Phần hình ảnh nằm bên phải */}
+            <div className="flex justify-center items-center">
+              <img
+                src={menus?.data.find((menu) => menu._id === selectedId)?.image.url}
+                alt={menus?.data.find((menu) => menu._id === selectedId)?.name}
+                className="w-full max-w-md h-auto max-h-[50vh] rounded-lg shadow-lg"
+              />
+            </div>
           </div>
         </Container>
+
       }
       headerUpdate="Chỉnh sửa món ăn"
       bodyUpdate={

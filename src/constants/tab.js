@@ -11,10 +11,10 @@ const order_tab = [
     label: "Đặt thành công",
     value: "SUCCESS",
   },
-  // {
-  //   label: "Đang sử dụng",
-  //   value: "ON_HOLD",
-  // },
+  {
+    label: "Đang sử dụng",
+    value: "ONHOLD",
+  },
   {
     label: "Đã trả bàn",
     value: "COMPLETED",

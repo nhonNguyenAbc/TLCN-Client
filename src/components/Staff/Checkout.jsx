@@ -12,21 +12,26 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Toast } from "../../configs/SweetAlert2";
 import Loading from "../shared/Loading";
-import { useDeleteMenuItemMutation, useGetMenusQuery } from "../../apis/menuApi";
+import { useDeleteMenuItemMutation, useGetMenuByRestaurantForStaffQuery, useGetMenusQuery } from "../../apis/menuApi";
 import { Divider } from "@mui/material";
 import Pagination from "../shared/Pagination";
+import { useGetEmployeeByIdQuery } from "../../apis/employeeApi";
+import { order_tab } from "../../constants/tab";
 
 const Checkout = () => {
   const [active, setActive] = useState(1);
   const [phone, setPhone] = useState('');
   const [subactive, setSubactive] = useState(1);
-  const { data: menus, isLoading, error } = useGetMenusQuery(); // Lấy danh sách món ăn từ API
+  const restaurantId = localStorage.getItem("restaurant_id")
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const { data: menus, isLoading, error } = useGetMenuByRestaurantForStaffQuery(restaurantId);
   const [updateOrder] = useUpdateOrderMutation();
   const [deleteOrder] = useDeleteItemFromOrderMutation();
   const [updatePaymentStatus] = useUpdatePaymentStatusMutation();
   const handlePhoneChange = (event) => {
     setPhone(event.target.value);
   };
+
   const TABLE_ROWS = [];
   const TABLE_HEAD = ["Tên món ăn", "Số lượng", "Đơn vị", "Giá", "Thành tiền", "Hành động"];
   const { data: orders, isLoading: orderLoading, error: orderError, refetch } = useGetCheckOutOrdersQuery({ page: active, phone: phone });
@@ -153,13 +158,16 @@ const Checkout = () => {
       </div>
     );
   if (orderError) return <div>Error: {orderError}</div>;
-
+  const mapStatusToLabel = (status) => {
+    const tab = order_tab.find((tab) => tab.value === status);
+    return tab ? tab.label : "Không xác định"; // Nếu không khớp, trả về "Không xác định"
+  };
   const list_order = orders?.data.map((order, index) => ({
     id: order._id,
     order: order.orderCode,
     checkin: formatDateTime(order.checkin),
     total: order.total,
-    status: order.status,
+    status: mapStatusToLabel(order.status),
   }));
 
   return (
@@ -231,23 +239,23 @@ const Checkout = () => {
                   Phương thức thanh toán
                 </Typography>
                 <div className="col-span-2 grid grid-cols-3">
-                {!orders?.data.find((order) => order._id === selectedId)?.is_walk_in && (
+                  {!orders?.data.find((order) => order._id === selectedId)?.is_walk_in && (
 
-                  <>
-                  <Typography variant="h6" color="blue-gray">
-                    Hình thức thanh toán
-                  </Typography>
-                  <Typography
-                    variant="body"
-                    className="col-span-2"
-                    color="blue-gray"
-                  >
-                    {
-                      orders?.data.find((order) => order._id === selectedId)
-                        ?.payment
-                    }
-                  </Typography></>
-                )}
+                    <>
+                      <Typography variant="h6" color="blue-gray">
+                        Hình thức thanh toán
+                      </Typography>
+                      <Typography
+                        variant="body"
+                        className="col-span-2"
+                        color="blue-gray"
+                      >
+                        {
+                          orders?.data.find((order) => order._id === selectedId)
+                            ?.payment
+                        }
+                      </Typography></>
+                  )}
                   <Typography variant="h6" color="blue-gray">
                     Trạng thái
                   </Typography>
@@ -329,18 +337,31 @@ const Checkout = () => {
               {/* Form cập nhật món ăn */}
               <div className="mt-5 flex justify-center gap-8">
                 <div className="w-1/4">
-                  <Select
-                    label="Chọn món ăn"
-                    value={selectedMenu ? selectedMenu.name : ''}
-                    onChange={(value) => setSelectedMenu(menus.data.find(menu => menu.name === value))}
-                    className="w-full mb-4"
-                  >
-                    {menus && menus.data.map(menu => (
-                      <Option key={menu._id} value={menu.name}>
-                        {menu.name}
-                      </Option>
-                    ))}
-                  </Select>
+                  <div className="relative">
+                    <Input
+                      label="Chọn món ăn"
+                      value={selectedMenu ? selectedMenu.name : ''}
+                      readOnly
+                      className="mb-4"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Tạo hiệu ứng mở dropdown
+                    />
+                    {isDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-2 bg-white border border-gray-300 max-h-48 overflow-y-auto">
+                        {menus && menus.data.menuItems.map(menu => (
+                          <div
+                            key={menu._id}
+                            className="p-2 cursor-pointer hover:bg-gray-100"
+                            onClick={() => {
+                              setSelectedMenu(menu);
+                              setIsDropdownOpen(false); // Đóng dropdown khi chọn món
+                            }}
+                          >
+                            {menu.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="w-1/4">
@@ -364,7 +385,6 @@ const Checkout = () => {
                   </Button>
                 </div>
               </div>
-
 
               {/* Hiển thị danh sách món trong đơn hàng */}
               <table className="w-full table-auto text-center mt-5">

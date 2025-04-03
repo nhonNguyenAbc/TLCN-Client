@@ -37,7 +37,7 @@ export const reviewApi = createApi({
         // Endpoint: Cập nhật bình luận
         updateReview: builder.mutation({
             query: ({ id, content }) => ({
-                url: `/reviews/update/${id}`,
+                url: `/update/${id}`,
                 method: 'PUT',
                 body: { content },
             }),
@@ -46,7 +46,7 @@ export const reviewApi = createApi({
         // Endpoint: Xóa bình luận
         deleteReview: builder.mutation({
             query: (id) => ({
-                url: `/reviews/delete/${id}`,
+                url: `/delete/${id}`,
                 method: 'DELETE',
             }),
         }),

@@ -24,27 +24,36 @@ import { useGetMenuByRestaurantQuery, useGetMenuItemsByAnyFieldQuery } from "../
 import { useGetRestaurantByIdQuery } from "../apis/restaurantApi";
 import Loading from "../components/shared/Loading";
 import { TextField } from "@mui/material";
-import { useCreateReviewMutation, useGetReviewsByRestaurantQuery } from "../apis/reviewApi";
+import { useCreateReviewMutation, useDeleteReviewMutation, useGetReviewsByRestaurantQuery, useUpdateReviewMutation } from "../apis/reviewApi";
 import Pagination from "../components/shared/Pagination";
-import { current } from "@reduxjs/toolkit";
+import { ChatBubbleLeftEllipsisIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'; // Import các icon từ Heroicons
+import MenuItemModal from "../components/restaurant/MenuItemModal";
+import ChatButton from "..//components/shared/ChatButton";
+import { useGetMostLikedVideoQuery } from "../apis/videoApi";
 
 const RestaurantDetail = () => {
   const { id } = useParams();
   const [page, setPage] = useState(1)
   const [menuPage, setMenuPage] = useState(1)
   const [replyTo, setReplyTo] = useState(null);
-
+  const [selectedItem, setSelectedItem] = useState('')
   const [selectedImage, setSelectedImage] = useState(null);
   const [createReview, { isLoading }] = useCreateReviewMutation();
+
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const fileInputRef = useRef(null);
   const commentSectionRef = useRef(null);
   const menuSectionRef = useRef(null);
   const [visibleReplies, setVisibleReplies] = useState({});
-
+  const [editCommentId, setEditCommentId] = useState(null);
+  const [editedContent, setEditedContent] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const userId = localStorage.getItem("userId"); // Lấy userId từ localStorage
+  const userName = localStorage.getItem("userName")
   const {
     data: restaurants,
     isLoading: restaurantLoading,
@@ -56,15 +65,25 @@ const RestaurantDetail = () => {
     error: reviewError,
     refetch
   } = useGetReviewsByRestaurantQuery({ restaurant_id: id, page })
+  const [updateReview] = useUpdateReviewMutation();
+  const [deleteReview] = useDeleteReviewMutation();
+  const { data: mostVideo } = useGetMostLikedVideoQuery({ restaurantId: id })
+  const [category, setCategory] = useState(''); // State để lưu thể loại chọn
 
   const {
     data: menus
-  } = useGetMenuByRestaurantQuery({ restaurantId: id, page: menuPage })
+  } = useGetMenuByRestaurantQuery({ restaurantId: id, page: menuPage, category: category })
   const navigate = useNavigate();
   const [people, setPeople] = React.useState(
     JSON.parse(localStorage.getItem("order"))?.totalPeople || 0
   );
-
+  const handleCategoryClick = (selectedCategory) => {
+    setCategory(selectedCategory); // Cập nhật thể loại
+    setMenuPage(1); // Đặt lại trang về 1 khi lọc lại
+  };
+  const images = restaurants?.data?.restaurant?.images; // Lấy danh sách ảnh
+  const displayedImages = images?.slice(0, 3); // 3 ảnh đầu tiên
+  const moreImages = images?.length - 3; // Số ảnh còn lại
   const [date, setDate] = React.useState(
     new Date().toISOString().split("T")[0] // Ngày hiện tại ở định dạng YYYY-MM-DD
   );
@@ -77,8 +96,8 @@ const RestaurantDetail = () => {
       setImage(file); // Cập nhật file ảnh để gửi trong `formData`
     }
   };
-  const handleImageClick = (image) => {
-    setSelectedImage(image);
+  const handleItemModalClick = (item) => {
+    setSelectedItem(item);
     setIsDialogOpen(true);
   };
 
@@ -310,11 +329,13 @@ const RestaurantDetail = () => {
     const date = new Date(dateString);
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
+
   const renderComments = (comments) => {
+    const currentUserId = localStorage.getItem('userId'); // Lấy userId từ localStorage hoặc context
     return comments.map((comment) => (
       <div
         key={comment._id}
-        className="flex flex-col mt-1 border p-3 rounded-md shadow-md"
+        className="flex flex-col mt-1 border p-3 rounded-md shadow-md relative"
       >
         <div className="flex items-center mb-2">
           <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-3">
@@ -325,13 +346,80 @@ const RestaurantDetail = () => {
           <Typography variant="medium" className="text-black">
             {comment.username || "Ẩn danh"}
           </Typography>
+          {comment.user_id === currentUserId && (
+            <div className="ml-auto flex items-center space-x-3">
+              <PencilIcon
+                className="w-5 h-5 text-gray-500 cursor-pointer"
+                onClick={() => {
+                  setEditCommentId(comment._id);
+                  setEditedContent(comment.content); // Cập nhật nội dung chỉnh sửa
+                }}
+              />
+              <TrashIcon
+                className="w-5 h-5 text-red-500 cursor-pointer"
+                onClick={() => setConfirmDeleteId(comment._id)} // Lưu lại ID để xác nhận xóa
+              />
+            </div>
+          )}
         </div>
 
         {/* Nội dung bình luận */}
         <div className="flex-1 ml-4">
-          <Typography variant="medium" className="text-black mb-2">
-            {comment.content}
-          </Typography>
+          {editCommentId === comment._id ? (
+            <div>
+              <textarea
+                className="w-full border p-2 rounded-md"
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await updateReview({ id: comment._id, content: editedContent });
+                    setEditCommentId(null);
+
+                    // Gọi lại API để lấy dữ liệu mới
+                    await refetch(); // Đảm bảo refetch được gọi sau khi cập nhật xong
+                  } catch (error) {
+                    console.error("Error updating comment:", error);
+                  }
+                }}
+                className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md"
+              >
+
+                Lưu
+              </button>
+            </div>
+          ) : (
+            <Typography variant="medium" className="text-black mb-2">
+              {comment.content}
+            </Typography>
+          )}
+
+          {/* Form xác nhận xóa */}
+          {confirmDeleteId === comment._id && (
+            <div className="absolute top-0 right-0 bg-white border shadow-md p-4 rounded-md z-10">
+              <Typography variant="small" className="text-red-500">
+                Bạn có chắc chắn muốn xóa bình luận này không?
+              </Typography>
+              <button
+                onClick={() => {
+                  deleteReview(comment._id);
+                  setConfirmDeleteId(null); // Đóng form xác nhận
+                  refetch()
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                Xóa
+              </button>
+              <button
+                onClick={() => setConfirmDeleteId(null)} // Đóng form xác nhận
+                className="bg-gray-300 text-black px-4 py-2 rounded-md ml-2"
+              >
+                Hủy
+              </button>
+            </div>
+          )}
 
           {/* Hiển thị ảnh nếu có */}
           {comment.image?.url && (
@@ -368,28 +456,25 @@ const RestaurantDetail = () => {
                 : `Hiển thị ${comment.replies.length} phản hồi`}
             </button>
           )}
-
-
         </div>
 
         {/* Form trả lời nếu người dùng đang trả lời bình luận này */}
         {replyTo === comment._id && localStorage.getItem("token") && (
-  <div className="flex items-start mt-3">
-    <textarea
-      className="w-full border p-2 rounded-md"
-      placeholder="Nhập phản hồi của bạn..."
-      value={content}
-      onChange={(e) => setContent(e.target.value)}
-    />
-    <button
-      onClick={() => handleSubmit(comment._id)}
-      className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md ml-2"
-    >
-      Gửi
-    </button>
-  </div>
-)}
-
+          <div className="flex items-start mt-3">
+            <textarea
+              className="w-full border p-2 rounded-md"
+              placeholder="Nhập phản hồi của bạn..."
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+            <button
+              onClick={() => handleSubmit(comment._id)}
+              className="border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md ml-2"
+            >
+              Gửi
+            </button>
+          </div>
+        )}
 
         {/* Hiển thị replies nếu visibleReplies[comment._id] === true */}
         {visibleReplies[comment._id] && comment.replies?.length > 0 && (
@@ -402,11 +487,11 @@ const RestaurantDetail = () => {
   };
 
 
-
   return (
     <>
       <div className="mb-5"></div>
       <div className="grid grid-cols-3 gap-8 m-4">
+
         <img
           src={restaurants.data.restaurant.image_url}
           className="w-full h-80 object-cover rounded-lg col-span-2"
@@ -434,6 +519,77 @@ const RestaurantDetail = () => {
             alt="restaurant"
           />
         </div>
+        {/* <img
+        src={restaurants.data.restaurant.image_url}
+        className="w-full h-80 object-cover rounded-lg col-span-2"
+        alt="restaurant"
+      />
+
+      <div className="grid grid-cols-2 gap-8">
+        {displayedImages.map((image, index) => (
+          <img
+            key={image.id}
+            src={image.url}
+            className="h-36 w-full object-cover rounded-lg cursor-pointer"
+            alt={`slider-${index + 1}`}
+            onClick={() => { setSelectedImage(image.url); setIsOpen(true); }}
+          />
+        ))}
+
+        {images.length > 3 ? (
+          <div
+            className="relative h-36 cursor-pointer"
+            onClick={() => { setSelectedImage(images[3].url); setIsOpen(true); }}
+          >
+            <img
+              src={images[3].url}
+              className="h-full w-full object-cover rounded-lg"
+              alt="slider-4"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
+              <span className="text-white text-lg font-bold">+{moreImages}</span>
+            </div>
+          </div>
+        ) : (
+          <img
+            src={images[3]?.url}
+            className="h-36 object-cover rounded-lg cursor-pointer"
+            alt="slider-4"
+            onClick={() => { setSelectedImage(images[3]?.url); setIsOpen(true); }}
+          />
+        )}
+
+      {isOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div className="relative w-3/4 h-3/4 bg-white p-4 flex rounded-lg">
+      <div className="w-2/5 overflow-y-auto grid grid-cols-2 gap-2">
+        {images.map((img) => (
+          <img
+            key={img.id}
+            src={img.url}
+            className={`h-40 w-full object-cover cursor-pointer rounded-lg ${
+              selectedImage === img.url ? "border-2 border-blue-500" : ""
+            }`}
+            onClick={() => setSelectedImage(img.url)}
+          />
+        ))}
+      </div>
+
+      <div className="flex-1 flex justify-center items-center">
+        <img src={selectedImage} className="max-h-full max-w-full rounded-lg" />
+      </div>
+
+      <button
+        className="absolute top-4 right-4 black-white text-2xl"
+        onClick={() => setIsOpen(false)}
+      >
+        ✖
+      </button>
+    </div>
+  </div>
+)}
+
+    </div> */}
         <div className="col-span-2">
           <Card>
             <CardBody>
@@ -500,16 +656,62 @@ const RestaurantDetail = () => {
                   </span>
                 ))}
               </Typography>
+              <div className="mt-5">
+                <Typography variant="h5" color="black">
+                  Video nổi bật
+                </Typography>
+                {mostVideo && (
+                  <video controls className="mt-3 rounded-lg shadow-lg w-[600px] h-[340px] object-cover">
+                    <source src={mostVideo.videoUrl} type="video/mp4" />
+                    Trình duyệt không hỗ trợ phát video.
+                  </video>
 
+                )}
+              </div>
             </CardBody>
           </Card>
           <Card className="mt-5" ref={menuSectionRef}>
             <CardBody>
-              <Typography variant="h3" color="black"
-              >
+              <Typography variant="h3" color="black">
                 Thực đơn
               </Typography>
-              <div className="grid grid-cols-5 my-3">
+
+              {/* Danh sách thể loại */}
+              <div className="my-4">
+                <Typography variant="h6" color="black" className="mb-3">
+                  Lọc theo thể loại
+                </Typography>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => handleCategoryClick('')}  // Truyền 'All' hoặc không có thể loại để hiển thị tất cả
+                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
+                  >
+                    Tất cả
+                  </button>
+                  <button
+                    onClick={() => handleCategoryClick('Dish')} // Thay 'Category 1' bằng tên thể loại thực tế
+                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
+                  >
+                    Hải sản
+                  </button>
+                  <button
+                    onClick={() => handleCategoryClick('Beverage')} // Thay 'Category 2' bằng tên thể loại thực tế
+                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
+                  >
+                    Món hấp
+                  </button>
+                  <button
+                    onClick={() => handleCategoryClick('Dessert')} // Thay 'Category 2' bằng tên thể loại thực tế
+                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
+                  >
+                    Món chiên
+                  </button>
+                  {/* Bạn có thể thêm nhiều thể loại tùy theo nhu cầu */}
+                </div>
+              </div>
+
+              {/* Danh sách món ăn */}
+              <div className="grid grid-cols-6 my-3">
                 <Typography variant="h6" className="my-auto">
                   Hình ảnh
                 </Typography>
@@ -522,16 +724,16 @@ const RestaurantDetail = () => {
                 <Typography variant="h6" className="my-auto">
                   Đơn vị
                 </Typography>
-
               </div>
+
               {menus.data.menuItems.map((item) => (
-                <div key={item} className="grid grid-cols-5 my-8">
+                <div key={item._id} className="grid grid-cols-6 my-8 gap-6">
                   <Typography variant="medium" className="my-auto w-16 h-auto">
                     <img
                       src={item.image.url}
                       alt="card-image"
                       className="object-cover h-16 w-16 cursor-pointer"
-                      onClick={() => handleImageClick(item.image.url)} // Khi click vào ảnh sẽ mở modal
+                      onClick={() => handleItemModalClick(item)}
                     />
                   </Typography>
                   <Typography variant="medium" className="my-auto">
@@ -550,22 +752,22 @@ const RestaurantDetail = () => {
                       {item.price.toLocaleString("en-US")} đ
                     </Typography>
                   )}
-
                   <Typography variant="medium" className="my-auto">
                     /{item.unit}
                   </Typography>
+
                   <Button
                     variant="outlined"
-                    className="border-[#FF333a] text-[#FF333a] h-10 my-auto"
+                    className="flex h-10 my-auto border-[#FF333a] text-[#FF333a] items-center"
                     color="red"
                     onClick={() => handleAddToCart(item)}
                   >
                     Thêm vào giỏ hàng
                   </Button>
-
                 </div>
-
               ))}
+
+              {/* Phân trang */}
               {menus.data.pagination.totalPages > 1 && (
                 <Pagination
                   page={menus.data.pagination.totalPages}
@@ -573,28 +775,12 @@ const RestaurantDetail = () => {
                   setActive={setMenuPage}
                 />
               )}
-              <Dialog open={isDialogOpen} handler={handleCloseDialog} className="max-h-[90vh]">
-                <DialogBody className="max-h-full overflow-hidden">
-                  <img
-                    src={selectedImage}
-                    alt="Larger View"
-                    className="w-full max-h-[70vh] object-cover"  // Đảm bảo ảnh vừa với khung dialog, có thể cắt nếu cần
-                  />
-                </DialogBody>
-                <DialogFooter>
-                  <Button
-                    variant="outlined"
-                    color="red"
-                    onClick={handleCloseDialog}
-                    className="mt-4"
-                  >
-                    Đóng
-                  </Button>
-                </DialogFooter>
-              </Dialog>
-            </CardBody>
 
+              <MenuItemModal isDialogOpen={isDialogOpen} handleCloseDialog={handleCloseDialog} item={selectedItem} />
+            </CardBody>
           </Card>
+
+
           <Card className="mt-5" ref={commentSectionRef}>
             {/* Header cho section bình luận */}
             <Typography variant="h3" color="black" className="ml-6">
@@ -675,7 +861,9 @@ const RestaurantDetail = () => {
             )}
 
           </Card>
+
         </div>
+
         <div className="">
           <Card>
             <CardBody>
@@ -796,6 +984,7 @@ const RestaurantDetail = () => {
           </Card>
         </div>
       </div>
+      <ChatButton userId={userId} ownerId={restaurants?.data?.restaurant?.user} restaurantId={restaurants?.data?.restaurant?._id} userName={userName} />
     </>
   );
 };

@@ -99,7 +99,7 @@ function Registerpage() {
         className=" bg-white rounded-xl border p-5 border-gray-300 shadow-lg"
       >
         <h1 className="text-center text-6xl mb-5">
-          <span className="text-[#FF333A]">Mindx</span> Restaurant
+          <span className="text-[#FF333A]">TableHive H&N</span> Restaurant
         </h1>
         <Divider>
           <h3 className="text-center text-xl">Đăng ký</h3>

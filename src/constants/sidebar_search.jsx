@@ -15,6 +15,7 @@ import Table from "../components/admin/Table";
 import Checkout from "../components/Staff/Checkout";
 import Promotion from "../components/admin/Promotion";
 import Video from "../components/admin/Video";
+import Chat from "../components/admin/Chat";
 const admin_sidebar = [
   {
     title: {
@@ -47,6 +48,10 @@ const admin_sidebar = [
       {
         label: "Video",
         elements: <Video />,
+      },
+      {
+        label: "Tin nhắn",
+        elements: <Chat />,
       },
     ],
   },

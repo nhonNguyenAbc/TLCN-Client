@@ -154,6 +154,14 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["Admin"],
     }),
+    sendMessage: builder.mutation({
+      query: ({ message, lat, lng }) => ({
+        url: "/chatbot",
+        method: "POST",
+        body: { message, lat, lng }, // Thêm lat, lng vào body request
+      }),
+    }),
+    
   }),
 });
 
@@ -161,5 +169,7 @@ export const {
   useGetUserByIdQuery, 
   useUpdateUserByIdMutation, 
   useLoginMutation,
-  useChangePasswordMutation 
+  useChangePasswordMutation,
+  useLazyGetUserByIdQuery,
+  useSendMessageMutation  
 } = userApi;

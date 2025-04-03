@@ -22,6 +22,8 @@ import PromotionPage from "./pages/PromotionPage";
 import VideoFeed from "./pages/ReviewPage";
 import ProfilePage from "./pages/ProfilePage";
 import HistoryPage from "./pages/HistoryPage";
+import NearbyRestaurants from "./pages/NearbyRestaurants";
+import ChatComponent from "./components/shared/ChatComponent";
 
 function App() {
   return (
@@ -38,6 +40,9 @@ function App() {
           <Route path="restaurant" element={<RestaurantList />} />
           <Route path="restaurants/promotion" element={<PromotionPage />} />
           <Route path="restaurant/:id" element={<RestaurantDetail />} />
+          <Route path="chat" element={<ChatComponent />} />
+
+          <Route path="nearby" element={<NearbyRestaurants />} />
 
           <Route path="order" element={<Order />} />
           <Route path="about-us" element={<AboutUs />} />

@@ -5,9 +5,10 @@ import { Button, Input } from "@material-tailwind/react";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
 import Icon from "../assets/Icon";
-import { adminLogin } from "../apis/userApi";
+import { adminLogin, useGetUserByIdQuery, useLazyGetUserByIdQuery } from "../apis/userApi";
 import { useNavigate } from "react-router-dom";
 import { Toast } from "../configs/SweetAlert2";
+import { useGetEmployeeByIdQuery, useLazyGetEmployeeByIdQuery } from "../apis/employeeApi";
 
 const AdminNavbar = () => {
   const [isNavOpen, setIsNavOpen] = React.useState(false);
@@ -25,7 +26,7 @@ const AdminNavbar = () => {
     <Navbar className="mx-auto max-w-screen-3xl rounded-none px-4 py-2 sticky top-0 z-50">
       <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
         <Typography variant="h3" className="ms-5" color="blue-gray">
-          <span className="text-[#FF333A]">Mindx</span> Restaurant Management
+          <span className="text-[#FF333A]">TableHive H&N</span> Restaurant Management
         </Typography>
         <IconButton
           size="sm"
@@ -48,10 +49,15 @@ const AdminNavbar = () => {
   );
 };
 
+
 const LoginAdmin = () => {
   const [username, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
   const navigate = useNavigate();
+  
+  // Create lazy version of the employee query
+  const [trigger] = useLazyGetEmployeeByIdQuery();
+  const [loginTrigger] = useLazyGetUserByIdQuery();
 
   const handleUsernameChange = (e) => {
     setUserName(e.target.value);
@@ -61,30 +67,77 @@ const LoginAdmin = () => {
     setPassword(e.target.value);
   };
 
-  const login = async (username, password) => {
+  const handleLogin = async (username, password) => {
     try {
       const data = {
         username: username,
         password: password,
       };
+      
+      // First perform login
       const result = await adminLogin(data);
-
-      Toast.fire({
-        icon: "success",
-        title: "Login successfully",
-      }).then(() => {
+      
+      if (result?.data?.token) {
+        // Store token first
         localStorage.setItem("user", username);
-        localStorage.setItem("id", result.data.user_id);
         localStorage.setItem("token", result.data.token);
-        const token = localStorage.getItem("token");
-        console.log("Token from localStorage:", token);  // Kiểm tra xem token có tồn tại không
-        navigate(result.data.redirect_url);
-      });
+
+        try {
+          // Check role of the user (admin or staff)
+          const userRole = result.data.redirect_url; // Assuming role is returned in the login response
+          
+          if (userRole === '/dashboard') {
+            const { data: userData } = await loginTrigger(undefined, { 
+              preferCacheValue: false // Force a new request
+            });
+            console.log('first',userData)
+            if (userData?.data?._id) {
+              localStorage.setItem("userId", userData.data._id);}
+            navigate(result.data.redirect_url); 
+            
+          } else if (userRole === '/staff') {
+            // If staff, fetch employee data
+            const { data: employeeData } = await trigger(undefined, {
+              preferCacheValue: false // Force a new request
+            });
+            
+            if (employeeData?.data?.restaurant_id) {
+              localStorage.setItem("restaurant_id", employeeData.data.restaurant_id);
+              
+              await Toast.fire({
+                icon: "success",
+                title: "Login successfully",
+              });
+              
+              // Navigate to the redirect URL for staff
+              navigate(result.data.redirect_url);
+            } else {
+              throw new Error("Employee data not found");
+            }
+          } else {
+            throw new Error("Invalid user role");
+          }
+        } catch (employeeError) {
+          console.error("Error fetching employee data:", employeeError);
+          Toast.fire({
+            icon: "error",
+            title: "Error fetching employee data",
+          });
+          // Clean up stored data on error
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        }
+      }
     } catch (error) {
-      if (error.response.data.password) {
+      if (error.response?.data?.password) {
         Toast.fire({
           icon: "error",
           title: error.response.data.password,
+        });
+      } else {
+        Toast.fire({
+          icon: "error",
+          title: "Login failed",
         });
       }
     }
@@ -97,7 +150,7 @@ const LoginAdmin = () => {
         <div className="h-screen lg:border-r-4">
           <div className="mt-20">
             <h1 className="text-center text-6xl mb-5">
-              <span className="text-[#FF333A]">Mindx</span>
+              <span className="text-[#FF333A]">TableHive H&N</span>
             </h1>
             <Divider>
               <h3 className="text-center text-xl">Đăng nhập</h3>
@@ -122,49 +175,15 @@ const LoginAdmin = () => {
                   onChange={handlePasswordChange}
                 />
               </div>
-              {/* <div className="mb-5 text-right">
-                <div className="h-5">
-                  <a href="#" className="text-right">
-                    Quên mật khẩu
-                  </a>
-                </div>
-              </div> */}
               <Button
                 color="indigo"
                 className="w-full mb-5"
-                onClick={() => login(username, password)}
+                onClick={() => handleLogin(username, password)}
               >
                 Đăng nhập
               </Button>
             </form>
-            {/* <div className="max-w-sm mx-auto">
-              <Divider className="mt-5 ">
-                <Chip label="OR" size="small" />
-              </Divider>
-            </div> */}
             <div className="max-w-sm mx-auto mt-5">
-              {/* <Button
-                onClick={() => {
-                  navigate("/register");
-                }}
-                color="indigo"
-                className="w-full mb-5"
-              >
-                Đăng ký
-              </Button> */}
-              {/* <Button
-                size="sm"
-                variant="outlined"
-                color="blue-gray"
-                className="flex items-center justify-center gap-3 w-full"
-              >
-                <img
-                  src="https://docs.material-tailwind.com/icons/google.svg"
-                  alt="metamask"
-                  className="h-6 w-6"
-                />
-                Continue with Google
-              </Button> */}
             </div>
           </div>
         </div>
@@ -179,3 +198,4 @@ const LoginAdmin = () => {
 };
 
 export default LoginAdmin;
+

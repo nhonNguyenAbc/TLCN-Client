@@ -12,9 +12,9 @@ export const restaurantApi = createApi({
       query: (provinceCode) => `/districts/${provinceCode}`,
     }),
     getAllRestaurants: builder.query({
-      query: ({ sort = -1, page = 1, size = 8, field = "rating", searchTerm, priceRange = "all", provinceCode="",districtCode='' }) => ({
+      query: ({ sort = -1, page = 1, size = 8, field = "rating", searchTerm, priceRange = "all", provinceCode="",districtCode='', type='' }) => ({
         url: "",
-        params: { sort, page, size, field, searchTerm, priceRange, provinceCode, districtCode },
+        params: { sort, page, size, field, searchTerm, priceRange, provinceCode, districtCode,type },
       }),
     }),
     getAllRestaurantPromotion: builder.query({
@@ -46,8 +46,23 @@ export const restaurantApi = createApi({
       providesTags: ["Restaurant"],
     }),
     getRestaurantById: builder.query({
-      query: (id) => `restaurant/${id}`,
-      providesTags: [{ type: "Restaurant", id: "ALL" }],
+      query: (id) => ({
+        url: `restaurant/${id}`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        providesTags: [{ type: "Restaurant", id: "ALL" }],
+      })
+    }),
+    getRestaurantForUser: builder.query({
+      query: () => ({
+        url: `suggested-restaurants`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
     }),
     createRestaurant: builder.mutation({
       query: ({
@@ -118,6 +133,9 @@ export const restaurantApi = createApi({
       }),
       invalidatesTags: ["Restaurant"],
     }),
+    getNearbyRestaurants: builder.query({
+      query: ({ lat, lng }) => `/nearby?lat=${lat}&lng=${lng}`,
+    }),
   }),
 });
 export const {
@@ -130,5 +148,7 @@ export const {
   useGetAllRestaurantByUserIdQuery,
   useGetAllRestaurantPromotionQuery,
   useGetDistrictsByProvinceQuery,
-  useGetProvincesQuery
+  useGetProvincesQuery,
+  useGetRestaurantForUserQuery,
+  useGetNearbyRestaurantsQuery,
 } = restaurantApi;

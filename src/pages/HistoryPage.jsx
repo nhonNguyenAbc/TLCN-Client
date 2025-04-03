@@ -1,11 +1,25 @@
 import React, { useState } from "react";
 import { useGetUserOrdersQuery, useUpdateOrderRatingMutation, useUpdateOrderStatusMutation } from "../apis/orderApi";
 import { StarIcon } from "@heroicons/react/24/outline";
+import Pagination from "../components/shared/Pagination";
+import StarRatings from "react-star-ratings";
+import DishReviewModal from "../components/restaurant/DishReviewModal";
 
 const HistoryPage = () => {
   const [page, setPage] = useState(1); // Quản lý số trang
   const { data, isLoading, isError, refetch } = useGetUserOrdersQuery(page); // Gọi API
+  const [open, setOpen] = useState(false);
+  const [selectedDish, setSelectedDish] = useState(null);
 
+  const handleOpen = (dish) => {
+    setSelectedDish(dish);
+    setOpen(true);
+  };
+
+  const handleSubmitReview = (reviewData) => {
+    console.log("Dữ liệu đánh giá:", reviewData);
+    // Gửi API ở đây nếu cần
+  };
   const [selectedOrder, setSelectedOrder] = useState(null); // Lưu trữ đơn hàng được chọn
   const [rating, setRating] = useState(5); // Lưu trữ đánh giá (số sao)
   const [showRatingForm, setShowRatingForm] = useState(false); // Quản lý việc hiển thị form đánh giá
@@ -63,7 +77,7 @@ const HistoryPage = () => {
     }
   };
   const handleCancelModalClose = () => {
-    setShowCancelModal(false); 
+    setShowCancelModal(false);
   };
   if (isLoading) return <p>Đang tải...</p>;
   if (isError) return <p>Đã xảy ra lỗi khi tải dữ liệu.</p>;
@@ -73,9 +87,8 @@ const HistoryPage = () => {
       <h1 className="text-2xl font-bold mb-5 text-center">Lịch sử đặt bàn</h1>
       {notification && (
         <div
-          className={`mb-4 p-3 text-white rounded ${
-            notification.isSuccess ? "bg-green-500" : "bg-red-500"
-          } notification-animation`}
+          className={`mb-4 p-3 text-white rounded ${notification.isSuccess ? "bg-green-500" : "bg-red-500"
+            } notification-animation`}
         >
           {notification.message}
         </div>
@@ -83,17 +96,52 @@ const HistoryPage = () => {
 
       {selectedOrder ? (
         <div className="bg-white shadow-md rounded p-5 w-full md:w-2/3 lg:w-1/2 mx-auto">
-        <h2 className="text-xl font-bold mb-4">Chi tiết đơn hàng</h2>
+          <h2 className="text-xl font-bold mb-4">Chi tiết đơn hàng</h2>
           <p>
             <strong>Mã đơn:</strong> {selectedOrder.orderCode}
           </p>
           <p>
             <strong>Nhà hàng:</strong> {selectedOrder.restaurant}
           </p>
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-2">#</th>
+                <th className="border border-gray-300 px-4 py-2">Hình ảnh</th>
+                <th className="border border-gray-300 px-4 py-2">Tên món ăn</th>
+                <th className="border border-gray-300 px-4 py-2">Số lượng</th>
+                <th className="border border-gray-300 px-4 py-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedOrder.list_menu?.map((item, index) => (
+                <tr key={item._id} className="border border-gray-300">
+                  <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    <img className="h-20 w-20 " src={item.image.url} alt="" />
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">{item.name}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">{item.quantity}</td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    <button
+                      onClick={() => handleOpen(item)}
+                      className="text-blue-500 underline hover:text-blue-700"
+                    >
+                      Đánh giá
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <DishReviewModal open={open} handleClose={() => setOpen(false)} dish={selectedDish} onSubmit={handleSubmitReview} />
+
           <p>
             <strong>Thời gian:</strong>{" "}
-            {new Date(selectedOrder.checkin).toLocaleString("vi-VN")}
+            {new Date(new Date(selectedOrder.checkin).setHours(new Date(selectedOrder.checkin).getHours() - 7))
+              .toLocaleString("vi-VN")}
           </p>
+
           <p>
             <strong>Số người:</strong> {selectedOrder.total_people}
           </p>
@@ -106,8 +154,13 @@ const HistoryPage = () => {
             {selectedOrder.status === "COMPLETED"
               ? "Hoàn thành"
               : selectedOrder.status === "PENDING"
-              ? "Đang chờ"
-              : "Đã hủy"}
+                ? "Đang chờ"
+                : selectedOrder.status === "CANCELLED"
+                  ? "Đã hủy"
+                  : selectedOrder.status === "SUCCESS"
+                    ? "Đặt thành công"
+                    : "Đang nhận bàn"
+            }
           </p>
 
           {showRatingForm && (
@@ -119,11 +172,10 @@ const HistoryPage = () => {
                     <StarIcon
                       key={star}
                       onClick={() => handleStarClick(star)}
-                      className={`w-8 h-8 cursor-pointer ${
-                        rating >= star
-                          ? "text-yellow-500"
-                          : "text-gray-300"
-                      } ${rating >= star ? "fill-current" : "stroke-current"}`}
+                      className={`w-8 h-8 cursor-pointer ${rating >= star
+                        ? "text-yellow-500"
+                        : "text-gray-300"
+                        } ${rating >= star ? "fill-current" : "stroke-current"}`}
                     />
                   ))}
                 </div>
@@ -163,10 +215,10 @@ const HistoryPage = () => {
                 Đánh giá
               </button>
             )}
-            {selectedOrder.status === "PENDING"  && (
+            {selectedOrder.status === "PENDING" && (
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={() =>  setShowCancelModal(true)}
+                onClick={() => setShowCancelModal(true)}
               >
                 Hủy
               </button>
@@ -196,26 +248,36 @@ const HistoryPage = () => {
                   {new Date(order.checkin).toLocaleString("vi-VN")}
                 </td>
                 <td
-                  className={`border border-gray-300 px-4 py-2 ${
-                    order.status === "COMPLETED"
-                      ? "text-green-600"
-                      : order.status === "PENDING"
+                  className={`border border-gray-300 px-4 py-2 ${order.status === "COMPLETED"
+                    ? "text-green-600"
+                    : order.status === "PENDING"
                       ? "text-yellow-600"
                       : "text-red-600"
-                  }`}
+                    }`}
                 >
                   {order.status === "COMPLETED"
                     ? "Hoàn thành"
                     : order.status === "PENDING"
-                    ? "Đang chờ"
-                    : "Đã hủy"}
+                      ? "Đang chờ"
+                      : order.status === "ONHOLD"
+                        ? "Đang nhận bàn"
+                        : order.status === "SUCCESS"
+                          ? "Đặt thành công"
+                          : "Đã hủy"}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-       {showCancelModal && (
+      {data.info.number_of_pages > 1 && (
+        <Pagination
+          page={data.info.number_of_pages}
+          active={page}
+          setActive={setPage}
+        />
+      )}
+      {showCancelModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-96">
             <p>Bạn chắc chắn muốn hủy đơn hàng này?</p>
@@ -237,7 +299,7 @@ const HistoryPage = () => {
         </div>
       )}
     </div>
-    
+
   );
 };
 

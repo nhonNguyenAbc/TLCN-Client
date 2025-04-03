@@ -36,7 +36,9 @@ export const videoApi = createApi({
     getVideosByUserId: builder.query({
       query: ({ page = 1, limit = 6 }) => `/user?page=${page}&limit=${limit}`,
     }),
-
+    getMostLikedVideo: builder.query({
+      query: ({restaurantId}) => `/most-liked/${restaurantId}`,
+    }),
     // API xóa video
     deleteVideo: builder.mutation({
       query: (videoId) => ({
@@ -63,5 +65,6 @@ export const {
   useGetVideosByUserIdQuery,
   useDeleteVideoMutation,
   useUpdateVideoMutation,
+  useGetMostLikedVideoQuery,
 } = videoApi;
 

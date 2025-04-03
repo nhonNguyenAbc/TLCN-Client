@@ -31,7 +31,7 @@ const StaffNavbar = () => {
     <Navbar className="mx-auto max-w-screen-3xl rounded-none px-4 py-2 sticky top-0 z-50">
       <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
         <Typography variant="h3" className="ms-5" color="blue-gray">
-          <span className="text-[#FF333A]">Mindx</span> Staff
+          <span className="text-[#FF333A]">TableHive H&N</span> Staff
         </Typography>
         {/* <div className="hidden lg:block">
           <NavList />

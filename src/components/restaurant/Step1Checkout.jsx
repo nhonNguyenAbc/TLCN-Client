@@ -106,13 +106,17 @@ const Step1Checkout = ({ restaurantId, handleNext }) => {
       }).unwrap();
       if (message.data.paymentLinkRes) {
         window.location.replace(message.data.paymentLinkRes.checkoutUrl);
-      } else {
+      }
+      else if(message.data.paymentLink) {
+        window.location.replace(message.data.paymentLink);
+      }  else {
         navigate(
           "/checkout?step=1&status=PAID&orderCode=" + message.data.orderCode
         );
         handleNext();
       }
     } catch (error) {
+      console.log(error)
       Toast.fire({
         icon: "error",
         title: "Không còn bàn trống vào thời gian này",
@@ -308,6 +312,15 @@ const Step1Checkout = ({ restaurantId, handleNext }) => {
                   checked={method === "CREDIT_CARD"}
                   name="method"
                   label={<Typography>Thanh toán qua thẻ ngân hàng</Typography>}
+                />
+              </div>
+            </ListItem>
+            <ListItem onClick={() => setMethod("MOMO_PAY")} disabled={total === 0}>
+              <div className="flex items-center">
+                <Radio
+                  checked={method === "MOMO_PAY"}
+                  name="method"
+                  label={<Typography>Thanh toán qua Momo</Typography>}
                 />
               </div>
             </ListItem>

@@ -174,7 +174,7 @@ const AdminLayout = ({
         open={detailOpen}
         onClose={handleDetailClose}
         maxWidth={size}
-        className={overflow ? "h-[80vh] overflow-auto" : ""}
+        className={overflow ? "h-[95vh] overflow-auto" : ""}
       >
         <DialogTitle className="pb-0 flex justify-between">
           <Typography variant="h4">{headerDetail}</Typography>

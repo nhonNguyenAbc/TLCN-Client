@@ -13,6 +13,7 @@ const API_ROUTE = {
   PROMOTION: "/promotions",
   VIDEO: "/videos",
   COMMENT: "/comments",
-  REVIEW:"/reviews"
+  REVIEW:"/reviews",
+  DISHREVIEW:"/dishreviews"
 };
 export { RESTAURANT_API, API_ROUTE, LOCAL_RESTAURANT_API };

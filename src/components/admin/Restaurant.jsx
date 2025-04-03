@@ -403,7 +403,12 @@ const Restaurant = () => {
                   variant="medium"
                   className="col-span-3 h-[15rem] overflow-auto"
                 >
-                  {updateDescription}
+                  {updateDescription.split('\n').map((line, index) => (
+                  <span key={index}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
                 </Typography>
               </div>
             </div>

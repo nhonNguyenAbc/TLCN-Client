@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetSelectedId } from "../../features/slices/selectIdSlice";
 import { Toast } from "../../configs/SweetAlert2";
 import Loading from "../shared/Loading";
+import { order_tab } from "../../constants/tab";
 
 const Checkin = () => {
   const [active, setActive] = useState(1);
@@ -58,6 +59,10 @@ const Checkin = () => {
       second: '2-digit',
     });
   };
+  const mapStatusToLabel = (status) => {
+    const tab = order_tab.find((tab) => tab.value === status);
+    return tab ? tab.label : "Không xác định"; // Nếu không khớp, trả về "Không xác định"
+  };
   if (orderLoading)
     return (
       <div>
@@ -70,7 +75,7 @@ const Checkin = () => {
     order: order.orderCode,
     checkin: formatDateTime(order.checkin),
     total: Number(order.total).toLocaleString("en-US") + " đ",
-    status: order.status,
+    status: mapStatusToLabel(order.status),
   }));
   return (
     <>

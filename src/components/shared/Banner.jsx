@@ -32,12 +32,12 @@ import { useNavigate } from "react-router-dom";
 // profile menu component
 const profileMenuItems = [
   {
-    label: "My Profile",
+    label: "Thông tin cá nhân",
     icon: UserCircleIcon,
     path: "/profile", // Đường dẫn cho Profile
   },
   {
-    label: "History",
+    label: "Lịch sử đặt hàng",
     icon: ClipboardDocumentListIcon,
     path: "/history", 
   },
@@ -54,7 +54,7 @@ const profileMenuItems = [
   //   icon: LifebuoyIcon,
   // },
   {
-    label: "Sign Out",
+    label: "Đăng xuất",
     icon: PowerIcon,
   },
 ];
@@ -68,7 +68,7 @@ function ProfileMenu() {
   //   navigate("/login");
   // };
   const handleMenuClick = (label, path) => {
-    if (label === "Sign Out") {
+    if (label === "Đăng xuất") {
       // Xử lý Sign Out
       localStorage.removeItem("token");
       navigate("/login");

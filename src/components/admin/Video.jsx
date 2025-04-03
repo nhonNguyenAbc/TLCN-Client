@@ -5,6 +5,7 @@ import Pagination from '../shared/Pagination';
 import { useGetAllRestaurantByUserIdQuery } from '../../apis/restaurantApi'; // Assuming you have a restaurantApi defined
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; //
+import Loading from '../shared/Loading';
 
 const Video = ({ userId }) => {
     const [active, setActive] = useState(1);
@@ -23,8 +24,8 @@ const Video = ({ userId }) => {
     const { data: dataRestaurant, isLoading: loadingRestaurants } = useGetAllRestaurantByUserIdQuery(userId);
     const restaurants = dataRestaurant?.data
     // Mutations for adding and updating videos
-    const [addVideo] = useAddVideoMutation();
-    const [updateVideo] = useUpdateVideoMutation();
+    const [addVideo,  {isLoading: isAdded, error: addedError }] = useAddVideoMutation();
+    const [updateVideo,  {isLoading: isUpdated, error: updatedError }] = useUpdateVideoMutation();
     const [deleteVideo] = useDeleteVideoMutation();
 
 
@@ -223,7 +224,7 @@ const Video = ({ userId }) => {
             {/* Modal for add/edit video */}
             {showModal && (
                 <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 w-96 rounded-lg">
+                   {(isUpdated || isAdded) ? (<Loading/>):( <div className="bg-white p-6 w-96 rounded-lg">
                         <h3 className="text-xl font-semibold mb-4">{isEditMode ? 'Sửa Video' : 'Thêm Video Mới'}</h3>
                         <form onSubmit={handleSubmit}>
                             <div className="mb-4">
@@ -280,7 +281,7 @@ const Video = ({ userId }) => {
                                 <Button variant="filled" type="submit">{isEditMode ? 'Cập nhật' : 'Thêm Video'}</Button>
                             </div>
                         </form>
-                    </div>
+                    </div>)}
                 </div>
             )}
             <ToastContainer className="w-auto" /> 

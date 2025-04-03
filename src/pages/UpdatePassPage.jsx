@@ -56,7 +56,7 @@ function UpdatePassPage() {
       <div className="h-screen lg:border-r-4">
         <div className="mt-20">
           <h1 className="text-center text-6xl mb-5">
-            <span className="text-[#FF333A]">Mindx</span>
+            <span className="text-[#FF333A]">TableHive H&N</span>
           </h1>
           <Divider>
             <h3 className="text-center text-xl">Đặt lại mật khẩu</h3>

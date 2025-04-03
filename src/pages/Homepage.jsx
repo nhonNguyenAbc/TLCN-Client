@@ -20,6 +20,8 @@ import { useGetMenusQuery } from "../apis/menuApi";
 import Loading from "../components/shared/Loading";
 import { useGetAllRestaurantsQuery } from "../apis/restaurantApi";
 import { useState } from "react";
+import ChatBox from "../components/shared/ChatBot";
+import ChatbotButton from "../components/shared/ChatbotButton";
 const Homepage = () => {
   const navigate = useNavigate();
   const {
@@ -70,6 +72,7 @@ const Homepage = () => {
   };
   return (
     <>
+      <ChatbotButton />
       <div className="w-full h-[500px] mb-5">
         <Swiper
           slidesPerView={1}
@@ -141,7 +144,7 @@ const Homepage = () => {
       </div>
       <div>
         <Container>
-          <Typography variant="h2" className="text-left">
+          <Typography variant="h2" className="text-left mb-12">
             Món ăn nổi bật
           </Typography>
         </Container>
@@ -167,19 +170,18 @@ const Homepage = () => {
                     {menu.restaurant_name}
                   </Typography>
                 </CardBody>
-                <CardFooter className="w-full pt-0 flex items-center justify-around gap-5">
-                  <div></div>
+                {/* <CardFooter className="w-full pt-0 flex items-center  justify-center gap-5">
                   <Typography className="text-[#FF333A]" variant="h5">
                     {(menu.price).toLocaleString(
                       "en-US"
                     )}{" "}
-                    đ
+                    đ/ <span className="text-gray-800">{menu.unit}</span>
                   </Typography>
-
+                  
                   <Typography color="black" variant="h6">
-                    / {menu.unit}
+                    
                   </Typography>
-                </CardFooter>
+                </CardFooter> */}
               </Card>
             </SwiperSlide>
           ))}

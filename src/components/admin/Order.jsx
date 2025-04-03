@@ -29,59 +29,92 @@ const Order = () => {
     refetch
   } = useGetAllOrdersByUserIdQuery({page:active, status });
   const selectedId = useSelector((state) => state.selectedId.value);
+  const formatDateTime = (dateTime) => {
+    const date = new Date(dateTime);
 
-
+    return date.toLocaleString('vi-VN', {
+      weekday: 'long',  // Thứ trong tuần (e.g., "Thứ Hai")
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  };
+  const mapStatusToLabel = (status) => {
+    const tab = order_tab.find((tab) => tab.value === status);
+    return tab ? tab.label : "Không xác định"; // Nếu không khớp, trả về "Không xác định"
+  };
   const list_order = orders?.data.map((order, index) => ({
     id: order._id,
     orderCode: order.orderCode,
-    name: order.name,
-    phone: order.phone_number,
+    checkin: formatDateTime(order.checkin),
+    //phone: order.phone_number,
     total: Number(order.total.toFixed(0)).toLocaleString("en-US") + " đ",
-    status: order.status,
+    status: mapStatusToLabel(order.status),
     peopleAmount: order.total_people,
   }));
   const updateSubmit = async () => {
     try {
-      const orderId = selectedId; // Lấy ID đơn hàng được chọn
-      const newStatus = "COMPLETED"; // Trạng thái mới là "Confirmed", có thể thay đổi tùy theo yêu cầu
+      const selectedOrder = orders?.data.find((order) => order._id === selectedId);
+      if (selectedOrder?.status !== "PENDING") {
+        Toast.fire({
+          icon: "warning",
+          title: "Chỉ có thể cập nhật đơn hàng có trạng thái 'Chờ xác nhận'",
+        });
+        return;
+      }
+      const orderId = selectedId;
+      const newStatus = "SUCCESS"; 
       const data = await updateOrderStatus({ orderId, newStatus }).unwrap();
       if (data?.status === 200) {
         Toast.fire({
           icon: "success",
           title: "Cập nhật đơn hàng thành công",
         }).then(() => {
-          refetch()
+          refetch();
         });
       }
     } catch (err) {
-      console.log('err', err)
+      console.error("err", err);
       Toast.fire({
         icon: "error",
         title: "Cập nhật đơn hàng thất bại",
       });
     }
   };
+  
   const rejectOrderSubmit = async () => {
     try {
-      const orderId = selectedId; // Lấy ID đơn hàng được chọn
-      const newStatus = "CANCELLED"; // Trạng thái mới là "Confirmed", có thể thay đổi tùy theo yêu cầu
+      const selectedOrder = orders?.data.find((order) => order._id === selectedId);
+      if (selectedOrder?.status !== "PENDING") {
+        Toast.fire({
+          icon: "warning",
+          title: "Chỉ có thể hủy đơn hàng có trạng thái 'Chờ xác nhận'",
+        });
+        return;
+      }
+      const orderId = selectedId;
+      const newStatus = "CANCELLED";
       const data = await updateOrderStatus({ orderId, newStatus }).unwrap();
       if (data?.status === 200) {
         Toast.fire({
           icon: "success",
-          title: "Cập nhật đơn hàng thành công",
+          title: "Hủy đơn hàng thành công",
         }).then(() => {
-          refetch()
+          refetch();
         });
       }
     } catch (err) {
-      console.log('err', err)
+      console.error("err", err);
       Toast.fire({
         icon: "error",
-        title: "Cập nhật đơn hàng thất bại",
+        title: "Hủy đơn hàng thất bại",
       });
     }
   };
+  
   const TABLE_HEAD = ["STT", "Tên món ăn", "Số lượng", "Giá", "Tổng tiền"];
   if (isLoading)
     return (
@@ -111,7 +144,23 @@ const Order = () => {
         bodyDetail={
           <Card>
             <CardBody>
-              <div className="grid grid-cols-3 mb-5">
+            <div className="grid grid-cols-3 mb-5">
+            <Typography
+                  variant="h5"
+                  color="blue-gray"
+                  className="font-bold"
+                >
+                 {
+                      orders?.data.find((order) => order._id === selectedId)
+                        ?.restaurant.name
+                    }
+                </Typography>
+                
+              </div>
+              <Divider />
+
+              <div className="grid grid-cols-3 mb-5 mt-5">
+              
                 <Typography
                   variant="h5"
                   color="blue-gray"
@@ -219,7 +268,7 @@ const Order = () => {
                   >
                     {Number(
                       orders?.data.find((order) => order._id === selectedId)
-                        ?.totalOrder
+                        ?.total
                     )
                       .toFixed(0)
                       .toLocaleString("en-US")}

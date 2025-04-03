@@ -1,18 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import { useGetVideosQuery } from "../apis/videoApi";
-import { Volume2, VolumeX, MessageSquare } from "lucide-react";
+import { Volume2, VolumeX, MessageSquare, Heart } from "lucide-react";
 import throttle from "lodash.throttle";
 import "./VideoFeed.css";
 import { remove as removeDiacritics } from "diacritics";
 import { useNavigate } from "react-router-dom";
 import { useCreateCommentMutation, useGetCommentsForVideoQuery } from "../apis/commentApi";
 import { UserIcon } from "@heroicons/react/24/solid";
+import { Typography } from "@material-tailwind/react";
 
 const VideoFeed = () => {
     const [searchTerm, setSearchTerm] = useState(""); // State để lưu thông tin tìm kiếm
     const [restaurantName, setRestaurantName] = useState(""); // Lưu thông tin tên nhà hàng để tìm kiếm
-
+    const [suggestions, setSuggestions] = useState([
+        "Khao Lao",
+        "Sườn Mười",
+        "Cơm niêu Sài Gòn",
+        "Nhà hàng Pendolasco",
+        // Các gợi ý khác
+      ]);
     const { data: videos = [], isLoading, isError } = useGetVideosQuery({ restaurantName }); // Gọi dữ liệu dựa vào `searchTerm`
     const [createComment, { isLoading: isCreatingComment }] = useCreateCommentMutation();
 
@@ -24,7 +31,7 @@ const VideoFeed = () => {
     const containerRef = useRef(null);
     const videoRefs = useRef([]);
     const [showFullDescription, setShowFullDescription] = useState(false);
-    const [showSeekbar, setShowSeekbar] = useState(false); 
+    const [showSeekbar, setShowSeekbar] = useState(false);
 
     const navigate = useNavigate();
     const { data: commentsData, isFetching } = useGetCommentsForVideoQuery(videos[currentIndex]?._id, {
@@ -141,27 +148,50 @@ const VideoFeed = () => {
             </div>
         );
     }
-
+    const handleSuggestionClick = (suggestion) => {
+        setSearchTerm(suggestion);
+        handleSearch();
+      };
     return (
         <>
-            <div className=" inset-0 bg-transparent">
+            <div className=" inset-0 bg-transparent flex justify-center">
                 {!showComments && (
-                    <div className="flex search-container p-4 justify-end mr-4">
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)} // Ghi nhận thông tin input
-                            placeholder="Nhập tên nhà hàng cần tìm..."
-                            className="border-2 border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
+                  <div className="col-span-1 p-4 bg-gray-100 rounded-lg shadow-md">
+                  {/* Ô tìm kiếm */}
+                  <div className="flex w-full bg-white rounded-lg shadow-md overflow-hidden mb-4">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật giá trị tìm kiếm
+                      placeholder="Nhập tên nhà hàng..."
+                      className="flex-1 border-none px-4 py-2 focus:outline-none"
+                    />
+                    <button
+                      onClick={handleSearch} // Gọi hàm tìm kiếm khi nhấn nút
+                      className="bg-blue-500 text-white px-5 py-2 hover:bg-blue-600 transition-all"
+                    >
+                      🔍 Tìm
+                    </button>
+                  </div>
+                
+                  {/* Danh sách gợi ý nhà hàng */}
+                  <Typography variant="h5" className="mb-2">Mọi người quan tâm</Typography>
+                  <ul className="list-disc pl-5">
+                    {suggestions.map((suggestion, index) => (
+                      <li key={index} className="mb-2">
                         <button
-                            onClick={handleSearch} // Gọi hàm tìm kiếm khi nhấn nút
-                            className="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                          onClick={() => handleSuggestionClick(suggestion)} // Cập nhật tìm kiếm khi chọn gợi ý
+                          className="flex items-center w-full p-2 rounded-lg bg-white hover:bg-gray-200 transition-all"
                         >
-                            Tìm kiếm
+                          <span className="text-base font-thin text-black">{suggestion}</span> {/* Làm chữ đậm */}
                         </button>
-                    </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
                 )}
+
 
 
                 <div
@@ -236,7 +266,12 @@ const VideoFeed = () => {
                                             />
                                         </div>
                                     )}
-
+                                    <button
+                                        //onClick={toggleComments}
+                                        className="absolute bottom-40 right-4 z-10 bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                    >
+                                        <Heart className="w-6 h-6 text-white" />
+                                    </button>
                                     <button
                                         onClick={toggleComments}
                                         className="absolute bottom-28 right-4 z-10 bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-70 transition-all"
@@ -273,8 +308,8 @@ const VideoFeed = () => {
                                                 {commentsData.comments.map((comment) => (
                                                     <div className="mb-3 mt-2" key={comment._id}>
                                                         <div className="flex items-center">
-                                                        <UserIcon className="h-8 w-8 mb-1 text-gray-500 mr-2 border-2 border-gray-300 rounded-full p-1" /> {/* Thêm viền */}
-                                                        <p className="font-semibold">{comment?.user?.username}</p>
+                                                            <UserIcon className="h-8 w-8 mb-1 text-gray-500 mr-2 border-2 border-gray-300 rounded-full p-1" /> {/* Thêm viền */}
+                                                            <p className="font-semibold">{comment?.user?.username}</p>
                                                         </div>
                                                         <p className="ml-4">{comment.content}</p>
                                                     </div>

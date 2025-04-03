@@ -17,9 +17,18 @@ export const employeeApi = createApi({
       providesTags: ["Employee"],
     }),
     getEmployeeById: builder.query({
-      query: (id) => `/${id}`,
+      query: () => {
+        return {
+          url: `/staff/`,
+          method: 'GET',
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,  // Lấy token từ localStorage
+          },
+        };
+      },
       providesTags: ["Employee"],
-    }),
+    }),    
     createEmployee: builder.mutation({
       query: (newEmployee) => ({
         url: `/staff/resgister`,
@@ -64,4 +73,5 @@ export const {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
+  useLazyGetEmployeeByIdQuery
 } = employeeApi;
