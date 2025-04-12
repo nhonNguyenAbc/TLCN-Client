@@ -161,7 +161,9 @@ export const userApi = createApi({
         body: { message, lat, lng }, // Thêm lat, lng vào body request
       }),
     }),
-    
+    getRecommendations: builder.query({
+      query: () => 'recommendation',  // Đặt đường dẫn đúng cho API của bạn
+    }),
   }),
 });
 
@@ -171,5 +173,6 @@ export const {
   useLoginMutation,
   useChangePasswordMutation,
   useLazyGetUserByIdQuery,
-  useSendMessageMutation  
+  useSendMessageMutation ,
+  useGetRecommendationsQuery 
 } = userApi;

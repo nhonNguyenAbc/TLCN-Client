@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { UserIcon } from '@heroicons/react/24/solid'
 import { useNavigate, useParams } from "react-router-dom";
+import "../pages/myswiper.css"
 import {
   Button,
   Card,
@@ -21,15 +22,20 @@ import {
   useGetTableByAnyFieldQuery,
 } from "../apis/tableApi";
 import { useGetMenuByRestaurantQuery, useGetMenuItemsByAnyFieldQuery } from "../apis/menuApi";
-import { useGetRestaurantByIdQuery } from "../apis/restaurantApi";
+import { useGetRencentlyRestaurantForUserQuery, useGetRestaurantByIdQuery } from "../apis/restaurantApi";
 import Loading from "../components/shared/Loading";
-import { TextField } from "@mui/material";
+import { Container, TextField } from "@mui/material";
 import { useCreateReviewMutation, useDeleteReviewMutation, useGetReviewsByRestaurantQuery, useUpdateReviewMutation } from "../apis/reviewApi";
 import Pagination from "../components/shared/Pagination";
 import { ChatBubbleLeftEllipsisIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'; // Import các icon từ Heroicons
 import MenuItemModal from "../components/restaurant/MenuItemModal";
 import ChatButton from "..//components/shared/ChatButton";
 import { useGetMostLikedVideoQuery } from "../apis/videoApi";
+import { SwiperSlide, Swiper } from "swiper/react";
+import ProductCard from "../components/restaurant/ProductCard";
+import { Autoplay, EffectFade, Pagination as pagination, Navigation } from "swiper/modules";
+import { useGetRecommendationsQuery } from "../apis/userApi";
+import ScrollToTop from "../components/shared/ScrollToTop";
 
 const RestaurantDetail = () => {
   const { id } = useParams();
@@ -39,7 +45,7 @@ const RestaurantDetail = () => {
   const [selectedItem, setSelectedItem] = useState('')
   const [selectedImage, setSelectedImage] = useState(null);
   const [createReview, { isLoading }] = useCreateReviewMutation();
-
+  const {data: rencentRestaurant} = useGetRencentlyRestaurantForUserQuery();
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const fileInputRef = useRef(null);
@@ -54,6 +60,7 @@ const RestaurantDetail = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const userId = localStorage.getItem("userId"); // Lấy userId từ localStorage
   const userName = localStorage.getItem("userName")
+  const { data: recommendedRestaurant } = useGetRecommendationsQuery()
   const {
     data: restaurants,
     isLoading: restaurantLoading,
@@ -488,7 +495,9 @@ const RestaurantDetail = () => {
 
 
   return (
-    <>
+    <div key={id}>
+      <ScrollToTop />
+
       <div className="mb-5"></div>
       <div className="grid grid-cols-3 gap-8 m-4">
 
@@ -861,7 +870,76 @@ const RestaurantDetail = () => {
             )}
 
           </Card>
+          <div >
+            <Container>
+              <Typography variant="h3" className="text-left mt-4">
+                Nhà hàng uy tín
+              </Typography>
+            </Container>
+            <Swiper
+              slidesPerView={3}
+              spaceBetween={30}
+              modules={[Navigation]}
+              loop={false}
+              navigation={{
+                nextEl: ".swiper-button-next", // Nút mũi tên tiếp theo
+                prevEl: ".swiper-button-prev", // Nút mũi tên trước
+              }}
+            >
+              {recommendedRestaurant?.map((restaurant) => (
+                <SwiperSlide key={restaurant?.id} className="my-8 ">
+                  <ProductCard {...restaurant} height={220} />
+                </SwiperSlide>
+              ))}
+              <div className="swiper-button-prev text-black absolute left-0 top-1/2 transform -translate-y-1/2">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="swiper-button-next text-black absolute right-0 top-1/2 transform -translate-y-1/2">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            </Swiper>
 
+            <div className="text-center mb-10"></div>
+          </div>
+          <div >
+            <Container>
+              <Typography variant="h3" className="text-left mt-4">
+                Đã xem gần đây
+              </Typography>
+            </Container>
+            <Swiper
+              slidesPerView={3}
+              spaceBetween={30}
+              modules={[Navigation]}
+              loop={false}
+              navigation={{
+                nextEl: ".swiper-button-next", // Nút mũi tên tiếp theo
+                prevEl: ".swiper-button-prev", // Nút mũi tên trước
+              }}
+            >
+              {rencentRestaurant?.data?.map((restaurant) => (
+                <SwiperSlide key={restaurant?.id} className="my-8 ">
+                  <ProductCard {...restaurant} height={220} />
+                </SwiperSlide>
+              ))}
+              <div className="swiper-button-prev text-black absolute left-0 top-1/2 transform -translate-y-1/2">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="swiper-button-next text-black absolute right-0 top-1/2 transform -translate-y-1/2">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            </Swiper>
+
+            <div className="text-center mb-10"></div>
+          </div>
         </div>
 
         <div className="">
@@ -985,7 +1063,7 @@ const RestaurantDetail = () => {
         </div>
       </div>
       <ChatButton userId={userId} ownerId={restaurants?.data?.restaurant?.user} restaurantId={restaurants?.data?.restaurant?._id} userName={userName} />
-    </>
+    </div>
   );
 };
 

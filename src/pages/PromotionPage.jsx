@@ -19,7 +19,8 @@ const PromotionPage = () => {
   }
 
   return (
-    <>
+    <div  className="bg-gray-200">
+
       <div className="mb-5"></div>
       <div className="grid grid-cols-4 mt-5">
         <ShopListPromotion
@@ -28,7 +29,7 @@ const PromotionPage = () => {
           setPage={setPage}
         />
       </div>
-    </>
+    </div>
   );
 };
 

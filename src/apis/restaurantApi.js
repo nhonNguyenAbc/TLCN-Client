@@ -64,6 +64,15 @@ export const restaurantApi = createApi({
         },
       })
     }),
+    getRencentlyRestaurantForUser: builder.query({
+      query: () => ({
+        url: `rencently-restaurants`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+    }),
     createRestaurant: builder.mutation({
       query: ({
         name,
@@ -151,4 +160,5 @@ export const {
   useGetProvincesQuery,
   useGetRestaurantForUserQuery,
   useGetNearbyRestaurantsQuery,
+  useGetRencentlyRestaurantForUserQuery
 } = restaurantApi;

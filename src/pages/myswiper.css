@@ -1,0 +1,17 @@
+.mySwiper {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .mySwiper .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;  /* Đảm bảo chiều cao của tất cả các slide là giống nhau */
+  }
+  
+  .mySwiper .swiper-slide .ProductCard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;  /* Giữ cho chiều cao của ProductCard luôn chiếm hết chiều cao của slide */
+  }
+  

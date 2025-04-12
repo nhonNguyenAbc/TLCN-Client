@@ -71,7 +71,7 @@ const Homepage = () => {
     },
   };
   return (
-    <>
+    <div className=" bg-gray-200">
       <ChatbotButton />
       <div className="w-full h-[500px] mb-5">
         <Swiper
@@ -120,28 +120,36 @@ const Homepage = () => {
           </SwiperSlide>
         </Swiper>
       </div>
-      <div>
-        <Container>
-          <Typography variant="h2" className="text-left">
-            Nhà hàng của chúng tôi
-          </Typography>
-        </Container>
-        <Swiper
-          slidesPerView={4}
-          spaceBetween={30}
-          modules={[Navigation]}
-          loop={true}
-          className="mySwiper mt-10"
-        >
-          {restaurants?.data.map((restaurant) => (
-            <SwiperSlide key={restaurant.id} className="my-8">
-              <ProductCard {...restaurant} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+      <Swiper
+  slidesPerView={4}
+  spaceBetween={30}
+  modules={[Navigation]}
+  loop={false} // Tắt tính năng loop để không quay vòng
+  navigation={{
+    nextEl: ".swiper-button-next", // Nút mũi tên tiếp theo
+    prevEl: ".swiper-button-prev", // Nút mũi tên trước
+  }}
+  className="mt-10"
+>
+  {restaurants?.data.map((restaurant) => (
+    <SwiperSlide key={restaurant.id} className="my-8">
+      <ProductCard {...restaurant} height={200} />
+    </SwiperSlide>
+  ))}
+  
+  {/* Thêm các nút mũi tên điều hướng */}
+  <div className="swiper-button-prev text-black absolute left-0 top-1/2 transform -translate-y-1/2">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </div>
+  <div className="swiper-button-next text-black absolute right-0 top-1/2 transform -translate-y-1/2">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </div>
+</Swiper>
 
-        <div className="text-center mb-10"></div>
-      </div>
       <div>
         <Container>
           <Typography variant="h2" className="text-left mb-12">
@@ -151,7 +159,7 @@ const Homepage = () => {
         <Swiper
           slidesPerView={4}
           spaceBetween={30}
-          loop={true}
+          loop={false}
           modules={[Navigation]}
           className="mySwiper mb-5"
         >
@@ -187,7 +195,7 @@ const Homepage = () => {
           ))}
         </Swiper>
       </div>
-    </>
+    </div>
   );
 };
 

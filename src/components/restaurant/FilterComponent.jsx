@@ -66,15 +66,21 @@ const FilterComponent = ({
     setSelectedType(value);
     handleTypeChange(value);
   };
+  const selectClass = "bg-white shadow-md rounded-xl border border-gray-200";
 
+  
   return (
     <div className="flex items-center gap-8 mr-4 mb-4">
-      <Select label="Loại hình" value={selectedType} onChange={handleTypeChangeInternal}>
+      <Select
+        className={selectClass}
+        label="Loại hình" value={selectedType} onChange={handleTypeChangeInternal}>
         {restaurantTypes.map((type) => (
           <Option key={type.value} value={type.value}>{type.label}</Option>
         ))}
       </Select>
-      <Select label="Giá" value={priceValue} onChange={handlePriceChangeInternal}>
+      <Select
+        className={selectClass}
+        label="Giá" value={priceValue} onChange={handlePriceChangeInternal}>
         <Option value="all">Tất cả giá</Option>
         <Option value="under_200k">Dưới 200k</Option>
         <Option value="200k_500k">200k - 500k</Option>
@@ -82,18 +88,24 @@ const FilterComponent = ({
         <Option value="above_1m">Trên 1 triệu</Option>
       </Select>
 
-      <Select label="Phân loại" value={sortValue} onChange={handleSortChange}>
+      <Select 
+        className={selectClass}
+        label="Phân loại" value={sortValue} onChange={handleSortChange}>
         <Option value="price_per_table-asc">Giá tăng dần</Option>
         <Option value="price_per_table-desc">Giá giảm dần</Option>
       </Select>
 
-      <Select label="Tỉnh/Thành phố" value="" onChange={handleProvinceChangeInternal} disabled={isProvincesLoading}>
+      <Select
+        className={selectClass}
+        label="Tỉnh/Thành phố" value="" onChange={handleProvinceChangeInternal} disabled={isProvincesLoading}>
         {provincesWithDefaultOption.map((province) => (
           <Option key={province.code} value={province.code}>{province.name}</Option>
         ))}
       </Select>
 
-      <Select label="Quận/Huyện" value={selectedDistrict} onChange={handleDistrictChangeInternal} disabled={isDistrictsLoading || !selectedProvince}>
+      <Select
+        className={selectClass}
+        label="Quận/Huyện" value={selectedDistrict} onChange={handleDistrictChangeInternal} disabled={isDistrictsLoading || !selectedProvince}>
         {districtsWithDefaultOption.map((district) => (
           <Option key={district.code} value={district.code}>{district.name}</Option>
         ))}

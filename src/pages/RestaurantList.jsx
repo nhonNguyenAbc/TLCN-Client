@@ -6,9 +6,9 @@ import ChatbotButton from "../components/shared/ChatbotButton";
 
 const RestaurantPage = () => {
   const searchTerm = useSelector((state) => state.search.term);
-  const [sort, setSort] = useState(-1); 
-  const [field, setField] = useState("createdAt"); 
-  const [priceRange, setPriceRange] = useState("all"); 
+  const [sort, setSort] = useState(-1);
+  const [field, setField] = useState("createdAt");
+  const [priceRange, setPriceRange] = useState("all");
   const [page, setPage] = useState(1);
   const [provinceCode, setProvinceCode] = useState("10");
   const [districtCode, setDistrictCode] = useState("");
@@ -34,15 +34,14 @@ const RestaurantPage = () => {
   }
 
   return (
-    <>
-    <ChatbotButton/>
-      <div className="mb-5"></div>
+    <div  className="bg-gray-200">
+      <ChatbotButton />
       <div className="grid grid-cols-4 mt-5">
         <ShopList
           restaurants={restaurants}
-          setSort={setSort} 
-          setField={setField} 
-          setPriceRange={setPriceRange} 
+          setSort={setSort}
+          setField={setField}
+          setPriceRange={setPriceRange}
           page={page}
           setPage={setPage}
           setProvinceCode={setProvinceCode}
@@ -50,7 +49,7 @@ const RestaurantPage = () => {
           setType={setType}
         />
       </div>
-    </>
+    </div>
   );
 };
 
