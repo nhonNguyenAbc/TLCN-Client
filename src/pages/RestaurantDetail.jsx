@@ -45,7 +45,7 @@ const RestaurantDetail = () => {
   const [selectedItem, setSelectedItem] = useState('')
   const [selectedImage, setSelectedImage] = useState(null);
   const [createReview, { isLoading }] = useCreateReviewMutation();
-  const {data: rencentRestaurant} = useGetRencentlyRestaurantForUserQuery();
+  const { data: rencentRestaurant } = useGetRencentlyRestaurantForUserQuery();
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const fileInputRef = useRef(null);
@@ -870,9 +870,9 @@ const RestaurantDetail = () => {
             )}
 
           </Card>
-          <div >
+          <div className="relative w-full">
             <Container>
-              <Typography variant="h3" className="text-left mt-4">
+              <Typography variant="h3" className="text-left mt-8">
                 Nhà hàng uy tín
               </Typography>
             </Container>
@@ -882,32 +882,45 @@ const RestaurantDetail = () => {
               modules={[Navigation]}
               loop={false}
               navigation={{
-                nextEl: ".swiper-button-next", // Nút mũi tên tiếp theo
-                prevEl: ".swiper-button-prev", // Nút mũi tên trước
+                nextEl: ".swiper-button-next1",
+                prevEl: ".swiper-button-prev1",
               }}
+              className="w-[90%] mx-auto"
             >
               {recommendedRestaurant?.map((restaurant) => (
-                <SwiperSlide key={restaurant?.id} className="my-8 ">
+                <SwiperSlide key={restaurant?.id} className="my-8">
                   <ProductCard {...restaurant} height={220} />
                 </SwiperSlide>
               ))}
-              <div className="swiper-button-prev text-black absolute left-0 top-1/2 transform -translate-y-1/2">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="swiper-button-next text-black absolute right-0 top-1/2 transform -translate-y-1/2">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
             </Swiper>
 
-            <div className="text-center mb-10"></div>
+            {/* Nút trước */}
+            <div
+              className="swiper-button-prev1 absolute left-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all
+                w-12 h-12 flex items-center justify-center text-black
+                [&.swiper-button-disabled]:opacity-0 [&.swiper-button-disabled]:pointer-events-none"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            {/* Nút sau */}
+            <div
+              className="swiper-button-next1 absolute right-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all
+                w-12 h-12 flex items-center justify-center text-black
+                [&.swiper-button-disabled]:opacity-0 [&.swiper-button-disabled]:pointer-events-none"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
-          <div >
+
+
+          <div className="relative w-full">
             <Container>
-              <Typography variant="h3" className="text-left mt-4">
+              <Typography variant="h3" className="text-left mt-8">
                 Đã xem gần đây
               </Typography>
             </Container>
@@ -917,149 +930,162 @@ const RestaurantDetail = () => {
               modules={[Navigation]}
               loop={false}
               navigation={{
-                nextEl: ".swiper-button-next", // Nút mũi tên tiếp theo
-                prevEl: ".swiper-button-prev", // Nút mũi tên trước
+                nextEl: ".swiper-button-next2",
+                prevEl: ".swiper-button-prev2",
               }}
+              className="w-[90%] mx-auto"
             >
               {rencentRestaurant?.data?.map((restaurant) => (
-                <SwiperSlide key={restaurant?.id} className="my-8 ">
+                <SwiperSlide key={restaurant?.id} className="my-8">
                   <ProductCard {...restaurant} height={220} />
                 </SwiperSlide>
               ))}
-              <div className="swiper-button-prev text-black absolute left-0 top-1/2 transform -translate-y-1/2">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="swiper-button-next text-black absolute right-0 top-1/2 transform -translate-y-1/2">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
             </Swiper>
 
-            <div className="text-center mb-10"></div>
+            {/* Nút trước */}
+            <div
+              className="swiper-button-prev2 absolute left-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all
+                w-12 h-12 flex items-center justify-center text-black
+                [&.swiper-button-disabled]:opacity-0 [&.swiper-button-disabled]:pointer-events-none"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            {/* Nút sau */}
+            <div
+              className="swiper-button-next2 absolute right-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all
+                w-12 h-12 flex items-center justify-center text-black
+                [&.swiper-button-disabled]:opacity-0 [&.swiper-button-disabled]:pointer-events-none"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </div>
 
         <div className="">
-          <Card>
-            <CardBody>
-              <Typography variant="h5" color="black" className="text-center">
-                Đặt chỗ
-              </Typography>
-              <div className="grid grid-cols-2 gap-4 mt-5">
-                <Typography variant="h6" className="my-auto">
-                  Số người
+          <div className="sticky top-20">
+            <Card>
+              <CardBody>
+                <Typography variant="h5" color="black" className="text-center">
+                  Đặt chỗ
                 </Typography>
+                <div className="grid grid-cols-2 gap-4 mt-5">
+                  <Typography variant="h6" className="my-auto">
+                    Số người
+                  </Typography>
 
-                <TextField
-                  size="small"
-                  value={people}
+                  <TextField
+                    size="small"
+                    value={people}
 
-                  onChange={handlePeopleChange}
-                />
+                    onChange={handlePeopleChange}
+                  />
 
-                <Typography variant="h6" className="my-auto">
-                  Ngày nhận bàn
-                </Typography>
+                  <Typography variant="h6" className="my-auto">
+                    Ngày nhận bàn
+                  </Typography>
 
-                <TextField
-                  size="small"
-                  type="date"
-                  value={date} // Hiển thị ngày mặc định là ngày hiện tại
-                  min={new Date().toISOString().split("T")[0]} // Ngăn chọn ngày trước hôm nay
-                  onChange={(e) => {
-                    const selectedDate = e.target.value;
-                    const today = new Date().toISOString().split("T")[0];
+                  <TextField
+                    size="small"
+                    type="date"
+                    value={date} // Hiển thị ngày mặc định là ngày hiện tại
+                    min={new Date().toISOString().split("T")[0]} // Ngăn chọn ngày trước hôm nay
+                    onChange={(e) => {
+                      const selectedDate = e.target.value;
+                      const today = new Date().toISOString().split("T")[0];
 
-                    // Nếu người dùng cố gắng chọn ngày trước hôm nay, giữ nguyên ngày hiện tại
-                    if (selectedDate < today) {
-                      setDate(today);
-                    } else {
-                      setDate(selectedDate);
+                      // Nếu người dùng cố gắng chọn ngày trước hôm nay, giữ nguyên ngày hiện tại
+                      if (selectedDate < today) {
+                        setDate(today);
+                      } else {
+                        setDate(selectedDate);
+                      }
+                    }}
+                  />
+                  <Typography variant="h6" className="my-auto">
+                    Thời gian đến
+                  </Typography>
+
+                  <TextField
+                    size="small"
+                    type="time"
+                    value={time}
+                    min={
+                      date === new Date().toISOString().split("T")[0]
+                        ? new Date().toTimeString().slice(0, 5) // Lấy thời gian hiện tại định dạng HH:MM
+                        : "00:00"
                     }
-                  }}
-                />
-                <Typography variant="h6" className="my-auto">
-                  Thời gian đến
+                    onChange={(e) => {
+                      const selectedTime = e.target.value;
+                      const currentTime = new Date().toTimeString().slice(0, 5); // Lấy thời gian hiện tại
+
+                      // Nếu ngày là hôm nay và thời gian chọn nhỏ hơn thời gian hiện tại
+                      if (
+                        date === new Date().toISOString().split("T")[0] &&
+                        selectedTime < currentTime
+                      ) {
+                        setTime(currentTime); // Đặt lại thời gian là thời gian hiện tại
+                      } else {
+                        setTime(selectedTime); // Cập nhật thời gian với giá trị người dùng chọn
+                      }
+                    }}
+                  />
+                </div>
+                <Typography variant="h6" className="my-auto mt-5">
+                  Thực đơn
                 </Typography>
 
-                <TextField
-                  size="small"
-                  type="time"
-                  value={time}
-                  min={
-                    date === new Date().toISOString().split("T")[0]
-                      ? new Date().toTimeString().slice(0, 5) // Lấy thời gian hiện tại định dạng HH:MM
-                      : "00:00"
-                  }
-                  onChange={(e) => {
-                    const selectedTime = e.target.value;
-                    const currentTime = new Date().toTimeString().slice(0, 5); // Lấy thời gian hiện tại
-
-                    // Nếu ngày là hôm nay và thời gian chọn nhỏ hơn thời gian hiện tại
-                    if (
-                      date === new Date().toISOString().split("T")[0] &&
-                      selectedTime < currentTime
-                    ) {
-                      setTime(currentTime); // Đặt lại thời gian là thời gian hiện tại
-                    } else {
-                      setTime(selectedTime); // Cập nhật thời gian với giá trị người dùng chọn
-                    }
-                  }}
-                />
-              </div>
-              <Typography variant="h6" className="my-auto mt-5">
-                Thực đơn
-              </Typography>
-
-              {menu &&
-                menu.length > 0 &&
-                menu.map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center justify-between gap-4 mt-5"
-                  >
-                    <Typography variant="medium" className="my-auto w-[125px] ">
-                      {item.name}
-                    </Typography>
-                    <Typography variant="medium" className="my-auto">
-                      {item.quantity}x
-                    </Typography>
-                    <Typography variant="medium" className="my-auto">
-                      {Number(
-                        item.price * (1 - promotionValue / 100)
-                      ).toLocaleString("en-US")}{" "}
-                      đ
-                    </Typography>
-                    <IconButton
-                      color="red"
-                      onClick={() => handleRemoveFromCart(item)}
+                {menu &&
+                  menu.length > 0 &&
+                  menu.map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-center justify-between gap-4 mt-5"
                     >
-                      <DeleteIcon />
-                    </IconButton>
-                  </div>
-                ))}
-              <div className="flex items-center justify-between gap-4 mt-5">
-                <Typography variant="h6" className="my-auto">
-                  Tổng cộng
-                </Typography>
-                <Typography variant="h6" className="my-auto">
-                  {Number(total.toFixed(0)).toLocaleString("en-US")} đ
-                </Typography>
-              </div>
-              <Button
-                variant="outlined"
-                className="mt-5 w-full"
-                color="blue"
-                onClick={handleCheckout}
-                disabled={people <= 0} // Disable button nếu people <= 0
-              >
-                Đặt chỗ
-              </Button>
-            </CardBody>
-          </Card>
+                      <Typography variant="medium" className="my-auto w-[125px] ">
+                        {item.name}
+                      </Typography>
+                      <Typography variant="medium" className="my-auto">
+                        {item.quantity}x
+                      </Typography>
+                      <Typography variant="medium" className="my-auto">
+                        {Number(
+                          item.price * (1 - promotionValue / 100)
+                        ).toLocaleString("en-US")}{" "}
+                        đ
+                      </Typography>
+                      <IconButton
+                        color="red"
+                        onClick={() => handleRemoveFromCart(item)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </div>
+                  ))}
+                <div className="flex items-center justify-between gap-4 mt-5">
+                  <Typography variant="h6" className="my-auto">
+                    Tổng cộng
+                  </Typography>
+                  <Typography variant="h6" className="my-auto">
+                    {Number(total.toFixed(0)).toLocaleString("en-US")} đ
+                  </Typography>
+                </div>
+                <Button
+                  variant="outlined"
+                  className="mt-5 w-full"
+                  color="blue"
+                  onClick={handleCheckout}
+                  disabled={people <= 0} // Disable button nếu people <= 0
+                >
+                  Đặt chỗ
+                </Button>
+              </CardBody>
+            </Card>
+          </div>
         </div>
       </div>
       <ChatButton userId={userId} ownerId={restaurants?.data?.restaurant?.user} restaurantId={restaurants?.data?.restaurant?._id} userName={userName} />
