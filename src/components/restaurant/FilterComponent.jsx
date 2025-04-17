@@ -1,32 +1,34 @@
 import { Select, Option } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
-import { 
-  useGetProvincesQuery, 
-  useGetDistrictsByProvinceQuery 
-} from "../../apis/restaurantApi"; 
+import {
+  useGetProvincesQuery,
+  useGetDistrictsByProvinceQuery
+} from "../../apis/restaurantApi";
 
-const FilterComponent = ({ 
-  handleSort, 
-  handlePriceChange, 
-  handleProvinceChange, 
-  handleDistrictChange, 
-  handleTypeChange // Thêm handleTypeChange
+const FilterComponent = ({
+  handleSort,
+  handlePriceChange,
+  handleProvinceChange,
+  handleDistrictChange,
+  handleTypeChange,
+  handleReputationChange 
 }) => {
   const [sortValue, setSortValue] = useState("price_per_table-asc");
   const [priceValue, setPriceValue] = useState("all");
-  const [selectedProvince, setSelectedProvince] = useState(""); 
-  const [selectedDistrict, setSelectedDistrict] = useState(""); 
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedType, setSelectedType] = useState(""); // State cho type
+  const [reputationFilter, setReputationFilter] = useState(""); // "", "reputable"
 
   const { data: provinces = [], isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: districts = [], isLoading: isDistrictsLoading } = useGetDistrictsByProvinceQuery(
-    selectedProvince, 
+    selectedProvince,
     { skip: !selectedProvince }
   );
 
   const provincesWithDefaultOption = [{ code: "", name: "Khu vực" }, ...provinces];
   const districtsWithDefaultOption = [{ code: "", name: "Khu vực" }, ...districts];
-  
+
   // Danh sách loại hình nhà hàng
   const restaurantTypes = [
     { value: "", label: "Tất cả" },
@@ -40,7 +42,7 @@ const FilterComponent = ({
   useEffect(() => {
     setSelectedDistrict("");
     handleProvinceChange(selectedProvince);
-    handleDistrictChange(""); 
+    handleDistrictChange("");
   }, [selectedProvince]);
 
   const handleSortChange = (value) => {
@@ -66,11 +68,26 @@ const FilterComponent = ({
     setSelectedType(value);
     handleTypeChange(value);
   };
+  const handleReputationChangeInternal = (value) => {
+    setReputationFilter(value);
+    handleReputationChange(value);
+  };
+  
   const selectClass = "bg-white shadow-md rounded-xl border border-gray-200";
 
-  
+
   return (
-    <div className="flex items-center gap-8 mr-4 mb-4">
+    <div className=" flex items-center gap-6 mx-2 mb-4">
+      <Select
+        className={selectClass}
+        label="Nhà hàng"
+        value={reputationFilter}
+        onChange={handleReputationChangeInternal}
+      >
+        <Option value="">Tất cả</Option>
+        <Option value="reputable">Nhà hàng uy tín</Option>
+      </Select>
+
       <Select
         className={selectClass}
         label="Loại hình" value={selectedType} onChange={handleTypeChangeInternal}>
@@ -88,7 +105,7 @@ const FilterComponent = ({
         <Option value="above_1m">Trên 1 triệu</Option>
       </Select>
 
-      <Select 
+      <Select
         className={selectClass}
         label="Phân loại" value={sortValue} onChange={handleSortChange}>
         <Option value="price_per_table-asc">Giá tăng dần</Option>
@@ -110,9 +127,9 @@ const FilterComponent = ({
           <Option key={district.code} value={district.code}>{district.name}</Option>
         ))}
       </Select>
-      
+
       {/* Dropdown Type */}
-      
+
     </div>
   );
 };

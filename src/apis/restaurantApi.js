@@ -12,9 +12,9 @@ export const restaurantApi = createApi({
       query: (provinceCode) => `/districts/${provinceCode}`,
     }),
     getAllRestaurants: builder.query({
-      query: ({ sort = -1, page = 1, size = 8, field = "rating", searchTerm, priceRange = "all", provinceCode="",districtCode='', type='' }) => ({
+      query: ({ sort = -1, page = 1, size = 8, field = "rating", searchTerm, priceRange = "all", provinceCode="",districtCode='', type='',reputable }) => ({
         url: "",
-        params: { sort, page, size, field, searchTerm, priceRange, provinceCode, districtCode,type },
+        params: { sort, page, size, field, searchTerm, priceRange, provinceCode, districtCode, type, reputable },
       }),
     }),
     getAllRestaurantPromotion: builder.query({

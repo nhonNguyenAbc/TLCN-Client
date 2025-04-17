@@ -262,7 +262,7 @@ export function Banner() {
   }, []);
 
   return (
-    <Navbar className="mx-auto max-w-screen-3xl rounded-none p-2">
+    <Navbar className="mx-auto max-w-screen-3xl rounded-none p-2 bg-[#F5F5DC]">
       <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
         <div className="flex items-center">
           <Typography

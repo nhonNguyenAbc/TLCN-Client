@@ -795,43 +795,7 @@ const RestaurantDetail = () => {
             <Typography variant="h3" color="black" className="ml-6">
               Bình luận đánh giá
             </Typography>
-            <CardBody className="flex items-start mt-3 shadow-md">
-              {/* Avatar mặc định */}
-              <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-4">
-                <UserIcon className="w-6 h-6 text-black" />
-
-              </div>
-
-              {/* Khung bình luận */}
-              <div className="flex-1">
-                <textarea
-                  className="w-full border p-2 rounded-md"
-                  placeholder="Nhập bình luận của bạn..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                />
-                <div className="flex items-center justify-between mt-2">
-                  {/* Chọn ảnh */}
-                  <input
-                    type="file"
-                    className="border p-2 rounded-md"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                  />
-                  {/* Nút đăng */}
-                  <button
-                    onClick={() => handleSubmit(null)}
-                    className={`border-[#FF333a] text-[#FF333a] px-4 py-2 rounded-md ${!localStorage.getItem("token") ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    disabled={!localStorage.getItem("token") || isLoading}
-                  >
-                    {isLoading ? "Đang đăng..." : "Đăng"}
-                  </button>
-
-                </div>
-
-              </div>
-            </CardBody>
+            
             {/* Hiển thị ảnh đã chọn nếu có */}
             <Card className="mt-5 ">
 

@@ -121,34 +121,42 @@ const Homepage = () => {
         </Swiper>
       </div>
       <Swiper
-  slidesPerView={4}
-  spaceBetween={30}
-  modules={[Navigation]}
-  loop={false} // Tắt tính năng loop để không quay vòng
-  navigation={{
-    nextEl: ".swiper-button-next", // Nút mũi tên tiếp theo
-    prevEl: ".swiper-button-prev", // Nút mũi tên trước
-  }}
-  className="mt-10"
->
-  {restaurants?.data.map((restaurant) => (
-    <SwiperSlide key={restaurant.id} className="my-8">
-      <ProductCard {...restaurant} height={200} />
-    </SwiperSlide>
-  ))}
-  
-  {/* Thêm các nút mũi tên điều hướng */}
-  <div className="swiper-button-prev text-black absolute left-0 top-1/2 transform -translate-y-1/2">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  </div>
-  <div className="swiper-button-next text-black absolute right-0 top-1/2 transform -translate-y-1/2">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  </div>
-</Swiper>
+        slidesPerView={4}
+        spaceBetween={30}
+        modules={[Navigation]}
+        loop={false} // Tắt tính năng loop để không quay vòng
+        navigation={{
+          nextEl: ".swiper-button-next", // Nút mũi tên tiếp theo
+          prevEl: ".swiper-button-prev", // Nút mũi tên trước
+        }}
+        className="mt-10 relative px-8"
+      >
+        {restaurants?.data.map((restaurant) => (
+          <SwiperSlide key={restaurant.id} className="my-8">
+            <ProductCard {...restaurant} height={200} />
+          </SwiperSlide>
+        ))}
+
+        {/* Thêm các nút mũi tên điều hướng */}
+        <div
+          className="swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all
+      w-12 h-12 flex items-center justify-center text-black
+      [&.swiper-button-disabled]:opacity-0 [&.swiper-button-disabled]:pointer-events-none"
+        >
+
+        </div>
+
+        {/* Nút sau */}
+        <div
+          className="swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 z-10 cursor-pointer transition-all
+      w-12 h-12 flex items-center justify-center text-black
+      [&.swiper-button-disabled]:opacity-0 [&.swiper-button-disabled]:pointer-events-none"
+        >
+
+        </div>
+      </Swiper>
+
+
 
       <div>
         <Container>

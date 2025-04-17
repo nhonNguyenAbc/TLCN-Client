@@ -17,6 +17,7 @@ const ShopList = ({
   setProvinceCode,
   setDistrictCode,
   setType,
+  setReputable,
 }) => {
   const { data: suggestedRestaurants = [] } = useGetRestaurantForUserQuery();
   const [showModal, setShowModal] = useState(false);
@@ -54,7 +55,10 @@ const ShopList = ({
     setType(type);
     setPage(1);
   };
-
+  const handleReputationChange = (reputable) => {
+    setReputable(reputable);
+    setPage(1);
+  }
   const handleRandomRestaurant = () => {
     setIsRandomizing(true);
     setShowModal(true);
@@ -131,6 +135,7 @@ const ShopList = ({
           handleProvinceChange={handleProvinceChange}
           handleDistrictChange={handleDistrictChange}
           handleTypeChange={handleTypeChange}
+          handleReputationChange={handleReputationChange}
         />
       </div>
 

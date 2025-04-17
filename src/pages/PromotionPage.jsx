@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import ShopListPromotion from "../components/restaurant/ShopListPromotion";
 import { useGetAllRestaurantPromotionQuery } from "../apis/restaurantApi";
+import Loading from "../components/shared/Loading";
 
 const PromotionPage = () => {
   const [page, setPage] = useState(1);
@@ -11,7 +12,7 @@ const PromotionPage = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div><Loading/></div>;
   }
 
   if (error) {
