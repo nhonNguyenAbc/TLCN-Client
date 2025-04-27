@@ -2,7 +2,8 @@ import { Select, Option } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import {
   useGetProvincesQuery,
-  useGetDistrictsByProvinceQuery
+  useGetDistrictsByProvinceQuery,
+  useGetAllTypeQuery
 } from "../../apis/restaurantApi";
 
 const FilterComponent = ({
@@ -11,7 +12,7 @@ const FilterComponent = ({
   handleProvinceChange,
   handleDistrictChange,
   handleTypeChange,
-  handleReputationChange 
+  handleReputationChange
 }) => {
   const [sortValue, setSortValue] = useState("price_per_table-asc");
   const [priceValue, setPriceValue] = useState("all");
@@ -25,19 +26,42 @@ const FilterComponent = ({
     selectedProvince,
     { skip: !selectedProvince }
   );
+  const { data: typesResponse } = useGetAllTypeQuery()
 
+  const formatTypeLabel = (type) => {
+    switch (type) {
+      case "haisan":
+        return "Hải sản";
+      case "lau":
+        return "Lẩu";
+      case "nuong":
+        return "Nướng";
+      case "quannhau":
+        return "Quán nhậu";
+      case "monau":
+        return "Món Âu";
+      default:
+        return type.charAt(0).toUpperCase() + type.slice(1); // fallback: viết hoa chữ đầu
+    }
+  }
+  const restaurantTypes = [
+    { value: "", label: "Tất cả" },
+    ...(typesResponse?.data?.map(type => ({
+      value: type,
+      label: formatTypeLabel(type)
+    })) || [])
+  ];
   const provincesWithDefaultOption = [{ code: "", name: "Khu vực" }, ...provinces];
   const districtsWithDefaultOption = [{ code: "", name: "Khu vực" }, ...districts];
 
-  // Danh sách loại hình nhà hàng
-  const restaurantTypes = [
-    { value: "", label: "Tất cả" },
-    { value: "nuong", label: "Nướng" },
-    { value: "lau", label: "Lẩu" },
-    { value: "haisan", label: "Hải sản" },
-    { value: "quannhau", label: "Quán nhậu" },
-    { value: "món âu", label: "Món Âu" }
-  ];
+  // const restaurantTypes = [
+  //   { value: "", label: "Tất cả" },
+  //   { value: "nuong", label: "Nướng" },
+  //   { value: "lau", label: "Lẩu" },
+  //   { value: "haisan", label: "Hải sản" },
+  //   { value: "quannhau", label: "Quán nhậu" },
+  //   { value: "món âu", label: "Món Âu" }
+  // ];
 
   useEffect(() => {
     setSelectedDistrict("");
@@ -72,7 +96,7 @@ const FilterComponent = ({
     setReputationFilter(value);
     handleReputationChange(value);
   };
-  
+
   const selectClass = "bg-white shadow-md rounded-xl border border-gray-200";
 
 
@@ -90,9 +114,14 @@ const FilterComponent = ({
 
       <Select
         className={selectClass}
-        label="Loại hình" value={selectedType} onChange={handleTypeChangeInternal}>
+        label="Loại hình"
+        value={selectedType}
+        onChange={handleTypeChangeInternal}
+      >
         {restaurantTypes.map((type) => (
-          <Option key={type.value} value={type.value}>{type.label}</Option>
+          <Option key={type.value} value={type.value}>
+            {type.label}
+          </Option>
         ))}
       </Select>
       <Select

@@ -18,8 +18,10 @@ const ShopList = ({
   setDistrictCode,
   setType,
   setReputable,
+  provinceCode,
+  districtCode
 }) => {
-  const { data: suggestedRestaurants = [] } = useGetRestaurantForUserQuery();
+  const { data: suggestedRestaurants = [] } = useGetRestaurantForUserQuery({provinceCode, districtCode});
   const [showModal, setShowModal] = useState(false);
   const [randomRestaurant, setRandomRestaurant] = useState(null);
   const [randomIndex, setRandomIndex] = useState(0);

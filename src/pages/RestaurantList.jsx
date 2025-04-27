@@ -50,6 +50,8 @@ const RestaurantPage = () => {
           setDistrictCode={setDistrictCode}
           setType={setType}
           setReputable = {setReputable}
+          provinceCode={provinceCode}
+          districtCode={districtCode}
         />
       </div>
     </div>

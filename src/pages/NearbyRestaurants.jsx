@@ -29,6 +29,62 @@ const restaurantIcon = new L.Icon({
     popupAnchor: [0, -32],
 });
 
+// Tùy chỉnh giao diện tiếng Việt cho leaflet-routing-machine
+if (L.Routing && L.Routing.Localization) {
+    L.Routing.Localization.vi = {
+        directions: {
+            N: 'Bắc',
+            NE: 'Đông Bắc',
+            E: 'Đông',
+            SE: 'Đông Nam',
+            S: 'Nam',
+            SW: 'Tây Nam',
+            W: 'Tây',
+            NW: 'Tây Bắc',
+            SlightRight: 'Rẽ nhẹ phải',
+            Right: 'Rẽ phải',
+            SharpRight: 'Rẽ phải gắt',
+            SlightLeft: 'Rẽ nhẹ trái',
+            Left: 'Rẽ trái',
+            SharpLeft: 'Rẽ trái gắt',
+            Uturn: 'Quay đầu'
+        },
+        instructions: {
+            // Các hướng dẫn được dịch
+            'Head': 'Đi {dir}',
+            'Continue': 'Tiếp tục {dir}',
+            'TurnAround': 'Quay đầu',
+            'WaypointReached': 'Đã đến điểm dừng',
+            'Roundabout': 'Đi vào vòng xoay và ra ở lối ra thứ {exitStr}',
+            'DestinationReached': 'Đã đến điểm đến',
+            'Fork': 'Tại ngã ba, rẽ {modifier}',
+            'Merge': 'Nhập vào {modifier}',
+            'OnRamp': 'Rẽ {modifier} vào đường nhánh',
+            'OffRamp': 'Rẽ {modifier} ra khỏi đường nhánh',
+            'EndOfRoad': 'Rẽ {modifier} cuối đường',
+            'Onto': 'vào {road}'
+        },
+        ui: {
+            // Các phần tử giao diện người dùng
+            'StartPlaceholder': 'Điểm xuất phát',
+            'ViaPlaceholder': 'Điểm dừng {viaNumber}',
+            'EndPlaceholder': 'Điểm đến',
+            'TravelModePlaceholder': 'Phương tiện',
+            'RoutePlaceholder': 'Tìm đường...',
+            'RouteNumber': 'Lộ trình {number}'
+        },
+        units: {
+            meters: 'm',
+            kilometers: 'km',
+            yards: 'yards',
+            miles: 'miles',
+            hours: 'giờ',
+            minutes: 'phút',
+            seconds: 'giây'  
+        }
+    };
+}
+
 const RoutingMachine = ({ userCoords, restaurantCoords }) => {
     const map = useMap();
     useEffect(() => {
@@ -38,8 +94,36 @@ const RoutingMachine = ({ userCoords, restaurantCoords }) => {
                 L.latLng(userCoords.lat, userCoords.lng),
                 L.latLng(restaurantCoords.lat, restaurantCoords.lng)
             ],
-            routeWhileDragging: true
+            routeWhileDragging: true,
+            language: 'vi', // Sử dụng tiếng Việt
+            showAlternatives: true,
+            formatter: new L.Routing.Formatter({
+                language: 'vi', // Ngôn ngữ cho bộ định dạng
+                units: 'metric' // Sử dụng đơn vị mét thay vì miles
+            }),
+            lineOptions: {
+                styles: [{ color: '#6FA1EC', weight: 4 }],
+                addWaypoints: false,
+                extendToWaypoints: true,
+                missingRouteTolerance: 0
+            },
+            createMarker: function() { return null; } // Ẩn marker mặc định của routing
         }).addTo(map);
+
+        // Tùy chỉnh một số phần tử giao diện sau khi component được render
+        setTimeout(() => {
+            const container = routingControl._container;
+            if (container) {
+                // Thay đổi các nhãn sang tiếng Việt
+                const elements = container.querySelectorAll('.leaflet-routing-alt h2');
+                elements.forEach(el => {
+                    if (el.textContent === 'Route') {
+                        el.textContent = 'Lộ trình';
+                    }
+                });
+            }
+        }, 500);
+
         return () => map.removeControl(routingControl);
     }, [restaurantCoords, map, userCoords]);
     return null;
@@ -133,29 +217,28 @@ const NearbyRestaurants = () => {
 
                     <Typography variant="h6" sx={{ mb: 1 }}>Danh sách nhà hàng</Typography>
                     {restaurants?.data?.map((restaurant) => (
-                            <div key={restaurant?._id} className="w-full flex flex-col gap-6">
+                        <div key={restaurant?._id} className="w-full flex flex-col gap-6">
                             <div
-                            key={restaurant?._id}
-                            className="text-lg font-bold mb-2 text-center cursor-pointer text-blue-600 hover:underline"
-                            onClick={() => handleRestaurantClick(restaurant)}
-                            style={{
-                                padding: '8px 0',
-                                borderBottom: '1px solid #eee',
-                                backgroundColor: selectedRestaurant?.name === restaurant.name ? '#f0f7ff' : 'transparent',
-                                padding: '8px',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            {restaurant?.name}
-                            
-                        </div>
-                        <ProductCard
-                        _id={restaurant?._id}
-                        address={restaurant?.address}
-                        image_url={restaurant?.image_url}
-                        price_per_table={restaurant?.price_per_table}
-                    />
+                                key={restaurant?._id}
+                                className="text-lg font-bold mb-2 text-center cursor-pointer text-blue-600 hover:underline"
+                                onClick={() => handleRestaurantClick(restaurant)}
+                                style={{
+                                    padding: '8px 0',
+                                    borderBottom: '1px solid #eee',
+                                    backgroundColor: selectedRestaurant?.name === restaurant.name ? '#f0f7ff' : 'transparent',
+                                    padding: '8px',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {restaurant?.name}
+                            </div>
+                            <ProductCard
+                                _id={restaurant?._id}
+                                address={restaurant?.address}
+                                image_url={restaurant?.image_url}
+                                price_per_table={restaurant?.price_per_table}
+                            />
                         </div>
                     ))}
                 </Paper>

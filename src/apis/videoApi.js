@@ -31,7 +31,13 @@ export const videoApi = createApi({
         body: formData,
       }),
     }),
-
+    likeVideo: builder.mutation({
+      query: (videoId) => ({
+        url: `/like/${videoId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, { restaurantId }) => [{ type: 'Video', id: restaurantId }],
+    }),
     // API lấy danh sách video theo userId
     getVideosByUserId: builder.query({
       query: ({ page = 1, limit = 6 }) => `/user?page=${page}&limit=${limit}`,
@@ -66,5 +72,6 @@ export const {
   useDeleteVideoMutation,
   useUpdateVideoMutation,
   useGetMostLikedVideoQuery,
+  useLikeVideoMutation
 } = videoApi;
 

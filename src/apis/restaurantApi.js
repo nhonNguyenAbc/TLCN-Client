@@ -11,6 +11,9 @@ export const restaurantApi = createApi({
     getDistrictsByProvince: builder.query({
       query: (provinceCode) => `/districts/${provinceCode}`,
     }),
+    getAllType: builder.query({
+      query: () => '/types',
+    }),
     getAllRestaurants: builder.query({
       query: ({ sort = -1, page = 1, size = 8, field = "rating", searchTerm, priceRange = "all", provinceCode="",districtCode='', type='',reputable }) => ({
         url: "",
@@ -46,6 +49,7 @@ export const restaurantApi = createApi({
       providesTags: ["Restaurant"],
     }),
     getRestaurantById: builder.query({
+     
       query: (id) => ({
         url: `restaurant/${id}`,
         headers: {
@@ -56,8 +60,10 @@ export const restaurantApi = createApi({
       })
     }),
     getRestaurantForUser: builder.query({
-      query: () => ({
+      
+      query: ({ provinceCode="",districtCode=''}) => ({
         url: `suggested-restaurants`,
+        params: {provinceCode, districtCode},
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -160,5 +166,6 @@ export const {
   useGetProvincesQuery,
   useGetRestaurantForUserQuery,
   useGetNearbyRestaurantsQuery,
-  useGetRencentlyRestaurantForUserQuery
+  useGetRencentlyRestaurantForUserQuery,
+  useGetAllTypeQuery
 } = restaurantApi;
