@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { UserIcon } from '@heroicons/react/24/solid'
+import { StarIcon as SolidStar } from "@heroicons/react/24/solid";
+import { StarIcon as OutlineStar } from "@heroicons/react/24/outline";
 import { useNavigate, useParams } from "react-router-dom";
 import "../pages/myswiper.css"
 import {
@@ -353,7 +355,7 @@ const RestaurantDetail = () => {
           <Typography variant="medium" className="text-black">
             {comment.username || "Ẩn danh"}
           </Typography>
-          {comment.user_id === currentUserId && (
+          {/* {comment.user_id === currentUserId && (
             <div className="ml-auto flex items-center space-x-3">
               <PencilIcon
                 className="w-5 h-5 text-gray-500 cursor-pointer"
@@ -367,7 +369,7 @@ const RestaurantDetail = () => {
                 onClick={() => setConfirmDeleteId(comment._id)} // Lưu lại ID để xác nhận xóa
               />
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Nội dung bình luận */}
@@ -398,7 +400,22 @@ const RestaurantDetail = () => {
               </button>
             </div>
           ) : (
-            <Typography variant="medium" className="text-black mb-2">
+            <Typography variant="medium" className=" text-black mb-2 flex-1 gap-1">
+              <div className="flex">
+                {Array.from({ length: 5 }).map((_, index) =>
+                  index < comment.rating ? (
+                    <OutlineStar
+                      key={index}
+                      className="h-5 w-5 stroke-yellow-500 fill-yellow-500 drop-shadow-sm"
+                    />
+                  ) : (
+                    <OutlineStar
+                      key={index}
+                      className="h-5 w-5 stroke-gray-400 fill-white"
+                    />
+                  )
+                )}
+              </div>
               {comment.content}
             </Typography>
           )}
@@ -795,7 +812,7 @@ const RestaurantDetail = () => {
             <Typography variant="h3" color="black" className="ml-6">
               Bình luận đánh giá
             </Typography>
-            
+
             {/* Hiển thị ảnh đã chọn nếu có */}
             <Card className="mt-5 ">
 

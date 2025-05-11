@@ -41,6 +41,8 @@ import { useGetAllPromotionQuery } from "../../apis/promotionApi";
 
 
 const Restaurant = () => {
+  const [sliders, setSliders] = useState([]); // Mảng chứa ảnh đã tải
+
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(!open);
   const navigate = useNavigate();
@@ -71,8 +73,15 @@ const Restaurant = () => {
   const provinceList = Object.values(provinces);
   const [districtList, setDistrictList] = useState([]);
 
-
-
+  const handleAddImage = (imageUrl) => {
+    setSliders([...sliders, imageUrl]);
+  };
+  
+  const handleDeleteImage = (index) => {
+    const newSliders = sliders.filter((_, i) => i !== index);
+    setSliders(newSliders);
+  };
+  
 
   const [name, setName] = React.useState("");
   const [address, setAddress] = useState({
@@ -1100,7 +1109,7 @@ const Restaurant = () => {
                     </Button>
                   </div>
                 )}
-                <div className="grid grid-cols-2 row-span-1 gap-4 mt-4">
+                {/* <div className="grid grid-cols-2 row-span-1 gap-4 mt-4">
                   {slider1 === "" ? (
                     <figure className="my-auto mx-auto h-full w-full">
                       <div className="flex items-center  justify-center h-full w-full my-auto">
@@ -1361,6 +1370,46 @@ const Restaurant = () => {
                     </div>
                   )}
                 </div>
+                 */}
+                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+  {sliders.map((slider, index) => (
+    <div key={index} className="flex justify-between items-center border p-2 rounded-md bg-white">
+      <img
+        src={slider}
+        alt={`slider-${index}`}
+        className="h-[125px] object-cover rounded-md w-[200px]"
+      />
+      <Button
+        onClick={() => handleDeleteImage(index)}
+        color="red"
+        className="ml-2 h-[125px] w-[50px] rounded-l-none p-0 text-center"
+      >
+        Xoá
+      </Button>
+    </div>
+  ))}
+
+  <label
+    htmlFor="slider_upload_multi"
+    className="flex flex-col items-center justify-center h-[125px] w-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+  >
+    <svg
+      className="w-8 h-8 text-gray-500"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span className="text-sm text-gray-500">Thêm ảnh mới</span>
+    <ImageUpload
+      image="slider_upload_multi"
+      setImage={handleAddImage}
+      // Nếu bạn dùng Cloudinary hoặc cần setPublicId thì chỉnh sửa ở đây
+    />
+  </label>
+</div>
+
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <Typography variant="h6" className="my-auto">

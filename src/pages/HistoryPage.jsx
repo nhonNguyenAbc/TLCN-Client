@@ -110,6 +110,7 @@ const HistoryPage = () => {
     const formData = new FormData();
     formData.append("restaurant_id", selectedOrder.restaurantId || selectedOrder.restaurant_id);
     formData.append("content", reviewContent);
+    formData.append("rating", rating);
 
     if (image) {
       formData.append("image", image);
@@ -159,69 +160,83 @@ const HistoryPage = () => {
   if (isError) return <p>Đã xảy ra lỗi khi tải dữ liệu.</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-5">
-      <h1 className="text-2xl font-bold mb-5 text-center">Lịch sử đặt bàn</h1>
+    <div className="max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <h1 className="uppercase text-3xl font-extrabold mb-6 text-center text-gray-800">Lịch sử đặt bàn</h1>
+
       {notification && (
         <div
-          className={`mb-4 p-3 text-white rounded ${notification.isSuccess ? "bg-green-500" : "bg-red-500"
-            } notification-animation`}
+          className={`mb-4 p-4 rounded-lg text-white font-medium ${notification.isSuccess ? "bg-green-500" : "bg-red-500"
+            } notification-animation shadow-lg`}
         >
           {notification.message}
         </div>
       )}
 
       {selectedOrder ? (
-        <div className="bg-white shadow-md rounded p-5 w-full md:w-2/3 lg:w-1/2 mx-auto">
-          <h2 className="text-xl font-bold mb-4">Chi tiết đơn hàng</h2>
-          <p>
-            <strong >Mã đơn:</strong> {selectedOrder.orderCode}
-          </p>
-          <p>
-            <strong>Nhà hàng: </strong> 
-            <span onClick={() => navigate(`/restaurant/${selectedOrder?.restaurant_id}`)}className="text-blue-500 cursor-pointer">{selectedOrder.restaurant}</span>
+        <div className="bg-white shadow-lg rounded-lg px-6 py-5 w-full md:w-2/3 lg:w-2/3 mx-auto">
+          <h2 className="uppercase text-xl font-bold mb-4 text-gray-800">Chi tiết đơn hàng</h2>
+
+          <p className="text-gray-700 mb-2">
+            <strong className=" uppercase text-gray-900">Mã đơn:</strong> {selectedOrder.orderCode}
           </p>
 
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2">#</th>
-                <th className="border border-gray-300 px-4 py-2">Hình ảnh</th>
-                <th className="border border-gray-300 px-4 py-2">Tên món ăn</th>
-                <th className="border border-gray-300 px-4 py-2">Số lượng</th>
-                <th className="border border-gray-300 px-4 py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedOrder.list_menu?.map((item, index) => (
-                <tr key={item._id} className="border border-gray-300">
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    {index + 1}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    <img
-                      className="h-20 w-20"
-                      src={item.image.url}
-                      alt=""
-                    />
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {item.name}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    {item.quantity}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    <button
-                      onClick={() => handleOpen(item)}
-                      className="text-blue-500 underline hover:text-blue-700"
-                    >
-                      Đánh giá
-                    </button>
-                  </td>
+          <p className="text-gray-700 mb-2">
+            <strong className="uppercase text-gray-900">Nhà hàng: </strong>
+            <span
+              onClick={() => navigate(`/restaurant/${selectedOrder?.restaurant_id}`)}
+              className="text-blue-600 cursor-pointer hover:underline"
+            >
+              {selectedOrder.restaurant}
+            </span>
+          </p>
+
+         {selectedOrder?.list_menu?.length >0 && (
+              <table className="w-full border-collapse border border-gray-300 rounded-lg overflow-hidden shadow-md my-4">
+              <thead className="bg-gray-200">
+                <tr>
+                  <th className="border border-gray-300 px-6 py-3 text-left text-sm font-semibold text-gray-700"></th>
+                  <th className="border border-gray-300 px-6 py-3 text-left text-sm font-semibold text-gray-700 w-[120px]">Hình ảnh</th>
+                  <th className="border border-gray-300 px-6 py-3 text-left text-sm font-semibold text-gray-700">Tên món ăn</th>
+                  <th className="border border-gray-300 px-6 py-3 text-left text-sm font-semibold text-gray-700">Số lượng</th>
+                  <th className="border border-gray-300 px-6 py-3 text-center text-sm font-semibold text-gray-700"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {selectedOrder.list_menu?.map((item, index) => (
+                  <tr
+                    key={item._id}
+                    className="border border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                  >
+                    <td className="border border-gray-300 px-6 py-4 text-center text-sm font-medium text-gray-800">
+                      {index + 1}
+                    </td>
+                    <td className="border border-gray-300 px-6 py-4 text-center">
+                      <img
+                        className="h-16 w-16 object-cover rounded-lg shadow-md"
+                        src={item.image.url}
+                        alt={item.name}
+                      />
+                    </td>
+                    <td className="border border-gray-300 px-6 py-4 text-sm font-medium text-gray-800">
+                      {item.name}
+                    </td>
+                    <td className="border border-gray-300 px-6 py-4 text-center text-sm font-medium text-gray-800">
+                      {item.quantity}
+                    </td>
+                    <td className="border border-gray-300 px-6 py-4 text-center">
+                      <button
+                        onClick={() => handleOpen(item)}
+                        className="text-blue-500 hover:text-blue-700 text-sm font-semibold underline transition-all duration-200"
+                      >
+                        Đánh giá
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+         )}
+     
           <DishReviewModal
             open={open}
             handleClose={() => setOpen(false)}
@@ -229,35 +244,38 @@ const HistoryPage = () => {
             onSubmit={handleSubmitReview}
           />
 
-          <p>
-            <strong>Thời gian:</strong>{" "}
-            {new Date(
-              new Date(selectedOrder.checkin).setHours(
-                new Date(selectedOrder.checkin).getHours() - 7
-              )
-            ).toLocaleString("vi-VN")}
-          </p>
+          <div>
+            <p className="text-gray-700 mb-2">
+              <strong className="uppercase text-gray-900">Thời gian:</strong>{" "}
+              {new Date(
+                new Date(selectedOrder.checkin).setHours(
+                  new Date(selectedOrder.checkin).getHours() - 7
+                )
+              ).toLocaleString("vi-VN")}
+            </p>
 
-          <p>
-            <strong>Số người:</strong> {selectedOrder.total_people}
-          </p>
-          <p>
-            <strong>Tổng tiền:</strong>{" "}
-            {selectedOrder.total.toLocaleString("vi-VN")}₫
-          </p>
-          <p>
-            <strong>Trạng thái:</strong>{" "}
-            {selectedOrder.status === "COMPLETED"
-              ? "Hoàn thành"
-              : selectedOrder.status === "PENDING"
-                ? "Đang chờ"
-                : selectedOrder.status === "CANCELLED"
-                  ? "Đã hủy"
-                  : selectedOrder.status === "SUCCESS"
-                    ? "Đặt thành công"
-                    : "Đang nhận bàn"}
-          </p>
+            <p className="text-gray-700 mb-2">
+              <strong className="uppercase text-gray-900">Số người:</strong> {selectedOrder.total_people}
+            </p>
 
+            <p className="text-gray-700 mb-2">
+              <strong className="uppercase text-gray-900">Tổng tiền:</strong>{" "}
+              {selectedOrder.total.toLocaleString("vi-VN")}₫
+            </p>
+
+            <p className="text-gray-700">
+              <strong className="uppercase text-gray-900">Trạng thái:</strong>{" "}
+              {selectedOrder.status === "COMPLETED"
+                ? "Hoàn thành"
+                : selectedOrder.status === "PENDING"
+                  ? "Đang chờ"
+                  : selectedOrder.status === "CANCELLED"
+                    ? "Đã hủy"
+                    : selectedOrder.status === "SUCCESS"
+                      ? "Đặt thành công"
+                      : "Đang nhận bàn"}
+            </p>
+          </div>
           {/* Form 1: Star Rating Form */}
           {showRatingForm && (
             <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
@@ -387,75 +405,89 @@ const HistoryPage = () => {
             </div>
           )}
 
-          <div className="mt-5 flex gap-5">
+          <div className="mt-6 flex flex-wrap gap-4 justify-center">
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-white text-gray-800 font-semibold px-5 py-2 rounded-xl border border-gray-300 shadow transition transform duration-200 hover:shadow-lg hover:-translate-y-0.5"
               onClick={handleCloseDetail}
             >
               Đóng
             </button>
+
+
+
             {selectedOrder.status === "COMPLETED" && selectedOrder.rating === 0 && (
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-5 py-2 rounded-xl shadow transition duration-200"
                 onClick={() => setShowRatingForm(true)}
               >
                 Đánh giá
               </button>
             )}
+
             {selectedOrder.status === "PENDING" && (
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="bg-red-500 text-white font-semibold px-5 py-2 rounded-xl shadow-md transition transform duration-200 hover:bg-red-600 hover:shadow-lg hover:-translate-y-0.5"
                 onClick={() => setShowCancelModal(true)}
               >
-                Hủy
+                Hủy đặt bàn
               </button>
+
             )}
           </div>
+
         </div>
       ) : (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2">Nhà hàng</th>
-              <th className="border border-gray-300 px-4 py-2">Thời gian</th>
-              <th className="border border-gray-300 px-4 py-2">Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.data.map((order) => (
-              <tr
-                key={order.orderCode}
-                className="text-center cursor-pointer hover:bg-gray-100"
-                onClick={() => handleRowClick(order)}
-              >
-                <td className="border border-gray-300 px-4 py-2">
-                  {order.restaurant}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {new Date(order.checkin).toLocaleString("vi-VN")}
-                </td>
-                <td
-                  className={`border border-gray-300 px-4 py-2 ${order.status === "COMPLETED"
-                    ? "text-green-600"
-                    : order.status === "PENDING"
-                      ? "text-yellow-600"
-                      : "text-red-600"
-                    }`}
-                >
-                  {order.status === "COMPLETED"
-                    ? "Hoàn thành"
-                    : order.status === "PENDING"
-                      ? "Đang chờ"
-                      : order.status === "ONHOLD"
-                        ? "Đang nhận bàn"
-                        : order.status === "SUCCESS"
-                          ? "Đặt thành công"
-                          : "Đã hủy"}
-                </td>
+        <div className="overflow-x-auto rounded-xl shadow-md">
+          <table className="w-full text-sm text-left text-gray-700">
+            <thead className="bg-gray-50 uppercase text-gray-600 text-xs">
+              <tr>
+                <th className="px-6 py-3">Nhà hàng</th>
+                <th className="px-6 py-3">Thời gian</th>
+                <th className="px-6 py-3">Trạng thái</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data?.data.map((order) => (
+                <tr
+                  key={order.orderCode}
+                  className="bg-white border-b hover:bg-gray-50 cursor-pointer transition"
+                  onClick={() => handleRowClick(order)}
+                >
+                  <td className="px-6 py-4 font-medium">{order.restaurant}</td>
+                  <td className="px-6 py-4">
+                    {new Date(order.checkin).toLocaleString("vi-VN")}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold
+                      ${order.status === "COMPLETED"
+                          ? "bg-green-100 text-green-700"
+                          : order.status === "PENDING"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : order.status === "ONHOLD"
+                              ? "bg-blue-100 text-blue-700"
+                              : order.status === "SUCCESS"
+                                ? "bg-indigo-100 text-indigo-700"
+                                : "bg-red-100 text-red-700"
+                        }`}
+                    >
+                      {order.status === "COMPLETED"
+                        ? "Hoàn thành"
+                        : order.status === "PENDING"
+                          ? "Đang chờ"
+                          : order.status === "ONHOLD"
+                            ? "Đang nhận bàn"
+                            : order.status === "SUCCESS"
+                              ? "Đặt thành công"
+                              : "Đã hủy"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
       )}
       {data.info.number_of_pages > 1 && (
         <Pagination

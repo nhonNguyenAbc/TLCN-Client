@@ -226,7 +226,6 @@ const NearbyRestaurants = () => {
                                     padding: '8px 0',
                                     borderBottom: '1px solid #eee',
                                     backgroundColor: selectedRestaurant?.name === restaurant.name ? '#f0f7ff' : 'transparent',
-                                    padding: '8px',
                                     borderRadius: '4px',
                                     cursor: 'pointer'
                                 }}

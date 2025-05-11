@@ -19,32 +19,32 @@ function NavList() {
 
   return (
     <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
-      {[
-        { name: "Nhà hàng", path: "/restaurant" },
-        { name: "Khuyến mãi", path: "/restaurants/promotion" },
-        { name: "Review", path: "/restaurants/review" },
-        { name: "Về chúng tôi", path: "/about-us" },
-      ].map((item, index) => {
-        const isActive = location.pathname === item.path;
+    {[
+      { name: "Nhà hàng", path: "/restaurant" },
+      { name: "Khuyến mãi", path: "/restaurants/promotion" },
+      { name: "Review", path: "/restaurants/review" },
+      { name: "Về chúng tôi", path: "/about-us" },
+    ].map((item, index) => {
+      const isActive = location.pathname === item.path;
+  
+      return (
+        <Typography
+          key={index}
+          as="a"
+          href={item.path}
+          variant="h5"
+          color="blue-gray"
+          className={`relative font-medium px-3 py-2 transition-colors text-gray-700
+          ${isActive ? "text-red-600" : ""}
+          `}
+        >
+          <span className="hover:text-red-600">{item.name}</span>
+        </Typography>
+      );
+    })}
+  </List>
+  
 
-        return (
-          <Typography
-            key={index}
-            as="a"
-            href={item.path}
-            variant="h5"
-            color="blue-gray"
-            className={`relative font-medium px-3 py-2 transition-all
-        before:absolute before:bottom-0 before:left-0 before:h-[2px] before:w-0 before:bg-blue-500 before:transition-all before:duration-300
-        hover:text-blue-600 hover:before:w-full 
-        ${isActive ? "text-blue-600 before:w-full" : "text-gray-700"}`}
-          >
-            <ListItem className="flex items-center gap-2">{item.name}</ListItem>
-          </Typography>
-        );
-      })}
-
-    </List>
   );
 }
 
