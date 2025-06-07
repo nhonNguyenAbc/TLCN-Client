@@ -80,7 +80,7 @@ if (L.Routing && L.Routing.Localization) {
             miles: 'miles',
             hours: 'giờ',
             minutes: 'phút',
-            seconds: 'giây'  
+            seconds: 'giây'
         }
     };
 }
@@ -107,7 +107,7 @@ const RoutingMachine = ({ userCoords, restaurantCoords }) => {
                 extendToWaypoints: true,
                 missingRouteTolerance: 0
             },
-            createMarker: function() { return null; } // Ẩn marker mặc định của routing
+            createMarker: function () { return null; } // Ẩn marker mặc định của routing
         }).addTo(map);
 
         // Tùy chỉnh một số phần tử giao diện sau khi component được render
@@ -185,7 +185,9 @@ const NearbyRestaurants = () => {
 
     return (
         <Container maxWidth="lg">
-            <Typography variant="h4" sx={{ mb: 2 }}>Nhà hàng gần đây</Typography>
+            <Typography variant="h5" className="!font-bold !mt-4">
+                Nhà hàng gần đây
+            </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 2, height: '600px' }}>
                 <Paper sx={{ overflowY: 'auto', p: 2 }}>
                     {selectedRestaurant && (
@@ -215,15 +217,14 @@ const NearbyRestaurants = () => {
                         </Box>
                     )}
 
-                    <Typography variant="h6" sx={{ mb: 1 }}>Danh sách nhà hàng</Typography>
+                    {/* <Typography variant="h6" sx={{ mb: 1 }}>Danh sách nhà hàng</Typography> */}
                     {restaurants?.data?.map((restaurant) => (
-                        <div key={restaurant?._id} className="w-full flex flex-col gap-6">
+                        <div key={restaurant?._id} className="w-full flex flex-col">
                             <div
                                 key={restaurant?._id}
-                                className="text-lg font-bold mb-2 text-center cursor-pointer text-blue-600 hover:underline"
+                                className="text-lg font-bold text-center cursor-pointer text-blue-600 hover:underline"
                                 onClick={() => handleRestaurantClick(restaurant)}
                                 style={{
-                                    padding: '8px 0',
                                     borderBottom: '1px solid #eee',
                                     backgroundColor: selectedRestaurant?.name === restaurant.name ? '#f0f7ff' : 'transparent',
                                     borderRadius: '4px',
@@ -232,16 +233,18 @@ const NearbyRestaurants = () => {
                             >
                                 {restaurant?.name}
                             </div>
-                            <ProductCard
-                                _id={restaurant?._id}
-                                address={restaurant?.address}
-                                image_url={restaurant?.image_url}
-                                price_per_table={restaurant?.price_per_table}
-                            />
+                            <div className='mb-4'>
+                                <ProductCard
+                                    _id={restaurant?._id}
+                                    address={restaurant?.address}
+                                    image_url={restaurant?.image_url}
+                                    price_per_table={restaurant?.price_per_table}
+                                />
+                            </div>
                         </div>
                     ))}
                 </Paper>
-                <Box sx={{ height: '100%', width: '100%' }}>
+                <Box sx={{ height: '100%', width: '100%', zIndex: 10, position: "relative" }}>
                     <MapContainer
                         center={[coords.lat, coords.lng]}
                         zoom={13}

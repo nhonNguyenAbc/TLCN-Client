@@ -22,7 +22,7 @@ function NavList() {
     {[
       { name: "Nhà hàng", path: "/restaurant" },
       { name: "Khuyến mãi", path: "/restaurants/promotion" },
-      { name: "Review", path: "/restaurants/review" },
+      { name: "Góc Video", path: "/restaurants/review" },
       { name: "Về chúng tôi", path: "/about-us" },
     ].map((item, index) => {
       const isActive = location.pathname === item.path;
@@ -34,7 +34,7 @@ function NavList() {
           href={item.path}
           variant="h5"
           color="blue-gray"
-          className={`relative font-medium px-3 py-2 transition-colors text-gray-700
+          className={`relative font-bold px-3 py-2 transition-colors text-gray-800
           ${isActive ? "text-red-600" : ""}
           `}
         >

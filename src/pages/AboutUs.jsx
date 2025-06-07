@@ -1,8 +1,20 @@
-import React from "react";
-import { BriefcaseIcon, EyeIcon, UsersIcon, BuildingStorefrontIcon } from '@heroicons/react/24/solid'; // Import icon phù hợp
+import { BriefcaseIcon, EyeIcon, UsersIcon, BuildingStorefrontIcon } from '@heroicons/react/24/solid'; 
 import Loading from "../components/shared/Loading";
+import { useEffect, useState } from 'react';
 
-const About3 = () => {
+const AboutUsPage = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer); 
+  }, []);
+
+  if (loading) return <Loading />;
+
   return (
     <>
      <div className="2xl:container 2xl:mx-auto lg:py-16 lg:px-20 md:py-12 md:px-6 py-9 px-4">
@@ -90,4 +102,4 @@ const About3 = () => {
   );
 };
 
-export default About3;
+export default AboutUsPage;

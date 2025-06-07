@@ -18,8 +18,8 @@ const FilterComponent = ({
   const [priceValue, setPriceValue] = useState("all");
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedType, setSelectedType] = useState(""); // State cho type
-  const [reputationFilter, setReputationFilter] = useState(""); // "", "reputable"
+  const [selectedType, setSelectedType] = useState("");
+  const [reputationFilter, setReputationFilter] = useState("");
 
   const { data: provinces = [], isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: districts = [], isLoading: isDistrictsLoading } = useGetDistrictsByProvinceQuery(
@@ -53,15 +53,6 @@ const FilterComponent = ({
   ];
   const provincesWithDefaultOption = [{ code: "", name: "Khu vực" }, ...provinces];
   const districtsWithDefaultOption = [{ code: "", name: "Khu vực" }, ...districts];
-
-  // const restaurantTypes = [
-  //   { value: "", label: "Tất cả" },
-  //   { value: "nuong", label: "Nướng" },
-  //   { value: "lau", label: "Lẩu" },
-  //   { value: "haisan", label: "Hải sản" },
-  //   { value: "quannhau", label: "Quán nhậu" },
-  //   { value: "món âu", label: "Món Âu" }
-  // ];
 
   useEffect(() => {
     setSelectedDistrict("");
@@ -98,18 +89,20 @@ const FilterComponent = ({
   };
 
   const selectClass = "bg-white shadow-md rounded-xl border border-gray-200";
-
+  const selectWidth = "!min-w-[160px] !w-[160px]"
 
   return (
-    <div className=" flex items-center gap-6 mx-2 mb-4">
+    <div className=" flex flex-wrap items-center gap-6 mx-2 mb-4">
       <Select
         className={selectClass}
         label="Nhà hàng"
         value={reputationFilter}
         onChange={handleReputationChangeInternal}
+        containerProps={{ className: selectWidth }}
       >
         <Option value="">Tất cả</Option>
         <Option value="reputable">Nhà hàng uy tín</Option>
+
       </Select>
 
       <Select
@@ -117,6 +110,7 @@ const FilterComponent = ({
         label="Loại hình"
         value={selectedType}
         onChange={handleTypeChangeInternal}
+        containerProps={{ className: selectWidth }}
       >
         {restaurantTypes.map((type) => (
           <Option key={type.value} value={type.value}>
@@ -126,7 +120,11 @@ const FilterComponent = ({
       </Select>
       <Select
         className={selectClass}
-        label="Giá" value={priceValue} onChange={handlePriceChangeInternal}>
+        label="Giá" 
+        value={priceValue} 
+        onChange={handlePriceChangeInternal}
+        containerProps={{ className: selectWidth }}
+      >
         <Option value="all">Tất cả giá</Option>
         <Option value="under_200k">Dưới 200k</Option>
         <Option value="200k_500k">200k - 500k</Option>
@@ -136,14 +134,23 @@ const FilterComponent = ({
 
       <Select
         className={selectClass}
-        label="Phân loại" value={sortValue} onChange={handleSortChange}>
+        label="Phân loại" 
+        value={sortValue} 
+        onChange={handleSortChange}
+        containerProps={{ className: selectWidth }}
+      >
         <Option value="price_per_table-asc">Giá tăng dần</Option>
         <Option value="price_per_table-desc">Giá giảm dần</Option>
       </Select>
 
       <Select
         className={selectClass}
-        label="Tỉnh/Thành phố" value="" onChange={handleProvinceChangeInternal} disabled={isProvincesLoading}>
+        label="Tỉnh/Thành phố" 
+        value="" 
+        onChange={handleProvinceChangeInternal} 
+        disabled={isProvincesLoading}
+        containerProps={{ className: selectWidth }}
+      >
         {provincesWithDefaultOption.map((province) => (
           <Option key={province.code} value={province.code}>{province.name}</Option>
         ))}
@@ -151,14 +158,16 @@ const FilterComponent = ({
 
       <Select
         className={selectClass}
-        label="Quận/Huyện" value={selectedDistrict} onChange={handleDistrictChangeInternal} disabled={isDistrictsLoading || !selectedProvince}>
+        label="Quận/Huyện" 
+        value={selectedDistrict} 
+        onChange={handleDistrictChangeInternal} 
+        disabled={isDistrictsLoading || !selectedProvince}
+        containerProps={{ className: selectWidth }}
+      >
         {districtsWithDefaultOption.map((district) => (
           <Option key={district.code} value={district.code}>{district.name}</Option>
         ))}
       </Select>
-
-      {/* Dropdown Type */}
-
     </div>
   );
 };

@@ -27,6 +27,7 @@ import { videoApi } from "./apis/videoApi";
 import { commentApi } from "./apis/commentApi";
 import { reviewApi } from "./apis/reviewApi";
 import { dishReviewApi } from "./apis/dishReviewApi";
+import { recommendationApi } from "./apis/recommendationApi";
 
 export const store = configureStore({
   reducer: {
@@ -55,6 +56,9 @@ export const store = configureStore({
     [commentApi.reducerPath]: commentApi.reducer,
     [reviewApi.reducerPath]: reviewApi.reducer,
     [dishReviewApi.reducerPath]: dishReviewApi.reducer,
+    [recommendationApi.reducerPath]: recommendationApi.reducer,
+
+
     search: searchReducer,
 
   },
@@ -72,5 +76,7 @@ export const store = configureStore({
       .concat(commentApi.middleware)
       .concat(reviewApi.middleware)
       .concat(dishReviewApi.middleware)
+      .concat(recommendationApi.middleware)
+
 
 });

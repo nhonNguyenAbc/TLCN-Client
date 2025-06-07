@@ -1,4 +1,3 @@
-
 import {
   Card,
   CardHeader,
@@ -9,34 +8,55 @@ import {
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Rating } from "@mui/material";
-const ProductCard = ({ id, rating, imageUrl, name, distance }) => {
+
+const MenuCard = ({ _id, rating, image, name, restaurant_id }) => {
   const navigate = useNavigate();
+
   return (
     <Card
-      className="mt-6 cursor-pointer"
-      onClick={() => navigate("/restaurant/" + id)}
+      className="cursor-pointer w-full bg-white rounded-2xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl flex flex-col"
+      onClick={() => navigate("/restaurant/" + _id)}
     >
-      <CardHeader color="blue-gray" className="relative h-56">
-        <img src={imageUrl} alt="card-image" className="h -56 max-w-70" />
+      <CardHeader
+        shadow={false}
+        floated={false}
+        className="relative h-48 overflow-hidden rounded-t-2xl">
+        <img
+          src={image?.url}
+          alt={name}
+          className="object-cover w-full h-full rounded-t-lg"
+        />
       </CardHeader>
-      <CardBody className="mx-auto">
-        <Typography variant="h5">{name}</Typography>
-        <Typography color="blue-gray" className=" text-center">
-          {distance} từ vị trí của bạn
+
+      <CardBody className="flex flex-col items-center justify-center px-4">
+        <Typography variant="h6" className="text-center font-semibold line-clamp-1">
+          {name}
+        </Typography>
+        <Typography
+          color="blue-gray"
+          className="text-sm text-center text-gray-600 mt-1 line-clamp-1"
+        >
+          {restaurant_id?.name}
         </Typography>
       </CardBody>
-      <CardFooter className="w-full pt-0 flex items-center justify-around gap-5">
-        <Rating value={rating} color="yellow" readonly />
-      </CardFooter>
+
+      {/* <CardFooter className="flex items-center justify-center pt-0 pb-4">
+        <Rating value={rating} precision={0.1} readOnly />
+      </CardFooter> */}
     </Card>
   );
 };
 
-ProductCard.propTypes = {
-  id: PropTypes.number.isRequired,
+MenuCard.propTypes = {
+  _id: PropTypes.string.isRequired,
   rating: PropTypes.number.isRequired,
-  imageUrl: PropTypes.string.isRequired,
+  image: PropTypes.shape({
+    url: PropTypes.string.isRequired,
+  }).isRequired,
   name: PropTypes.string.isRequired,
-  distance: PropTypes.number.isRequired,
+  restaurant: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+  }).isRequired,
 };
-export default ProductCard;
+
+export default MenuCard;

@@ -164,15 +164,36 @@ export const userApi = createApi({
     getRecommendations: builder.query({
       query: () => 'recommendation',  // Đặt đường dẫn đúng cho API của bạn
     }),
+    toggleFavorite: builder.mutation({
+      query: (restaurantId) => ({
+        url: `/favorites/${restaurantId}`,
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }),
+    }),
+    getFavorites: builder.query({
+      query: () => ({
+        url: '/favorites',
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }),
+    })
   }),
 });
 
-export const { 
-  useGetUserByIdQuery, 
-  useUpdateUserByIdMutation, 
+export const {
+  useGetUserByIdQuery,
+  useUpdateUserByIdMutation,
   useLoginMutation,
   useChangePasswordMutation,
   useLazyGetUserByIdQuery,
-  useSendMessageMutation ,
-  useGetRecommendationsQuery 
+  useSendMessageMutation,
+  useGetRecommendationsQuery,
+  useGetFavoritesQuery,
+  useToggleFavoriteMutation
 } = userApi;

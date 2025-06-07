@@ -9,7 +9,7 @@ const ProfilePage = ({ userId }) => {
   const [changePassword] = useChangePasswordMutation();
   const user = userData?.data;
 
-  const [formType, setFormType] = useState(""); 
+  const [formType, setFormType] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -100,14 +100,13 @@ const ProfilePage = ({ userId }) => {
   return (
     <div className="max-w-lg mx-auto mt-10 p-5 bg-white shadow rounded">
       {notification && (
-  <div
-    className={`mb-4 p-3 text-white rounded ${
-      notification.isSuccess ? "bg-green-500" : "bg-red-500"
-    } notification-animation`}
-  >
-    {notification.message}
-  </div>
-)}
+        <div
+          className={`mb-4 p-3 text-white rounded ${notification.isSuccess ? "bg-green-500" : "bg-red-500"
+            } notification-animation`}
+        >
+          {notification.message}
+        </div>
+      )}
 
       <h1 className="text-2xl font-bold mb-5 text-center">{getTitle()}</h1>
 
@@ -244,23 +243,23 @@ const ProfilePage = ({ userId }) => {
 
           <div className="mt-4 flex justify-end space-x-2">
             <button
-              onClick={() =>setFormType("")}
+              onClick={() => setFormType("")}
               className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleChangePassword}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              >
-                Đổi mật khẩu
-              </button>
-            </div>
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleChangePassword}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Đổi mật khẩu
+            </button>
           </div>
-        )}
-      </div>
-    );
-  };
-  
-  export default ProfilePage;
-  
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProfilePage;
+

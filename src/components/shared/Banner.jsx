@@ -25,6 +25,7 @@ import {
   PowerIcon,
   RocketLaunchIcon,
   Bars2Icon,
+  HeartIcon
 } from "@heroicons/react/24/solid";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -41,18 +42,11 @@ const profileMenuItems = [
     icon: ClipboardDocumentListIcon,
     path: "/history", 
   },
-  // {
-  //   label: "Edit Profile",
-  //   icon: Cog6ToothIcon,
-  // },
-  // {
-  //   label: "Inbox",
-  //   icon: InboxArrowDownIcon,
-  // },
-  // {
-  //   label: "Help",
-  //   icon: LifebuoyIcon,
-  // },
+{
+    label: "Nhà hàng yêu thích",
+    icon: HeartIcon,
+    path: "/favourite-restaurant", 
+  },
   {
     label: "Đăng xuất",
     icon: PowerIcon,
@@ -262,7 +256,7 @@ export function Banner() {
   }, []);
 
   return (
-    <Navbar className="mx-auto max-w-screen-3xl rounded-none p-2 bg-[#F5F5DC]">
+    <Navbar className="mx-auto max-w-screen-3xl rounded-none p-2 bg-[#F5F5DC] ">
       <div className="relative mx-auto flex items-center justify-between text-blue-gray-900">
         <div className="flex items-center">
           <Typography

@@ -75,6 +75,9 @@ export const menuApi = createApi({
         },
       }),
     }),
+    getBestSellingMenuItems: builder.query({
+      query: () => '/bestseller',
+    }),
   }),
 });
 export const {
@@ -87,4 +90,5 @@ export const {
   useGetMenusByUserIdQuery,
   useGetMenuByRestaurantQuery,
   useGetMenuByRestaurantForStaffQuery,
+  useGetBestSellingMenuItemsQuery
 } = menuApi;

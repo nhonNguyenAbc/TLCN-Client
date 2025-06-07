@@ -1,5 +1,5 @@
-//onst RESTAURANT_API = "https://tlcn-server.onrender.com";
-const RESTAURANT_API = "http://localhost:7000";
+const RESTAURANT_API = "https://tlcn-server.onrender.com";
+//const RESTAURANT_API = "http://localhost:7000";
 
 const LOCAL_RESTAURANT_API = "http://localhost:7000";
 const API_ROUTE = {

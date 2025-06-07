@@ -21,8 +21,7 @@ import Table from "../components/shared/Table";
 import { Toast } from "../configs/SweetAlert2";
 import Tablist from "../components/shared/Tablist";
 import CloseIcon from "@mui/icons-material/Close";
-import { useNavigate } from "react-router-dom";
-import { CloudCog } from "lucide-react";
+
 const AdminLayout = ({
   children,
   name,

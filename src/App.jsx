@@ -24,6 +24,7 @@ import ProfilePage from "./pages/ProfilePage";
 import HistoryPage from "./pages/HistoryPage";
 import NearbyRestaurants from "./pages/NearbyRestaurants";
 import ChatComponent from "./components/shared/ChatComponent";
+import FavoriteRestaurants from "./pages/FavorRestaurants";
 
 function App() {
   return (
@@ -35,8 +36,9 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/update-password" element={<UpdatePassPage />} />
           <Route path="register" element={<Registerpage />} />
-          <Route path="profile" element={<ProfilePage />} />
+          {/* <Route path="profile" element={<ProfilePage />} />
           <Route path="history" element={<HistoryPage />} />
+          <Route path="favourite-restaurant" element={<FavoriteRestaurants />} /> */}
           <Route path="restaurant" element={<RestaurantList />} />
           <Route path="restaurants/promotion" element={<PromotionPage />} />
           <Route path="restaurant/:id" element={<RestaurantDetail />} />
@@ -56,6 +58,12 @@ function App() {
         <Route path="/" element={<Layout showFooter={false} />}>
           <Route path="restaurants/review" element={<VideoFeed />} />
         </Route>
+        <Route path="/" element={<Layout showSidebar={true} />}>
+         <Route path="profile" element={<ProfilePage />} />
+          <Route path="history" element={<HistoryPage />} />
+          <Route path="favourite-restaurant" element={<FavoriteRestaurants />} />
+        </Route>
+
         <Route path="/dashboard" element={<Adminpage />} />
         <Route path="/staff" element={<Staffpage />} />
         <Route path="/loginAD" element={<LoginAdmin />} />

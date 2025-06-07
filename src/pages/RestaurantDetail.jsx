@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { UserIcon } from '@heroicons/react/24/solid'
 import { StarIcon as SolidStar } from "@heroicons/react/24/solid";
 import { StarIcon as OutlineStar } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+import { HeartIcon as HeartOutline } from '@heroicons/react/24/outline';
 import { useNavigate, useParams } from "react-router-dom";
 import "../pages/myswiper.css"
 import {
@@ -36,11 +38,35 @@ import { useGetMostLikedVideoQuery } from "../apis/videoApi";
 import { SwiperSlide, Swiper } from "swiper/react";
 import ProductCard from "../components/restaurant/ProductCard";
 import { Autoplay, EffectFade, Pagination as pagination, Navigation } from "swiper/modules";
-import { useGetRecommendationsQuery } from "../apis/userApi";
+import { useGetFavoritesQuery, useGetRecommendationsQuery, useToggleFavoriteMutation } from "../apis/userApi";
 import ScrollToTop from "../components/shared/ScrollToTop";
 
 const RestaurantDetail = () => {
+
+
   const { id } = useParams();
+  const [toggleFavorite] = useToggleFavoriteMutation();
+  const { data: favoriteData } = useGetFavoritesQuery();
+  const [localFavorite, setLocalFavorite] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Đồng bộ local state khi favoriteData thay đổi
+  useEffect(() => {
+    const isFavorited = favoriteData?.favorites?.some(
+      (res) => res._id === id
+    );
+    setLocalFavorite(isFavorited);
+  }, [favoriteData, id]);
+
+  const handleToggleFavorite = async () => {
+    setLocalFavorite((prev) => !prev); // cập nhật tạm thời để phản hồi nhanh
+    try {
+      await toggleFavorite(id).unwrap(); // gọi API
+    } catch (err) {
+      setLocalFavorite((prev) => !prev); // khôi phục nếu lỗi
+      console.error("Toggle favorite failed", err);
+    }
+  };
   const [page, setPage] = useState(1)
   const [menuPage, setMenuPage] = useState(1)
   const [replyTo, setReplyTo] = useState(null);
@@ -77,7 +103,7 @@ const RestaurantDetail = () => {
   const [updateReview] = useUpdateReviewMutation();
   const [deleteReview] = useDeleteReviewMutation();
   const { data: mostVideo } = useGetMostLikedVideoQuery({ restaurantId: id })
-  const [category, setCategory] = useState(''); // State để lưu thể loại chọn
+  const [category, setCategory] = useState('');
 
   const {
     data: menus
@@ -518,11 +544,24 @@ const RestaurantDetail = () => {
       <div className="mb-5"></div>
       <div className="grid grid-cols-3 gap-8 m-4">
 
-        <img
-          src={restaurants.data.restaurant.image_url}
-          className="w-full h-80 object-cover rounded-lg col-span-2"
-          alt="restaurant"
-        />
+        <div className="relative col-span-2">
+          <img
+            src={restaurants.data.restaurant.image_url}
+            className="w-full h-80 object-cover rounded-lg"
+            alt="restaurant"
+          />
+          <button
+            onClick={handleToggleFavorite}
+            className="absolute top-2 right-2 p-1 rounded-full hover:bg-white/30 transition"
+          >
+            {localFavorite ? (
+              <HeartSolid className="w-6 h-6 text-red-500 drop-shadow-lg" />
+            ) : (
+              <HeartOutline className="w-6 h-6 text-white drop-shadow-lg" />
+            )}
+          </button>
+
+        </div>
         <div className="grid grid-cols-2 gap-8">
           <img
             src={restaurants?.data.restaurant.slider1}
@@ -544,7 +583,9 @@ const RestaurantDetail = () => {
             className="h-36 object-cover rounded-lg"
             alt="restaurant"
           />
+
         </div>
+
         {/* <img
         src={restaurants.data.restaurant.image_url}
         className="w-full h-80 object-cover rounded-lg col-span-2"
@@ -703,56 +744,38 @@ const RestaurantDetail = () => {
               </Typography>
 
               {/* Danh sách thể loại */}
-              <div className="my-4">
-                <Typography variant="h6" color="black" className="mb-3">
-                  Lọc theo thể loại
-                </Typography>
-                <div className="flex space-x-4">
-                  <button
-                    onClick={() => handleCategoryClick('')}  // Truyền 'All' hoặc không có thể loại để hiển thị tất cả
-                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-                  >
-                    Tất cả
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('Dish')} // Thay 'Category 1' bằng tên thể loại thực tế
-                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-                  >
-                    Hải sản
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('Beverage')} // Thay 'Category 2' bằng tên thể loại thực tế
-                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-                  >
-                    Món hấp
-                  </button>
-                  <button
-                    onClick={() => handleCategoryClick('Dessert')} // Thay 'Category 2' bằng tên thể loại thực tế
-                    className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-                  >
-                    Món chiên
-                  </button>
-                  {/* Bạn có thể thêm nhiều thể loại tùy theo nhu cầu */}
+               <div className="overflow-x-auto">
+                    <div className="flex items-center border-b border-gray-300 text-sm font-medium text-gray-700">
+                        {[
+                            { label: "Tất cả", value: "" },
+                            { label: "Hải sản", value: "Dish" },
+                            { label: "Món hấp", value: "Beverage" },
+                            { label: "Món chiên", value: "Dessert" },
+                        ].map(({ label, value }, index, array) => (
+                            <div key={value} className="flex items-center">
+                                <button
+                                    onClick={() => handleCategoryClick(value)}
+                                    className={`pb-2 px-2 font-medium transition-all duration-200 ${selectedCategory === value
+                                            ? '!text-red-600 border-b-2 border-red-600'
+                                            : 'text-gray-700 border-b-2 border-transparent hover:text-red-500'
+                                        }`}
+                                >
+                                    {label}
+                                </button>
+
+                                {index !== array.length - 1 && (
+                                    <span className="text-gray-300 px-1">|</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
                 </div>
-              </div>
 
               {/* Danh sách món ăn */}
-              <div className="grid grid-cols-6 my-3">
-                <Typography variant="h6" className="my-auto">
-                  Hình ảnh
-                </Typography>
-                <Typography variant="h6" className="my-auto">
-                  Tên món
-                </Typography>
-                <Typography variant="h6" className="my-auto">
-                  Giá tiền
-                </Typography>
-                <Typography variant="h6" className="my-auto">
-                  Đơn vị
-                </Typography>
-              </div>
+              
 
-              {menus.data.menuItems.map((item) => (
+              {/* {menus.data.menuItems.map((item) => (
                 <div key={item._id} className="grid grid-cols-6 my-8 gap-6">
                   <Typography variant="medium" className="my-auto w-16 h-auto">
                     <img
@@ -791,7 +814,54 @@ const RestaurantDetail = () => {
                     Thêm vào giỏ hàng
                   </Button>
                 </div>
-              ))}
+              ))} */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {menus?.data?.menuItems.map((item) => (
+                        <div
+                            key={item?._id}
+                            className="flex items-center justify-between gap-4 border-b pb-4"
+                        >
+                            {/* Hình ảnh và mô tả bên trái */}
+                            <div
+                                className="flex items-center gap-4 flex-1 cursor-pointer"
+                                onClick={() => handleItemModalClick(item)}
+                            >
+                                <img
+                                    src={item?.image.url}
+                                    alt={item?.name}
+                                    className="h-20 w-20 object-cover rounded-md"
+                                />
+                                <div className="flex flex-col justify-center">
+                                    {restaurants?.data?.restaurant?.promotionDetails.discountValue ? (
+                                        <div className="text-[#FF333a] font-semibold text-md">
+                                            {(item?.price * (1 - promotionValue / 100)).toLocaleString("en-US")} đ{" "}
+                                            <span className="line-through text-sm text-gray-400 ml-1">
+                                                {item?.price.toLocaleString("en-US")} đ
+                                            </span>{" "}
+                                            /{item?.unit}
+                                        </div>
+                                    ) : (
+                                        <div className="text-[#FF333a] font-semibold text-md">
+                                            {item?.price.toLocaleString("en-US")} đ /{item?.unit}
+                                        </div>
+                                    )}
+                                    <p className="text-gray-800 text-sm">{item?.name}</p>
+                                </div>
+                            </div>
+
+                            {/* Nút thêm vào giỏ */}
+                            <Button
+                                variant="outlined"
+                                className="h-10 border-[#FF333a] text-[#FF333a] px-4"
+                                color="red"
+                                onClick={() => handleAddToCart(item)}
+                            >
+                                Thêm vào giỏ
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+
 
               {/* Phân trang */}
               {menus.data.pagination.totalPages > 1 && (
@@ -840,9 +910,9 @@ const RestaurantDetail = () => {
             {reviews && reviews.data.length > 0 && (
               <div className="ml-4">
                 {renderComments(reviews.data)}
-                {reviews.data.totalPages > 1 && (
+                {reviews.info.totalPages > 1 && (
                   <Pagination
-                    page={reviews.data.totalPages}
+                    page={reviews.info.totalPages}
                     active={page}
                     setActive={setPage}
                   />
@@ -868,9 +938,9 @@ const RestaurantDetail = () => {
               }}
               className="w-[90%] mx-auto"
             >
-              {recommendedRestaurant?.map((restaurant) => (
+              {recommendedRestaurant?.data?.map((restaurant) => (
                 <SwiperSlide key={restaurant?.id} className="my-8">
-                  <ProductCard {...restaurant} height={220} />
+                  <ProductCard {...restaurant} />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -918,7 +988,7 @@ const RestaurantDetail = () => {
             >
               {rencentRestaurant?.data?.map((restaurant) => (
                 <SwiperSlide key={restaurant?.id} className="my-8">
-                  <ProductCard {...restaurant} height={220} />
+                  <ProductCard {...restaurant} />
                 </SwiperSlide>
               ))}
             </Swiper>
